@@ -1,11 +1,14 @@
 import './App.css'
+// Importa a página de Login
+import Login from "./pages/Login/Login";
 
+// Componente principal da aplicação
 function App() {
-  return (
-    <div>
-      <h1>Sistema de Ocorrência Escolar</h1>
-    </div>
-  );
+
+  // Retorna a página Login
+  return <Login />;
+
 }
 
+// Exporta o componente App
 export default App;

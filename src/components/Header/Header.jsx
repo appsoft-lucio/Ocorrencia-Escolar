@@ -1,31 +1,32 @@
-// Importa o CSS do componente Header
+// Importa estilos
 import "./Header.css";
 
-// Importa hook para acessar contexto global
+// Importa contexto
 import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
-// Importa o contexto de autenticação
-import { AuthContext } from "../../context/AuthContext.jsx";
-
-// Componente responsável pela barra superior do sistema
 function Header() {
-  // Acessa o usuário logado vindo do contexto global
-  const { user } = useContext(AuthContext);
+  // Pega usuário e logout do contexto
+  const { user, logout } = useContext(AuthContext);
 
   return (
-    // Container principal do header
     <header className="header">
-      {/* Nome fixo do sistema (lado esquerdo) */}
+      {/* Nome do sistema */}
       <div className="header-title">Sistema Escolar</div>
 
-      {/* Área do usuário logado (lado direito) */}
+      {/* Área do usuário */}
       <div className="header-user">
-        {/* Exibe nome do usuário ou fallback caso não esteja logado */}
+        {/* Mostra nome ou visitante */}
         👤 {user ? user.name : "Visitante"}
+        {/* Botão de sair (só aparece se logado) */}
+        {user && (
+          <button onClick={logout} style={{ marginLeft: "10px" }}>
+            Sair
+          </button>
+        )}
       </div>
     </header>
   );
 }
 
-// Exporta o componente
 export default Header;

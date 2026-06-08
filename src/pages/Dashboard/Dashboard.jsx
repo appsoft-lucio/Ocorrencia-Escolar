@@ -1,22 +1,42 @@
 // Importa estilos da página Dashboard
 import "./Dashboard.css";
 
-// Importa componentes usados na página
+// Hooks
+import { useContext } from "react";
+
+// Contexto de autenticação
+import { AuthContext } from "../../context/AuthContext";
+
+// Componentes
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
-import StatsCard from "../../components/Cards/card.jsx";
+import StatsCard from "../../components/Cards/Card";
 
-// Importa dados do dashboard
-import { dashboardData } from "../../data/dashboardData.js";
+// Dados do dashboard
+import { dashboardData } from "../../data/dashboardData";
 
-// Página principal do dashboard
+// Página Dashboard
 function Dashboard() {
+  // Acessa usuário logado
+  const { user } = useContext(AuthContext);
+
+  // ==========================================
+  // 🔐 BLOQUEIO DE ACESSO (proteção de rota)
+  // ==========================================
+  if (!user) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2>Acesso negado</h2>
+        <p>Faça login para continuar.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-container">
-      {/* Menu lateral */}
+      {/* Sidebar lateral */}
       <Sidebar />
 
-      {/* Área principal */}
       <div className="dashboard-main">
         {/* Header superior */}
         <Header />
@@ -24,9 +44,8 @@ function Dashboard() {
         <main className="dashboard-content">
           <h2>Painel Geral</h2>
 
-          {/* Grid de cards */}
           <div className="cards">
-            {/* Mapeia os dados dinamicamente */}
+            {/* Renderização dinâmica dos cards */}
             {dashboardData.map((item, index) => (
               <StatsCard
                 key={index}

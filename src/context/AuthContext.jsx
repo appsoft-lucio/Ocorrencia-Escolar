@@ -1,30 +1,55 @@
-// Importa funções necessárias do React
-import { createContext, useState } from "react";
+// Importa ferramentas do React
+import { createContext, useState, useEffect } from "react";
 
-// Cria o contexto de autenticação (compartilha dados entre componentes)
+// Cria contexto global de autenticação
 export const AuthContext = createContext();
 
-// Provider (envolve a aplicação inteira e fornece dados globais)
+// Provider que envolve toda aplicação
 export function AuthProvider({ children }) {
-  // Estado que guarda o usuário logado
+  // Estado do usuário logado
   const [user, setUser] = useState(null);
 
-  // Função responsável por "logar" o usuário
+  // ==========================================
+  // 🔐 CARREGAR USUÁRIO AO ABRIR A APLICAÇÃO
+  // ==========================================
+  useEffect(() => {
+    // Busca usuário salvo no navegador
+    const savedUser = localStorage.getItem("user");
+
+    // Se existir, transforma de volta em objeto
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  // ==========================================
+  // 🔑 FUNÇÃO DE LOGIN
+  // ==========================================
   function login(name) {
-    // Salva o usuário no estado global
-    setUser({ name });
+    // Cria objeto do usuário
+    const userData = { name };
+
+    // Salva no estado
+    setUser(userData);
+
+    // Salva no navegador (persistência)
+    localStorage.setItem("user", JSON.stringify(userData));
   }
 
-  // Função para "deslogar" o usuário
+  // ==========================================
+  // 🚪 FUNÇÃO DE LOGOUT
+  // ==========================================
   function logout() {
-    // Remove o usuário do estado
+    // Remove do estado
     setUser(null);
+
+    // Remove do navegador
+    localStorage.removeItem("user");
   }
 
   return (
-    // Disponibiliza user, login e logout para toda aplicação
+    // Disponibiliza dados globalmente
     <AuthContext.Provider value={{ user, login, logout }}>
-      {/* Renderiza toda aplicação dentro do provider */}
       {children}
     </AuthContext.Provider>
   );

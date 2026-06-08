@@ -9,58 +9,68 @@ import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 
-// Importa provider de autenticação (estado global do usuário)
+// Importa provider de autenticação (controle global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";
 
-// Importa componente de proteção de rota
+// Importa provider de ocorrências (controle global do CRUD)
+import { OcorrenciaProvider } from "./context/OcorrenciaContext.jsx";
+
+// Importa proteção de rotas (bloqueia acesso sem login)
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 
 // Componente principal da aplicação
 function App() {
   return (
     // ==========================================
-    // CONTEXTO GLOBAL DE AUTENTICAÇÃO
+    // 🔐 CONTEXTO GLOBAL DE AUTENTICAÇÃO
     // ==========================================
     <AuthProvider>
-      {/* ======================================
-        SISTEMA DE ROTAS
-      ====================================== */}
-      <BrowserRouter>
-        <Routes>
-          {/* ======================================
-              🔑 ROTA DE LOGIN (pública)
-          ====================================== */}
-          <Route path="/" element={<Login />} />
+      {/* ==========================================
+          🗂 CONTEXTO GLOBAL DE OCORRÊNCIAS
+          (necessário para Dashboard e CRUD funcionar)
+      ========================================== */}
+      <OcorrenciaProvider>
+        {/* ======================================
+            🌐 SISTEMA DE ROTAS DA APLICAÇÃO
+        ====================================== */}
+        <BrowserRouter>
+          <Routes>
+            {/* ======================================
+                🔑 ROTA PÚBLICA - LOGIN
+            ====================================== */}
+            <Route path="/" element={<Login />} />
 
-          {/* ======================================
-            DASHBOARD (PROTEGIDO)
-          ====================================== */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
+            {/* ======================================
+                📊 DASHBOARD (PROTEGIDO)
+                Só acessa se estiver logado
+            ====================================== */}
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
 
-          {/* ======================================
-              OCORRÊNCIAS (PROTEGIDA)
-              Módulo principal do sistema
-          ====================================== */}
-          <Route
-            path="/ocorrencias"
-            element={
-              <PrivateRoute>
-                <Ocorrencias />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+            {/* ======================================
+                📝 OCORRÊNCIAS (PROTEGIDA)
+                Módulo principal do sistema
+            ====================================== */}
+            <Route
+              path="/ocorrencias"
+              element={
+                <PrivateRoute>
+                  <Ocorrencias />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </OcorrenciaProvider>
     </AuthProvider>
   );
 }
 
-// Exporta o componente principal
+// Exporta componente principal da aplicação
 export default App;

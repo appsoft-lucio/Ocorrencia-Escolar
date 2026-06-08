@@ -1,4 +1,4 @@
-// Importa estilos da página Dashboard
+// Importa estilos
 import "./Dashboard.css";
 
 // Hooks
@@ -7,41 +7,56 @@ import { useContext } from "react";
 // Contexto de autenticação
 import { AuthContext } from "../../context/AuthContext";
 
+// Contexto de ocorrências
+import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+
 // Componentes
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import StatsCard from "../../components/Cards/Card";
 
-// Dados do dashboard
-import { dashboardData } from "../../data/dashboardData";
-
 // Página Dashboard
 function Dashboard() {
-  // Acessa usuário logado
+  // Usuário logado
   const { user } = useContext(AuthContext);
+
+  // Dados de ocorrências
+  const { ocorrencias } = useContext(OcorrenciaContext);
+
+  // Proteção simples (redundância de segurança visual)
+  if (!user) {
+    return <h2>Acesso negado</h2>;
+  }
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar lateral */}
+      {/* Sidebar */}
       <Sidebar />
 
       <div className="dashboard-main">
-        {/* Header superior */}
+        {/* Header */}
         <Header />
 
         <main className="dashboard-content">
           <h2>Painel Geral</h2>
 
           <div className="cards">
-            {/* Renderização dinâmica dos cards */}
-            {dashboardData.map((item, index) => (
-              <StatsCard
-                key={index}
-                title={item.title}
-                value={item.value}
-                icon={item.icon}
-              />
-            ))}
+            {/* =========================
+                CARD DINÂMICO
+            ========================= */}
+            <StatsCard
+              title="Ocorrências"
+              value={ocorrencias.length}
+              icon="📝"
+            />
+
+            <StatsCard
+              title="Total de Registros"
+              value={ocorrencias.length}
+              icon="📊"
+            />
+
+            <StatsCard title="Sistema Ativo" value="Online" icon="🟢" />
           </div>
         </main>
       </div>

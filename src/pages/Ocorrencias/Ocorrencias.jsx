@@ -1,21 +1,42 @@
-// Importa estilos da página
+// =========================
+// ESTILOS DA PÁGINA
+// =========================
 import "./Ocorrencias.css";
 
-// Hooks do React
+// =========================
+// REACT HOOKS
+// =========================
 import { useContext, useState } from "react";
 
-// Contexto de ocorrências
+// =========================
+// NAVEGAÇÃO ENTRE PÁGINAS
+// =========================
+import { useNavigate } from "react-router-dom";
+
+// =========================
+// CONTEXTO GLOBAL DE OCORRÊNCIAS
+// =========================
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
 function Ocorrencias() {
   // =========================
-  // CONTEXTO GLOBAL
+  // CONTEXTO (CRUD GLOBAL)
   // =========================
   const { ocorrencias, addOcorrencia, removeOcorrencia } =
     useContext(OcorrenciaContext);
 
   // =========================
-  // FORMULÁRIO - ESTADOS
+  // NAVEGAÇÃO
+  // =========================
+  const navigate = useNavigate();
+
+  // Voltar para dashboard
+  function handleBack() {
+    navigate("/dashboard");
+  }
+
+  // =========================
+  // ESTADOS DO FORMULÁRIO
   // =========================
   const [turno, setTurno] = useState("");
   const [horario, setHorario] = useState("");
@@ -26,7 +47,7 @@ function Ocorrencias() {
   const [observacao, setObservacao] = useState("");
 
   // =========================
-  // LISTA DE DADOS FIXOS
+  // DISCIPLINAS FIXAS
   // =========================
   const disciplinas = [
     "Português",
@@ -39,6 +60,9 @@ function Ocorrencias() {
     "Artes",
   ];
 
+  // =========================
+  // TIPOS DE OCORRÊNCIA
+  // =========================
   const tiposOcorrencia = [
     "Indisciplina",
     "Atraso",
@@ -50,7 +74,7 @@ function Ocorrencias() {
   ];
 
   // =========================
-  // TOGGLE CHECKBOX
+  // MARCAR / DESMARCAR CHECKBOX
   // =========================
   function handleCheckbox(tipo) {
     if (ocorrenciasTipo.includes(tipo)) {
@@ -66,6 +90,7 @@ function Ocorrencias() {
   function handleSubmit(e) {
     e.preventDefault();
 
+    // validação básica
     if (!aluno || !disciplina || !turno) return;
 
     const novaOcorrencia = {
@@ -76,6 +101,7 @@ function Ocorrencias() {
       disciplina,
       aluno,
 
+      // se marcou "Outro", inclui texto manual
       tipos: ocorrenciasTipo.includes("Outro")
         ? [...ocorrenciasTipo, outro]
         : ocorrenciasTipo,
@@ -85,6 +111,7 @@ function Ocorrencias() {
       data: new Date().toLocaleString(),
     };
 
+    // salva no contexto global
     addOcorrencia(novaOcorrencia);
 
     // limpa formulário
@@ -150,20 +177,20 @@ function Ocorrencias() {
           <div className="checkbox-area">
             {tiposOcorrencia.map((tipo, i) => (
               <label key={i} className="checkbox-item">
-                {/* Checkbox */}
+                {/* checkbox */}
                 <input
                   type="checkbox"
                   checked={ocorrenciasTipo.includes(tipo)}
                   onChange={() => handleCheckbox(tipo)}
                 />
 
-                {/* Texto */}
+                {/* texto */}
                 <span>{tipo}</span>
               </label>
             ))}
           </div>
 
-          {/* OUTRO */}
+          {/* OUTRO TIPO */}
           {ocorrenciasTipo.includes("Outro") && (
             <input
               type="text"
@@ -180,12 +207,21 @@ function Ocorrencias() {
             onChange={(e) => setObservacao(e.target.value)}
           />
 
-          <button type="submit">Salvar</button>
+          {/* BOTÕES */}
+          <div className="btn-group">
+            {/* salvar ocorrência */}
+            <button type="submit">Salvar</button>
+
+            {/* voltar sem salvar */}
+            <button type="button" onClick={handleBack} className="btn-voltar">
+              Voltar
+            </button>
+          </div>
         </form>
       </div>
 
       {/* =========================
-          LISTA
+          LISTA DE OCORRÊNCIAS
       ========================= */}
       <div className="ocorrencias-lista">
         {ocorrencias.map((item) => (

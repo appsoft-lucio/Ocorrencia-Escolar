@@ -1,0 +1,99 @@
+/* =====================================
+   SIDEBAR
+===================================== */
+
+.sidebar {
+
+  width: 260px;
+
+  min-height: 100vh;
+
+  background: #1f2937;
+
+  color: white;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+/* =====================================
+   LOGO
+===================================== */
+
+.sidebar-logo-img {
+
+  width: 180px;
+
+  max-width: 100%;
+
+  height: auto;
+
+  display: block;
+
+  margin: 0 auto;
+}
+
+.sidebar-logo h2 {
+
+  font-size: 1.8rem;
+
+  font-weight: bold;
+}
+
+.sidebar-logo span {
+
+  color: #ff7a00;
+}
+
+/* =====================================
+   MENU
+===================================== */
+
+nav {
+
+  flex: 1;
+}
+
+nav ul {
+
+  list-style: none;
+
+  padding: 20px 0;
+}
+
+nav li {
+
+  padding: 16px 25px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+nav li:hover {
+
+  background: rgba(255,255,255,0.1);
+
+  border-left: 4px solid #ff7a00;
+}
+
+/* =====================================
+   FOOTER
+===================================== */
+
+.sidebar-footer {
+
+  padding: 20px;
+
+  text-align: center;
+
+  border-top: 1px solid rgba(255,255,255,0.1);
+
+  cursor: pointer;
+}
+
+.sidebar-footer:hover {
+
+  color: #ff7a00;
+}

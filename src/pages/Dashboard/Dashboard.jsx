@@ -1,62 +1,88 @@
-// Importa estilos
+// =========================
+// ESTILOS
+// =========================
 import "./Dashboard.css";
 
-// Hooks
+// =========================
+// REACT
+// =========================
 import { useContext } from "react";
 
-// Contexto de autenticação
-import { AuthContext } from "../../context/AuthContext";
+// =========================
+// CONTEXTO DE AUTENTICAÇÃO
+// =========================
+import { AuthContext } from "../../context/AuthContext.jsx";
 
-// Contexto de ocorrências
-import { OcorrenciaContext } from "../../context/OcorrenciaContext";
-
-// Componentes
+// =========================
+// COMPONENTES
+// =========================
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import StatsCard from "../../components/Cards/Card";
 
-// Página Dashboard
+// =========================
+// DADOS
+// =========================
+import { dashboardData } from "../../data/dashboardData";
+
 function Dashboard() {
-  // Usuário logado
+  // =========================
+  // USUÁRIO LOGADO
+  // =========================
   const { user } = useContext(AuthContext);
 
-  // Dados de ocorrências
-  const { ocorrencias } = useContext(OcorrenciaContext);
-
-  // Proteção simples (redundância de segurança visual)
+  // =========================
+  // SEGURANÇA: EVITA TELA BRANCA
+  // =========================
   if (!user) {
-    return <h2>Acesso negado</h2>;
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2>Acessando sistema...</h2>
+        <p>Carregando usuário.</p>
+      </div>
+    );
   }
+
+  // =========================
+  // FILTRO POR PERFIL
+  // =========================
+  // direção vê tudo
+  // professor vê apenas dados dele (futuramente aplicado nas ocorrências)
+  const isDirecao = user.role === "direcao";
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
+      {/* =========================
+          SIDEBAR
+      ========================= */}
       <Sidebar />
 
       <div className="dashboard-main">
-        {/* Header */}
-        <Header />
+        {/* =========================
+            HEADER
+        ========================= */}
+        <Header user={user} />
 
         <main className="dashboard-content">
-          <h2>Painel Geral</h2>
+          {/* =========================
+              BOAS-VINDAS
+          ========================= */}
+          <h2>Bem-vindo, {user?.nome}</h2>
 
+          <p>Perfil: {user?.role === "direcao" ? "Direção" : "Professor"}</p>
+
+          {/* =========================
+              CARDS DO DASHBOARD
+          ========================= */}
           <div className="cards">
-            {/* =========================
-                CARD DINÂMICO
-            ========================= */}
-            <StatsCard
-              title="Ocorrências"
-              value={ocorrencias.length}
-              icon="📝"
-            />
-
-            <StatsCard
-              title="Total de Registros"
-              value={ocorrencias.length}
-              icon="📊"
-            />
-
-            <StatsCard title="Sistema Ativo" value="Online" icon="🟢" />
+            {dashboardData.map((item, index) => (
+              <StatsCard
+                key={index}
+                title={item.title}
+                value={item.value}
+                icon={item.icon}
+              />
+            ))}
           </div>
         </main>
       </div>

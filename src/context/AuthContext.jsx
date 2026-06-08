@@ -1,56 +1,66 @@
-// Importa ferramentas do React para criar contexto e controlar estado
+// =========================
+// IMPORTAÇÕES DO REACT
+// =========================
 import { createContext, useState, useEffect } from "react";
 
-// Cria o contexto global de autenticação
+// =========================
+// CONTEXTO GLOBAL
+// =========================
 export const AuthContext = createContext();
 
-// Provider que envolve toda aplicação
+// =========================
+// PROVIDER GLOBAL
+// =========================
 export function AuthProvider({ children }) {
-  // Estado que armazena o usuário logado
+  // =========================
+  // USUÁRIO LOGADO
+  // =========================
   const [user, setUser] = useState(null);
 
-  // ==========================================
-  // CARREGAR USUÁRIO AO ABRIR A APLICAÇÃO
-  // ==========================================
-  useEffect(() => {
-    // Busca usuário salvo no localStorage
-    const storedUser = localStorage.getItem("user");
-
-    // Se existir, converte de string para objeto e define no estado
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  // ==========================================
-  // FUNÇÃO DE LOGIN
-  // ==========================================
-  function login(name) {
-    // Cria objeto do usuário
-    const userData = { name };
-
-    // Atualiza estado global
+  // =========================
+  // LOGIN
+  // =========================
+  function login(userData) {
     setUser(userData);
-
-    // Salva no localStorage para persistência
     localStorage.setItem("user", JSON.stringify(userData));
   }
 
-  // ==========================================
-  // FUNÇÃO DE LOGOUT
-  // ==========================================
+  // =========================
+  // LOGOUT
+  // =========================
   function logout() {
-    // Remove usuário do estado (desloga imediatamente)
     setUser(null);
-
-    // Remove usuário do localStorage (remove persistência)
     localStorage.removeItem("user");
   }
 
+  // =========================
+  // RECUPERA SESSÃO (REFRESH DA PÁGINA)
+  // =========================
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("user");
+
+      if (saved) {
+        const parsedUser = JSON.parse(saved);
+
+        // validação simples para evitar crash
+        if (parsedUser && parsedUser.nome) {
+          setUser(parsedUser);
+        } else {
+          localStorage.removeItem("user");
+        }
+      }
+    } catch (error) {
+      // se der erro de JSON inválido, limpa tudo
+      console.error("Erro ao recuperar usuário:", error);
+      localStorage.removeItem("user");
+    }
+  }, []);
+
+  // =========================
+  // CONTEXTO GLOBAL
+  // =========================
   return (
-    // ==========================================
-    // DISPONIBILIZA DADOS PARA A APLICAÇÃO
-    // ==========================================
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>

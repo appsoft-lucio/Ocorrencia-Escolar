@@ -1,40 +1,83 @@
+// =========================
+// ESTILOS E ASSETS
+// =========================
 import "./Login.css";
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 
+// =========================
+// REACT
+// =========================
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// =========================
+// CONTEXTO DE AUTENTICAÇÃO
+// =========================
 import { AuthContext } from "../../context/AuthContext.jsx";
 
 function Login() {
+  // =========================
+  // ESTADOS DO FORMULÁRIO
+  // =========================
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
+  // =========================
+  // CONTEXTO + NAVEGAÇÃO
+  // =========================
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Se já estiver logado → vai direto pro dashboard
+  // =========================
+  // REDIRECIONAMENTO SE JÁ LOGADO
+  // =========================
   useEffect(() => {
     if (user) {
       navigate("/dashboard");
     }
-  }, [user]);
+  }, [user, navigate]);
 
+  // =========================
+  // FUNÇÃO DE LOGIN
+  // =========================
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (userName.trim() !== "") {
-      login(userName);
-
-      // redireciona após login
-      navigate("/dashboard");
-    } else {
+    // validação simples
+    if (!userName.trim()) {
       alert("Digite um usuário válido");
+      return;
     }
+
+    // =========================
+    // DEFINIÇÃO DE PERFIL
+    // =========================
+    const role = userName.toLowerCase() === "direcao" ? "direcao" : "professor";
+
+    // =========================
+    // CRIA USUÁRIO
+    // =========================
+    const userData = {
+      id: Date.now(),
+      nome: userName,
+      role: role,
+    };
+
+    // =========================
+    // SALVA NO CONTEXTO
+    // =========================
+    login(userData);
+
+    // ⚠️ IMPORTANTE:
+    // não precisa navigate aqui
+    // o useEffect já faz o redirecionamento
   }
 
   return (
     <div className="login-container">
+      {/* =========================
+          BANNER ESQUERDO
+      ========================= */}
       <div className="login-banner">
         <div className="banner-content">
           <div className="logo-container">
@@ -45,38 +88,45 @@ function Login() {
 
           <p>
             Registre, acompanhe e gerencie ocorrências escolares de forma
-            simples, rápida e organizada.
+            simples e organizada.
           </p>
         </div>
       </div>
 
+      {/* =========================
+          FORMULÁRIO
+      ========================= */}
       <div className="login-card">
         <h2>Bem-vindo</h2>
+
         <p className="subtitle">Faça login para acessar o sistema</p>
 
         <form onSubmit={handleSubmit}>
+          {/* USUÁRIO */}
           <div className="input-group">
             <label>Usuário ou E-mail</label>
 
             <input
+              type="text"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              type="text"
               placeholder="Digite seu usuário"
             />
           </div>
 
+          {/* SENHA (simulado) */}
           <div className="input-group">
             <label>Senha</label>
 
             <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              type="password"
               placeholder="Digite sua senha"
             />
           </div>
 
+          {/* BOTÃO */}
           <button type="submit">Entrar</button>
         </form>
       </div>

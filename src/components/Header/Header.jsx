@@ -5,7 +5,7 @@ import "./Header.css";
 import { useContext } from "react";
 
 // Importa o contexto de autenticação
-import { AuthContext } from "../../Context/AuthContet.jsx";
+import { AuthContext } from "../../context/AuthContext.jsx";
 
 // Componente responsável pela barra superior do sistema
 function Header() {

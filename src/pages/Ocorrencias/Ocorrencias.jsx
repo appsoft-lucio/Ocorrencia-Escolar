@@ -1,39 +1,30 @@
 // =========================
-// ESTILOS DA PÁGINA
+// ESTILOS
 // =========================
 import "./Ocorrencias.css";
 
 // =========================
-// REACT HOOKS
+// REACT
 // =========================
 import { useContext, useState } from "react";
 
 // =========================
-// NAVEGAÇÃO ENTRE PÁGINAS
+// CONTEXTO GLOBAL
 // =========================
-import { useNavigate } from "react-router-dom";
-
-// =========================
-// CONTEXTO GLOBAL DE OCORRÊNCIAS
-// =========================
+import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
 function Ocorrencias() {
   // =========================
-  // CONTEXTO (CRUD GLOBAL)
+  // USUÁRIO LOGADO
+  // =========================
+  const { user } = useContext(AuthContext);
+
+  // =========================
+  // CONTEXTO DE OCORRÊNCIAS
   // =========================
   const { ocorrencias, addOcorrencia, removeOcorrencia } =
     useContext(OcorrenciaContext);
-
-  // =========================
-  // NAVEGAÇÃO
-  // =========================
-  const navigate = useNavigate();
-
-  // Voltar para dashboard
-  function handleBack() {
-    navigate("/dashboard");
-  }
 
   // =========================
   // ESTADOS DO FORMULÁRIO
@@ -47,8 +38,18 @@ function Ocorrencias() {
   const [observacao, setObservacao] = useState("");
 
   // =========================
-  // DISCIPLINAS FIXAS
+  // TIPOS FIXOS
   // =========================
+  const tiposOcorrencia = [
+    "Indisciplina",
+    "Atraso",
+    "Falta de material",
+    "Desrespeito",
+    "Briga",
+    "Uso de celular",
+    "Outro",
+  ];
+
   const disciplinas = [
     "Português",
     "Matemática",
@@ -61,24 +62,11 @@ function Ocorrencias() {
   ];
 
   // =========================
-  // TIPOS DE OCORRÊNCIA
-  // =========================
-  const tiposOcorrencia = [
-    "Indisciplina",
-    "Atraso",
-    "Falta de material",
-    "Desrespeito",
-    "Briga",
-    "Uso de celular",
-    "Outro",
-  ];
-
-  // =========================
-  // MARCAR / DESMARCAR CHECKBOX
+  // TOGGLE CHECKBOX
   // =========================
   function handleCheckbox(tipo) {
     if (ocorrenciasTipo.includes(tipo)) {
-      setOcorrenciasTipo(ocorrenciasTipo.filter((item) => item !== tipo));
+      setOcorrenciasTipo(ocorrenciasTipo.filter((t) => t !== tipo));
     } else {
       setOcorrenciasTipo([...ocorrenciasTipo, tipo]);
     }
@@ -90,18 +78,23 @@ function Ocorrencias() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    // validação básica
-    if (!aluno || !disciplina || !turno) return;
+    if (!aluno || !disciplina || !turno) {
+      alert("Preencha os campos obrigatórios");
+      return;
+    }
 
     const novaOcorrencia = {
       id: Date.now(),
+
+      // 👇 vínculo com usuário
+      professorId: user.id,
+      professorNome: user.nome,
 
       turno,
       horario,
       disciplina,
       aluno,
 
-      // se marcou "Outro", inclui texto manual
       tipos: ocorrenciasTipo.includes("Outro")
         ? [...ocorrenciasTipo, outro]
         : ocorrenciasTipo,
@@ -111,7 +104,6 @@ function Ocorrencias() {
       data: new Date().toLocaleString(),
     };
 
-    // salva no contexto global
     addOcorrencia(novaOcorrencia);
 
     // limpa formulário
@@ -173,24 +165,22 @@ function Ocorrencias() {
             onChange={(e) => setAluno(e.target.value)}
           />
 
-          {/* TIPOS DE OCORRÊNCIA */}
+          {/* TIPOS */}
           <div className="checkbox-area">
             {tiposOcorrencia.map((tipo, i) => (
               <label key={i} className="checkbox-item">
-                {/* checkbox */}
                 <input
                   type="checkbox"
                   checked={ocorrenciasTipo.includes(tipo)}
                   onChange={() => handleCheckbox(tipo)}
                 />
 
-                {/* texto */}
                 <span>{tipo}</span>
               </label>
             ))}
           </div>
 
-          {/* OUTRO TIPO */}
+          {/* OUTRO */}
           {ocorrenciasTipo.includes("Outro") && (
             <input
               type="text"
@@ -207,16 +197,8 @@ function Ocorrencias() {
             onChange={(e) => setObservacao(e.target.value)}
           />
 
-          {/* BOTÕES */}
-          <div className="btn-group">
-            {/* salvar ocorrência */}
-            <button type="submit">Salvar</button>
-
-            {/* voltar sem salvar */}
-            <button type="button" onClick={handleBack} className="btn-voltar">
-              Voltar
-            </button>
-          </div>
+          {/* BOTÃO */}
+          <button type="submit">Salvar</button>
         </form>
       </div>
 
@@ -224,19 +206,31 @@ function Ocorrencias() {
           LISTA DE OCORRÊNCIAS
       ========================= */}
       <div className="ocorrencias-lista">
-        {ocorrencias.map((item) => (
-          <div key={item.id} className="card-ocorrencia">
-            <h3>{item.aluno}</h3>
+        {ocorrencias
+          .filter((item) => {
+            // direção vê tudo
+            if (user.role === "direcao") return true;
 
-            <p>
-              {item.disciplina} - {item.turno} - {item.horario}º aula
-            </p>
+            // professor vê só as dele
+            return item.professorId === user.id;
+          })
+          .map((item) => (
+            <div key={item.id} className="card-ocorrencia">
+              <h3>{item.aluno}</h3>
 
-            <small>{item.data}</small>
+              <p>
+                {item.disciplina} - {item.turno} - {item.horario}º aula
+              </p>
 
-            <button onClick={() => removeOcorrencia(item.id)}>Excluir</button>
-          </div>
-        ))}
+              <small>Criado por: {item.professorNome}</small>
+
+              <br />
+
+              <small>{item.data}</small>
+
+              <button onClick={() => removeOcorrencia(item.id)}>Excluir</button>
+            </div>
+          ))}
       </div>
     </div>
   );

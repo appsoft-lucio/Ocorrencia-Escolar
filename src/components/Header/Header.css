@@ -1,29 +1,69 @@
-/* ================================
-   HEADER (barra superior)
-================================ */
-
+/* ===========================
+   HEADER PRINCIPAL
+=========================== */
 .header {
-  height: 60px; /* altura fixa do header */
-  background: #111827; /* cor de fundo escura */
-  color: white; /* texto branco */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  display: flex; /* layout flexível */
-  justify-content: space-between; /* separa título e usuário */
-  align-items: center; /* centraliza verticalmente */
-
-  padding: 0 20px; /* espaço interno lateral */
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* linha inferior sutil */
+  padding: 12px 20px;
+  background: #1f2937;
+  color: white;
 }
 
-/* Nome do sistema */
+/* ===========================
+   TÍTULO DO SISTEMA
+=========================== */
 .header-title {
+  font-size: 18px;
   font-weight: bold;
 }
 
-/* Caixa do usuário logado */
+/* ===========================
+   ÁREA DO USUÁRIO
+=========================== */
 .header-user {
-  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===========================
+   BOTÃO SAIR
+=========================== */
+.header-user button {
+  background: #ff4d4d;
+  border: none;
+  color: white;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+/* efeito hover */
+.header-user button:hover {
+  background: #e60000;
+}
+
+/* ===========================
+   📱 RESPONSIVIDADE MOBILE
+=========================== */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-user {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-user button {
+    width: 100%;
+    text-align: center;
+  }
 }

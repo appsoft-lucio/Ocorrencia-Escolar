@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 
 // Importa Provider de autenticação
-import { AuthProvider } from "./Context/AuthContet.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 // Componente principal da aplicação
 function App() {

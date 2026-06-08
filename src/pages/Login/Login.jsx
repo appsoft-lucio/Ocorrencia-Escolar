@@ -8,7 +8,7 @@ import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { useState, useContext } from "react";
 
 // Importa contexto de autenticação (login global)
-import { AuthContext } from "../../Context/AuthContet.jsx";
+import { AuthContext } from "../../context/AuthContext.jsx";
 
 // Componente Login
 function Login() {

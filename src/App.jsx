@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Importa páginas do sistema
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
+import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 
 // Importa provider de autenticação (estado global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -18,11 +19,11 @@ import PrivateRoute from "./routes/PrivateRoute.jsx";
 function App() {
   return (
     // ==========================================
-    // 🔐 CONTEXTO GLOBAL DE AUTENTICAÇÃO
+    // CONTEXTO GLOBAL DE AUTENTICAÇÃO
     // ==========================================
     <AuthProvider>
       {/* ======================================
-          🌐 SISTEMA DE ROTAS DA APLICAÇÃO
+        SISTEMA DE ROTAS
       ====================================== */}
       <BrowserRouter>
         <Routes>
@@ -32,14 +33,26 @@ function App() {
           <Route path="/" element={<Login />} />
 
           {/* ======================================
-              🧭 ROTA PROTEGIDA (Dashboard)
-              Só acessa se estiver logado
+            DASHBOARD (PROTEGIDO)
           ====================================== */}
           <Route
             path="/dashboard"
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+
+          {/* ======================================
+              OCORRÊNCIAS (PROTEGIDA)
+              Módulo principal do sistema
+          ====================================== */}
+          <Route
+            path="/ocorrencias"
+            element={
+              <PrivateRoute>
+                <Ocorrencias />
               </PrivateRoute>
             }
           />

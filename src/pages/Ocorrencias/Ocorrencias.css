@@ -1,0 +1,135 @@
+/* =========================
+   CONTAINER PRINCIPAL
+========================= */
+.ocorrencias-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+  background: #f5f6fa;
+  min-height: 100vh;
+}
+
+/* =========================
+   FORMULÁRIO
+========================= */
+.ocorrencias-form {
+  flex: 1;
+  min-width: 300px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ocorrencias-form h2 {
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+/* inputs */
+.ocorrencias-form input,
+.ocorrencias-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+
+  border: 1px solid #ddd;
+  border-radius: 6px;
+
+  font-size: 14px;
+}
+
+.ocorrencias-form textarea {
+  min-height: 100px;
+  resize: none;
+}
+
+/* botão salvar */
+.ocorrencias-form button {
+  width: 100%;
+  padding: 10px;
+
+  background: #1f2937;
+  color: white;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.ocorrencias-form button:hover {
+  background: #374151;
+}
+
+/* =========================
+   LISTA DE OCORRÊNCIAS
+========================= */
+.ocorrencias-lista {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* título da lista */
+.ocorrencias-lista h2 {
+  margin-bottom: 15px;
+}
+
+/* card de ocorrência */
+.card-ocorrencia {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+
+  border-radius: 10px;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-ocorrencia h3 {
+  margin-bottom: 5px;
+}
+
+.card-ocorrencia p {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.card-ocorrencia small {
+  display: block;
+  margin-bottom: 10px;
+  color: gray;
+}
+
+/* botão excluir */
+.card-ocorrencia button {
+  background: #e74c3c;
+  color: white;
+
+  border: none;
+  padding: 6px 10px;
+
+  border-radius: 5px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.card-ocorrencia button:hover {
+  background: #c0392b;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 768px) {
+  .ocorrencias-container {
+    flex-direction: column;
+  }
+}

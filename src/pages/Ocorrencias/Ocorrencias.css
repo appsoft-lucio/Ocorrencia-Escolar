@@ -15,43 +15,108 @@
 ========================= */
 .ocorrencias-form {
   flex: 1;
-  min-width: 300px;
-  background: white;
+  min-width: 320px;
+  background: #fff;
   padding: 20px;
   border-radius: 10px;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .ocorrencias-form h2 {
   margin-bottom: 15px;
   font-size: 18px;
+  color: #1f2937;
 }
 
-/* inputs */
+/* =========================
+   INPUTS / SELECTS / TEXTAREA
+========================= */
 .ocorrencias-form input,
+.ocorrencias-form select,
 .ocorrencias-form textarea {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
+
   margin-bottom: 10px;
 
   border: 1px solid #ddd;
   border-radius: 6px;
 
-  font-size: 14px;
+  font-size: 16px;
+
+  outline: none;
+  transition: 0.2s;
 }
 
+/* foco nos campos */
+.ocorrencias-form input:focus,
+.ocorrencias-form select:focus,
+.ocorrencias-form textarea:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+}
+
+/* textarea */
 .ocorrencias-form textarea {
   min-height: 100px;
   resize: none;
 }
 
-/* botão salvar */
-.ocorrencias-form button {
-  width: 100%;
-  padding: 10px;
+/* =========================
+   CHECKBOX AREA
+========================= */
+.checkbox-area {
+  margin-bottom: 10px;
+}
 
-  background: #1f2937;
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 8px;
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-size: 16px;
+
+  transition: 0.2s;
+}
+
+/* hover */
+.checkbox-item:hover {
+  background: rgba(255, 122, 0, 0.08);
+}
+
+/* checkbox */
+.checkbox-item input {
+  width: 18px;
+  height: 18px;
+
+  accent-color: #ff7a00;
+  cursor: pointer;
+}
+
+/* texto */
+.checkbox-item span {
+  transition: 0.2s;
+}
+
+/* marcado */
+.checkbox-item input:checked + span {
+  color: #ff7a00;
+  font-weight: 600;
+}
+
+/* =========================
+   BOTÃO SALVAR
+========================= */
+.ocorrencias-form button {
+  width: 50%;
+  padding: 12px;
+
+  background: #ff7a00;
   color: white;
 
   border: none;
@@ -59,11 +124,17 @@
 
   cursor: pointer;
 
+  font-size: 16px;
+  font-weight: 600;
+
+  display: block;
+  margin: 15px auto 0 auto;
+
   transition: 0.3s;
 }
 
 .ocorrencias-form button:hover {
-  background: #374151;
+  background: #e66f00;
 }
 
 /* =========================
@@ -71,15 +142,15 @@
 ========================= */
 .ocorrencias-lista {
   flex: 1;
-  min-width: 300px;
+  min-width: 320px;
 }
 
-/* título da lista */
 .ocorrencias-lista h2 {
   margin-bottom: 15px;
+  color: #1f2937;
 }
 
-/* card de ocorrência */
+/* card */
 .card-ocorrencia {
   background: white;
   padding: 15px;
@@ -96,7 +167,6 @@
 
 .card-ocorrencia p {
   font-size: 14px;
-  margin-bottom: 10px;
   color: #444;
 }
 
@@ -108,6 +178,8 @@
 
 /* botão excluir */
 .card-ocorrencia button {
+  margin-top: 10px;
+
   background: #e74c3c;
   color: white;
 
@@ -131,5 +203,9 @@
 @media (max-width: 768px) {
   .ocorrencias-container {
     flex-direction: column;
+  }
+
+  .ocorrencias-form button {
+    width: 100%;
   }
 }

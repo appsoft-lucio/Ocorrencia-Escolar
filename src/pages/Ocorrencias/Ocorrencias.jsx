@@ -1,43 +1,100 @@
 // Importa estilos da página
 import "./Ocorrencias.css";
 
-// Importa hooks do React
+// Hooks do React
 import { useContext, useState } from "react";
 
-// Importa contexto de ocorrências
+// Contexto de ocorrências
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
-// Página de Ocorrências
 function Ocorrencias() {
-  // Acessa dados do contexto
+  // =========================
+  // CONTEXTO GLOBAL
+  // =========================
   const { ocorrencias, addOcorrencia, removeOcorrencia } =
     useContext(OcorrenciaContext);
 
-  // Estado do formulário
-  const [titulo, setTitulo] = useState("");
-  const [descricao, setDescricao] = useState("");
+  // =========================
+  // FORMULÁRIO - ESTADOS
+  // =========================
+  const [turno, setTurno] = useState("");
+  const [horario, setHorario] = useState("");
+  const [disciplina, setDisciplina] = useState("");
+  const [aluno, setAluno] = useState("");
+  const [ocorrenciasTipo, setOcorrenciasTipo] = useState([]);
+  const [outro, setOutro] = useState("");
+  const [observacao, setObservacao] = useState("");
 
-  // Função para salvar ocorrência
+  // =========================
+  // LISTA DE DADOS FIXOS
+  // =========================
+  const disciplinas = [
+    "Português",
+    "Matemática",
+    "História",
+    "Geografia",
+    "Ciências",
+    "Inglês",
+    "Educação Física",
+    "Artes",
+  ];
+
+  const tiposOcorrencia = [
+    "Indisciplina",
+    "Atraso",
+    "Falta de material",
+    "Desrespeito",
+    "Briga",
+    "Uso de celular",
+    "Outro",
+  ];
+
+  // =========================
+  // TOGGLE CHECKBOX
+  // =========================
+  function handleCheckbox(tipo) {
+    if (ocorrenciasTipo.includes(tipo)) {
+      setOcorrenciasTipo(ocorrenciasTipo.filter((item) => item !== tipo));
+    } else {
+      setOcorrenciasTipo([...ocorrenciasTipo, tipo]);
+    }
+  }
+
+  // =========================
+  // SALVAR OCORRÊNCIA
+  // =========================
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Evita envio vazio
-    if (!titulo.trim() || !descricao.trim()) return;
+    if (!aluno || !disciplina || !turno) return;
 
-    // Cria nova ocorrência
     const novaOcorrencia = {
       id: Date.now(),
-      titulo,
-      descricao,
+
+      turno,
+      horario,
+      disciplina,
+      aluno,
+
+      tipos: ocorrenciasTipo.includes("Outro")
+        ? [...ocorrenciasTipo, outro]
+        : ocorrenciasTipo,
+
+      observacao,
+
       data: new Date().toLocaleString(),
     };
 
-    // Adiciona no contexto
     addOcorrencia(novaOcorrencia);
 
-    // Limpa formulário
-    setTitulo("");
-    setDescricao("");
+    // limpa formulário
+    setTurno("");
+    setHorario("");
+    setDisciplina("");
+    setAluno("");
+    setOcorrenciasTipo([]);
+    setOutro("");
+    setObservacao("");
   }
 
   return (
@@ -49,17 +106,78 @@ function Ocorrencias() {
         <h2>Nova Ocorrência</h2>
 
         <form onSubmit={handleSubmit}>
+          {/* TURNO */}
+          <select value={turno} onChange={(e) => setTurno(e.target.value)}>
+            <option value="">Turno</option>
+            <option value="manha">Manhã</option>
+            <option value="tarde">Tarde</option>
+            <option value="noite">Noite</option>
+          </select>
+
+          {/* HORÁRIO */}
+          <select value={horario} onChange={(e) => setHorario(e.target.value)}>
+            <option value="">Horário</option>
+            <option value="1">1º</option>
+            <option value="2">2º</option>
+            <option value="3">3º</option>
+            <option value="4">4º</option>
+            <option value="5">5º</option>
+            <option value="6">6º</option>
+          </select>
+
+          {/* DISCIPLINA */}
+          <select
+            value={disciplina}
+            onChange={(e) => setDisciplina(e.target.value)}
+          >
+            <option value="">Disciplina</option>
+            {disciplinas.map((d, i) => (
+              <option key={i} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+
+          {/* ALUNO */}
           <input
             type="text"
-            placeholder="Título da ocorrência"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
+            placeholder="Nome do aluno"
+            value={aluno}
+            onChange={(e) => setAluno(e.target.value)}
           />
 
+          {/* TIPOS DE OCORRÊNCIA */}
+          <div className="checkbox-area">
+            {tiposOcorrencia.map((tipo, i) => (
+              <label key={i} className="checkbox-item">
+                {/* Checkbox */}
+                <input
+                  type="checkbox"
+                  checked={ocorrenciasTipo.includes(tipo)}
+                  onChange={() => handleCheckbox(tipo)}
+                />
+
+                {/* Texto */}
+                <span>{tipo}</span>
+              </label>
+            ))}
+          </div>
+
+          {/* OUTRO */}
+          {ocorrenciasTipo.includes("Outro") && (
+            <input
+              type="text"
+              placeholder="Descreva outro tipo"
+              value={outro}
+              onChange={(e) => setOutro(e.target.value)}
+            />
+          )}
+
+          {/* OBSERVAÇÃO */}
           <textarea
-            placeholder="Descrição"
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
+            placeholder="Observação"
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
           />
 
           <button type="submit">Salvar</button>
@@ -67,26 +185,22 @@ function Ocorrencias() {
       </div>
 
       {/* =========================
-          LISTA DE OCORRÊNCIAS
+          LISTA
       ========================= */}
       <div className="ocorrencias-lista">
-        <h2>Ocorrências Registradas</h2>
+        {ocorrencias.map((item) => (
+          <div key={item.id} className="card-ocorrencia">
+            <h3>{item.aluno}</h3>
 
-        {ocorrencias.length === 0 ? (
-          <p>Nenhuma ocorrência cadastrada</p>
-        ) : (
-          ocorrencias.map((item) => (
-            <div key={item.id} className="card-ocorrencia">
-              <h3>{item.titulo}</h3>
+            <p>
+              {item.disciplina} - {item.turno} - {item.horario}º aula
+            </p>
 
-              <p>{item.descricao}</p>
+            <small>{item.data}</small>
 
-              <small>{item.data}</small>
-
-              <button onClick={() => removeOcorrencia(item.id)}>Excluir</button>
-            </div>
-          ))
-        )}
+            <button onClick={() => removeOcorrencia(item.id)}>Excluir</button>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -4,56 +4,67 @@ import "./Sidebar.css";
 // Importa logo
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 
-// Importa contexto de autenticação
+// React hooks
 import { useContext } from "react";
+
+// Contexto de autenticação
 import { AuthContext } from "../../context/AuthContext";
 
-// Importa navegação do React Router
-import { useNavigate } from "react-router-dom";
+// React Router
+import { useNavigate, Link } from "react-router-dom";
 
 // Componente Sidebar
 function Sidebar() {
-  // Pega função logout do contexto
+  // Função logout do contexto
   const { logout } = useContext(AuthContext);
 
-  // Navegação entre páginas
+  // Navegação programática
   const navigate = useNavigate();
 
   // Função de logout
   function handleLogout() {
-    // Remove usuário do sistema
-    logout();
-
-    // Redireciona para login
-    navigate("/");
+    logout(); // limpa usuário
+    navigate("/"); // volta para login
   }
 
   return (
-    // Menu lateral
     <aside className="sidebar">
-      {/* Logo da empresa */}
+      {/* LOGO */}
       <div className="sidebar-logo">
         <img src={logo} alt="AppSoft" className="sidebar-logo-img" />
       </div>
 
-      {/* Menu principal */}
+      {/* MENU */}
       <nav>
         <ul>
-          <li>📊 Dashboard</li>
-          <li>📝 Ocorrências</li>
-          <li>👨‍🎓 Alunos</li>
-          <li>👨‍🏫 Professores</li>
-          <li>📈 Relatórios</li>
-          <li>⚙️ Configurações</li>
+          <li>
+            <Link to="/dashboard">📊 Dashboard</Link>
+          </li>
+
+          <li>
+            <Link to="/ocorrencias">📝 Ocorrências</Link>
+          </li>
+
+          <li>
+            <Link to="#">👨‍🎓 Alunos</Link>
+          </li>
+
+          <li>
+            <Link to="#">👨‍🏫 Professores</Link>
+          </li>
+
+          <li>
+            <Link to="#">📈 Relatórios</Link>
+          </li>
+
+          <li>
+            <Link to="#">⚙️ Configurações</Link>
+          </li>
         </ul>
       </nav>
 
-      {/* Rodapé do menu */}
-      <div
-        className="sidebar-footer"
-        onClick={handleLogout}
-        style={{ cursor: "pointer" }}
-      >
+      {/* LOGOUT */}
+      <div className="sidebar-footer" onClick={handleLogout}>
         🚪 Sair
       </div>
     </aside>

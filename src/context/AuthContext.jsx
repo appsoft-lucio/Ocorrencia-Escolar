@@ -1,54 +1,56 @@
-// Importa ferramentas do React
+// Importa ferramentas do React para criar contexto e controlar estado
 import { createContext, useState, useEffect } from "react";
 
-// Cria contexto global de autenticação
+// Cria o contexto global de autenticação
 export const AuthContext = createContext();
 
 // Provider que envolve toda aplicação
 export function AuthProvider({ children }) {
-  // Estado do usuário logado
+  // Estado que armazena o usuário logado
   const [user, setUser] = useState(null);
 
   // ==========================================
-  // 🔐 CARREGAR USUÁRIO AO ABRIR A APLICAÇÃO
+  // CARREGAR USUÁRIO AO ABRIR A APLICAÇÃO
   // ==========================================
   useEffect(() => {
-    // Busca usuário salvo no navegador
-    const savedUser = localStorage.getItem("user");
+    // Busca usuário salvo no localStorage
+    const storedUser = localStorage.getItem("user");
 
-    // Se existir, transforma de volta em objeto
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    // Se existir, converte de string para objeto e define no estado
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
   // ==========================================
-  // 🔑 FUNÇÃO DE LOGIN
+  // FUNÇÃO DE LOGIN
   // ==========================================
   function login(name) {
     // Cria objeto do usuário
     const userData = { name };
 
-    // Salva no estado
+    // Atualiza estado global
     setUser(userData);
 
-    // Salva no navegador (persistência)
+    // Salva no localStorage para persistência
     localStorage.setItem("user", JSON.stringify(userData));
   }
 
   // ==========================================
-  // 🚪 FUNÇÃO DE LOGOUT
+  // FUNÇÃO DE LOGOUT
   // ==========================================
   function logout() {
-    // Remove do estado
+    // Remove usuário do estado (desloga imediatamente)
     setUser(null);
 
-    // Remove do navegador
+    // Remove usuário do localStorage (remove persistência)
     localStorage.removeItem("user");
   }
 
   return (
-    // Disponibiliza dados globalmente
+    // ==========================================
+    // DISPONIBILIZA DADOS PARA A APLICAÇÃO
+    // ==========================================
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>

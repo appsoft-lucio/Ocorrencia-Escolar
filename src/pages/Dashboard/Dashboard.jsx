@@ -20,18 +20,6 @@ function Dashboard() {
   // Acessa usuário logado
   const { user } = useContext(AuthContext);
 
-  // ==========================================
-  // 🔐 BLOQUEIO DE ACESSO (proteção de rota)
-  // ==========================================
-  if (!user) {
-    return (
-      <div style={{ padding: "20px" }}>
-        <h2>Acesso negado</h2>
-        <p>Faça login para continuar.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="dashboard-container">
       {/* Sidebar lateral */}

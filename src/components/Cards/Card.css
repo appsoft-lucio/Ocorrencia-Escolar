@@ -1,0 +1,32 @@
+/* ================================
+   CARD DE INDICADORES
+================================ */
+
+.card {
+  background: #1f2937; /* fundo escuro */
+  color: white; /* texto branco */
+
+  padding: 20px; /* espaço interno */
+  border-radius: 10px; /* bordas arredondadas */
+
+  display: flex; /* layout horizontal */
+  gap: 15px; /* espaço entre ícone e texto */
+
+  min-width: 200px; /* largura mínima do card */
+}
+
+/* Ícone do card */
+.card-icon {
+  font-size: 28px;
+}
+
+/* Área de texto do card */
+.card-info h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.card-info p {
+  margin: 0;
+  opacity: 0.7; /* texto mais suave */
+}

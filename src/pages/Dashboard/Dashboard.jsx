@@ -1,30 +1,45 @@
-// Importa o arquivo de estilos específico da página Dashboard
+// Importa estilos da página Dashboard
 import "./Dashboard.css";
 
-// Importa o componente Sidebar (menu lateral)
+// Importa componentes usados na página
 import Sidebar from "../../components/Sidebar/Sidebar";
+import Header from "../../components/Header/Header";
+import StatsCard from "../../components/Cards/card.jsx";
 
-// Componente da página Dashboard
+// Importa dados do dashboard
+import { dashboardData } from "../../data/dashboardData.js";
+
+// Página principal do dashboard
 function Dashboard() {
   return (
-    // Container principal da página
-
     <div className="dashboard-container">
-      {/*Componente do menu lateral */}
+      {/* Menu lateral */}
       <Sidebar />
 
-      {/* Área principal de conteúdo da dashboard */}
+      {/* Área principal */}
+      <div className="dashboard-main">
+        {/* Header superior */}
+        <Header />
 
-      <main className="dashboard-content">
-        {/* Título principal da página */}
-        <h1>Dashboard</h1>
+        <main className="dashboard-content">
+          <h2>Painel Geral</h2>
 
-        {/* Mensagem de boas-vindas do sistema */}
-        <p>Bem-vindo ao Sistema de Ocorrência Escolar.</p>
-      </main>
+          {/* Grid de cards */}
+          <div className="cards">
+            {/* Mapeia os dados dinamicamente */}
+            {dashboardData.map((item, index) => (
+              <StatsCard
+                key={index}
+                title={item.title}
+                value={item.value}
+                icon={item.icon}
+              />
+            ))}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
 
-// Exporta o componente para ser usado nas rotas ou App
 export default Dashboard;

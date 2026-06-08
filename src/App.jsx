@@ -1,24 +1,23 @@
-import './App.css'
-// Importa a página de Login
-import Login from "./pages/Login/Login";
+// Importa CSS
+import "./App.css";
+
+// Importa páginas principais
+import Dashboard from "./pages/Dashboard/Dashboard.jsx";
+import Login from "./pages/Login/Login.jsx";
+
+// Importa Provider de autenticação
+import { AuthProvider } from "./Context/AuthContet.jsx";
 
 // Componente principal da aplicação
-/*function App() {
-
-  // Retorna a página Login
-  return <Login />;
-
-}
-
-// Exporta o componente App
-export default App;*/
-
-import Dashboard from "./pages/Dashboard/Dashboard";
-
 function App() {
-
-  return <Dashboard />;
-
+  return (
+    // Envolve toda aplicação com o contexto de autenticação
+    <AuthProvider>
+      {/* Página inicial (aqui pode trocar depois com rotas) */}
+      <Dashboard />
+    </AuthProvider>
+  );
 }
 
+// Exporta o App
 export default App;

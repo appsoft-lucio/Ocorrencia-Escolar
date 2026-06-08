@@ -1,15 +1,26 @@
+/* ================================
+   LAYOUT GERAL DA DASHBOARD
+================================ */
+
 .dashboard-container {
-
-  display: flex;
-
-  min-height: 100vh;
+  display: flex; /* sidebar + conteúdo lado a lado */
 }
 
+/* Área principal (sem sidebar) */
+.dashboard-main {
+  flex: 1; /* ocupa todo espaço restante */
+  display: flex;
+  flex-direction: column; /* header em cima, conteúdo embaixo */
+}
+
+/* Conteúdo interno */
 .dashboard-content {
+  padding: 20px;
+}
 
-  flex: 1;
-
-  padding: 30px;
-
-  background: #f5f6fa;
+/* Grid dos cards */
+.cards {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap; /* quebra linha se necessário */
 }

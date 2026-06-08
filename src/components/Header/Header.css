@@ -1,0 +1,29 @@
+/* ================================
+   HEADER (barra superior)
+================================ */
+
+.header {
+  height: 60px; /* altura fixa do header */
+  background: #111827; /* cor de fundo escura */
+  color: white; /* texto branco */
+
+  display: flex; /* layout flexível */
+  justify-content: space-between; /* separa título e usuário */
+  align-items: center; /* centraliza verticalmente */
+
+  padding: 0 20px; /* espaço interno lateral */
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* linha inferior sutil */
+}
+
+/* Nome do sistema */
+.header-title {
+  font-weight: bold;
+}
+
+/* Caixa do usuário logado */
+.header-user {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+}

@@ -1,32 +1,111 @@
-/* ================================
-   CARD DE INDICADORES
-================================ */
+/* ==================================================
+   VARIÁVEIS DE CORES APPSOFT
+================================================== */
+
+:root {
+  /* Azul principal */
+  --cor-primaria: #2563eb;
+
+  /* Laranja */
+  --cor-destaque: #ff7a00;
+
+  /* Fundo escuro */
+  --cor-secundaria: #1f2937;
+
+  /* Branco */
+  --cor-branco: #ffffff;
+
+  /* Texto secundário */
+  --cor-texto-secundario: rgba(255, 255, 255, 0.7);
+
+  /* Sombra */
+  --sombra-card: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================================================
+   CARD
+================================================== */
 
 .card {
-  background: #1f2937; /* fundo escuro */
-  color: white; /* texto branco */
+  /* Fundo do card */
+  background: var(--cor-secundaria);
 
-  padding: 20px; /* espaço interno */
-  border-radius: 10px; /* bordas arredondadas */
+  /* Cor do texto */
+  color: var(--cor-branco);
 
-  display: flex; /* layout horizontal */
-  gap: 15px; /* espaço entre ícone e texto */
+  /* Espaçamento interno */
+  padding: 20px;
 
-  min-width: 200px; /* largura mínima do card */
+  /* Bordas arredondadas */
+  border-radius: 10px;
+
+  /* Layout horizontal */
+  display: flex;
+
+  /* Espaço entre ícone e informações */
+  gap: 15px;
+
+  /* Largura mínima */
+  min-width: 200px;
+
+  /* Centraliza verticalmente */
+  align-items: center;
+
+  /* Sombra */
+  box-shadow: var(--sombra-card);
+
+  /* Animação suave */
+  transition: all 0.3s ease;
 }
 
-/* Ícone do card */
+/* ==================================================
+   HOVER
+================================================== */
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* ==================================================
+   ÍCONE
+================================================== */
+
 .card-icon {
-  font-size: 28px;
+  font-size: 32px;
+
+  color: var(--cor-destaque);
 }
 
-/* Área de texto do card */
+/* ==================================================
+   ÁREA DAS INFORMAÇÕES
+================================================== */
+
+.card-info {
+  display: flex;
+
+  flex-direction: column;
+}
+
+/* ==================================================
+   VALOR PRINCIPAL
+================================================== */
+
 .card-info h3 {
   margin: 0;
-  font-size: 22px;
+
+  font-size: 1.8rem;
+
+  font-weight: bold;
 }
 
+/* ==================================================
+   TÍTULO DO INDICADOR
+================================================== */
+
 .card-info p {
-  margin: 0;
-  opacity: 0.7; /* texto mais suave */
+  margin: 4px 0 0 0;
+
+  color: var(--cor-texto-secundario);
+
+  font-size: 0.95rem;
 }

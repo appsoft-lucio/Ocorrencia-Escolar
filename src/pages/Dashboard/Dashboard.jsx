@@ -25,43 +25,46 @@ import StatsCard from "../../components/Cards/Card";
 // =========================
 import { dashboardData } from "../../data/dashboardData";
 
+function getDashboardData(role) {
+  return dashboardData.filter((item) => {
+    if (role === "direcao") return true;
+    return item.role === "professor" || !item.role;
+  });
+}
+
 function Dashboard() {
   const { user } = useContext(AuthContext);
 
-  // segurança
-  if (!user) return <div>Carregando...</div>;
+  // =========================
+  // LOADING SEGURO
+  // =========================
+  if (!user) {
+    return <div className="loading-screen">Carregando sistema...</div>;
+  }
 
-  // =========================
-  // IDENTIFICA PERFIL
-  // =========================
   const isDirecao = user.role === "direcao";
-
-  // =========================
-  // DADOS FILTRADOS (EXEMPLO)
-  // =========================
-  const dadosFiltrados = isDirecao
-    ? dashboardData
-    : dashboardData.filter((item) => item.role === "professor" || !item.role);
+  const dadosFiltrados = getDashboardData(user.role);
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-layout">
+      {/* SIDEBAR */}
       <Sidebar />
 
+      {/* CONTEÚDO PRINCIPAL */}
       <div className="dashboard-main">
+        {/* HEADER */}
         <Header />
 
+        {/* CONTEÚDO */}
         <main className="dashboard-content">
-          {/* =========================
-              BOAS-VINDAS
-          ========================= */}
-          <h2>Bem-vindo, {user.nome}</h2>
+          {/* BOAS-VINDAS */}
+          <div className="welcome-box">
+            <h2>Bem-vindo, {user.nome}</h2>
+            <p>Perfil: {isDirecao ? "Direção" : "Professor"}</p>
+          </div>
 
-          <p>Perfil: {isDirecao ? "Direção" : "Professor"}</p>
-
-          {/* =========================
-              CARDS DINÂMICOS
-          ========================= */}
-          <div className="cards">
+          {/* CARDS */}
+          <div className="cards-grid">
             {dadosFiltrados.map((item, index) => (
               <StatsCard
                 key={index}

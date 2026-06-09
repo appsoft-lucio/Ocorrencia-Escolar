@@ -1,26 +1,99 @@
 /* ================================
-   LAYOUT GERAL DA DASHBOARD
+   VARIÁVEIS (SEM MUDAR SEU DESIGN)
 ================================ */
 
-.dashboard-container {
-  display: flex; /* sidebar + conteúdo lado a lado */
+:root {
+  --cor-fundo: #ffffff;
+  --cor-texto: #111827;
+  --cor-texto-suave: rgba(17, 24, 39, 0.7);
 }
 
-/* Área principal (sem sidebar) */
-.dashboard-main {
-  flex: 1; /* ocupa todo espaço restante */
+/* ================================
+   LAYOUT PRINCIPAL
+================================ */
+
+.dashboard-layout {
   display: flex;
-  flex-direction: column; /* header em cima, conteúdo embaixo */
+  min-height: 100vh;
+  background: var(--cor-fundo);
 }
 
-/* Conteúdo interno */
+/* ================================
+   ÁREA PRINCIPAL
+================================ */
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================================
+   CONTEÚDO
+================================ */
+
 .dashboard-content {
   padding: 20px;
+  color: var(--cor-texto);
 }
 
-/* Grid dos cards */
-.cards {
+/* ================================
+   BOAS-VINDAS
+================================ */
+
+.welcome-box {
+  margin-bottom: 20px;
+}
+
+.welcome-box h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--cor-texto);
+}
+
+.welcome-box p {
+  margin: 5px 0 0 0;
+  color: var(--cor-texto-suave);
+}
+
+/* ================================
+   LOADING
+================================ */
+
+.loading-screen {
   display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 100vh;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+
+  font-size: 1.2rem;
+}
+
+/* ================================
+   CARDS
+================================ */
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 15px;
-  flex-wrap: wrap; /* quebra linha se necessário */
+}
+
+/* ================================
+   RESPONSIVO
+================================ */
+
+@media (max-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
 }

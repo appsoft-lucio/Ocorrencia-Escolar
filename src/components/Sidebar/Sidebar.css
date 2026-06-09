@@ -1,4 +1,28 @@
 /* =====================================
+   VARIÁVEIS DE CORES APPSOFT
+===================================== */
+
+:root {
+  /* Azul principal */
+  --cor-primaria: #2563eb;
+
+  /* Laranja destaque */
+  --cor-destaque: #ff7a00;
+
+  /* Fundo escuro (Sidebar) */
+  --cor-secundaria: #1f2937;
+
+  /* Branco */
+  --cor-branco: #ffffff;
+
+  /* Hover do menu */
+  --cor-hover: rgba(255, 255, 255, 0.1);
+
+  /* Borda sutil */
+  --cor-borda: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================
    SIDEBAR
 ===================================== */
 
@@ -7,9 +31,9 @@
 
   min-height: 100vh;
 
-  background: #1f2937;
+  background: var(--cor-secundaria);
 
-  color: white;
+  color: var(--cor-branco);
 
   display: flex;
 
@@ -39,7 +63,7 @@
 }
 
 .sidebar-logo span {
-  color: #ff7a00;
+  color: var(--cor-destaque);
 }
 
 /* =====================================
@@ -65,20 +89,23 @@ nav li {
 }
 
 nav li:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--cor-hover);
 
-  border-left: 4px solid #ff7a00;
+  border-left: 4px solid var(--cor-destaque);
 }
 
 .sidebar a {
-  color: white;
+  color: var(--cor-branco);
+
   text-decoration: none;
+
   display: block;
+
   padding: 8px;
 }
 
 .sidebar a:hover {
-  color: #ff7a00;
+  color: var(--cor-destaque);
 }
 
 /* =====================================
@@ -90,11 +117,11 @@ nav li:hover {
 
   text-align: center;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--cor-borda);
 
   cursor: pointer;
 }
 
 .sidebar-footer:hover {
-  color: #ff7a00;
+  color: var(--cor-destaque);
 }

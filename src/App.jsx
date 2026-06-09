@@ -33,7 +33,7 @@ function App() {
         {/* ======================================
             🌐 SISTEMA DE ROTAS DA APLICAÇÃO
         ====================================== */}
-        <BrowserRouter>
+        <BrowserRouter basename="/Ocorrencia-Escolar">
           <Routes>
             {/* ======================================
                 🔑 ROTA PÚBLICA - LOGIN

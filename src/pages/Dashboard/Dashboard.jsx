@@ -9,7 +9,7 @@ import "./Dashboard.css";
 import { useContext } from "react";
 
 // =========================
-// CONTEXTO DE AUTENTICAÇÃO
+// CONTEXTO
 // =========================
 import { AuthContext } from "../../context/AuthContext.jsx";
 
@@ -26,56 +26,43 @@ import StatsCard from "../../components/Cards/Card";
 import { dashboardData } from "../../data/dashboardData";
 
 function Dashboard() {
-  // =========================
-  // USUÁRIO LOGADO
-  // =========================
   const { user } = useContext(AuthContext);
 
-  // =========================
-  // SEGURANÇA: EVITA TELA BRANCA
-  // =========================
-  if (!user) {
-    return (
-      <div style={{ padding: "20px" }}>
-        <h2>Acessando sistema...</h2>
-        <p>Carregando usuário.</p>
-      </div>
-    );
-  }
+  // segurança
+  if (!user) return <div>Carregando...</div>;
 
   // =========================
-  // FILTRO POR PERFIL
+  // IDENTIFICA PERFIL
   // =========================
-  // direção vê tudo
-  // professor vê apenas dados dele (futuramente aplicado nas ocorrências)
   const isDirecao = user.role === "direcao";
+
+  // =========================
+  // DADOS FILTRADOS (EXEMPLO)
+  // =========================
+  const dadosFiltrados = isDirecao
+    ? dashboardData
+    : dashboardData.filter((item) => item.role === "professor" || !item.role);
 
   return (
     <div className="dashboard-container">
-      {/* =========================
-          SIDEBAR
-      ========================= */}
       <Sidebar />
 
       <div className="dashboard-main">
-        {/* =========================
-            HEADER
-        ========================= */}
-        <Header user={user} />
+        <Header />
 
         <main className="dashboard-content">
           {/* =========================
               BOAS-VINDAS
           ========================= */}
-          <h2>Bem-vindo, {user?.nome}</h2>
+          <h2>Bem-vindo, {user.nome}</h2>
 
-          <p>Perfil: {user?.role === "direcao" ? "Direção" : "Professor"}</p>
+          <p>Perfil: {isDirecao ? "Direção" : "Professor"}</p>
 
           {/* =========================
-              CARDS DO DASHBOARD
+              CARDS DINÂMICOS
           ========================= */}
           <div className="cards">
-            {dashboardData.map((item, index) => (
+            {dadosFiltrados.map((item, index) => (
               <StatsCard
                 key={index}
                 title={item.title}

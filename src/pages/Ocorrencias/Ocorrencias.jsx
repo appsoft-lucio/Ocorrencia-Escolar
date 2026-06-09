@@ -7,27 +7,33 @@ import "./Ocorrencias.css";
 // REACT
 // =========================
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // =========================
-// CONTEXTO GLOBAL
+// CONTEXTOS
 // =========================
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
 function Ocorrencias() {
   // =========================
+  // NAVEGAÇÃO
+  // =========================
+  const navigate = useNavigate();
+
+  // =========================
   // USUÁRIO LOGADO
   // =========================
   const { user } = useContext(AuthContext);
 
   // =========================
-  // CONTEXTO DE OCORRÊNCIAS
+  // CONTEXTO OCORRÊNCIAS
   // =========================
   const { ocorrencias, addOcorrencia, removeOcorrencia } =
     useContext(OcorrenciaContext);
 
   // =========================
-  // ESTADOS DO FORMULÁRIO
+  // ESTADOS FORMULÁRIO
   // =========================
   const [turno, setTurno] = useState("");
   const [horario, setHorario] = useState("");
@@ -38,7 +44,7 @@ function Ocorrencias() {
   const [observacao, setObservacao] = useState("");
 
   // =========================
-  // TIPOS FIXOS
+  // DADOS FIXOS
   // =========================
   const tiposOcorrencia = [
     "Indisciplina",
@@ -62,7 +68,7 @@ function Ocorrencias() {
   ];
 
   // =========================
-  // TOGGLE CHECKBOX
+  // CHECKBOX
   // =========================
   function handleCheckbox(tipo) {
     if (ocorrenciasTipo.includes(tipo)) {
@@ -86,7 +92,6 @@ function Ocorrencias() {
     const novaOcorrencia = {
       id: Date.now(),
 
-      // 👇 vínculo com usuário
       professorId: user.id,
       professorNome: user.nome,
 
@@ -106,7 +111,9 @@ function Ocorrencias() {
 
     addOcorrencia(novaOcorrencia);
 
-    // limpa formulário
+    // =========================
+    // LIMPA FORMULÁRIO
+    // =========================
     setTurno("");
     setHorario("");
     setDisciplina("");
@@ -114,6 +121,31 @@ function Ocorrencias() {
     setOcorrenciasTipo([]);
     setOutro("");
     setObservacao("");
+
+    // =========================
+    // FEEDBACK
+    // =========================
+    alert("Ocorrência salva com sucesso!");
+
+    // =========================
+    // TRANSIÇÃO SUAVE
+    // =========================
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 600);
+  }
+
+  // =========================
+  // VOLTAR COM ALERTA
+  // =========================
+  function handleBack() {
+    const confirmar = window.confirm(
+      "Se voltar agora, os dados não salvos serão perdidos. Deseja continuar?",
+    );
+
+    if (confirmar) {
+      navigate("/dashboard");
+    }
   }
 
   return (
@@ -125,7 +157,6 @@ function Ocorrencias() {
         <h2>Nova Ocorrência</h2>
 
         <form onSubmit={handleSubmit}>
-          {/* TURNO */}
           <select value={turno} onChange={(e) => setTurno(e.target.value)}>
             <option value="">Turno</option>
             <option value="manha">Manhã</option>
@@ -133,7 +164,6 @@ function Ocorrencias() {
             <option value="noite">Noite</option>
           </select>
 
-          {/* HORÁRIO */}
           <select value={horario} onChange={(e) => setHorario(e.target.value)}>
             <option value="">Horário</option>
             <option value="1">1º</option>
@@ -144,7 +174,6 @@ function Ocorrencias() {
             <option value="6">6º</option>
           </select>
 
-          {/* DISCIPLINA */}
           <select
             value={disciplina}
             onChange={(e) => setDisciplina(e.target.value)}
@@ -157,7 +186,6 @@ function Ocorrencias() {
             ))}
           </select>
 
-          {/* ALUNO */}
           <input
             type="text"
             placeholder="Nome do aluno"
@@ -165,7 +193,6 @@ function Ocorrencias() {
             onChange={(e) => setAluno(e.target.value)}
           />
 
-          {/* TIPOS */}
           <div className="checkbox-area">
             {tiposOcorrencia.map((tipo, i) => (
               <label key={i} className="checkbox-item">
@@ -180,7 +207,6 @@ function Ocorrencias() {
             ))}
           </div>
 
-          {/* OUTRO */}
           {ocorrenciasTipo.includes("Outro") && (
             <input
               type="text"
@@ -190,28 +216,32 @@ function Ocorrencias() {
             />
           )}
 
-          {/* OBSERVAÇÃO */}
           <textarea
             placeholder="Observação"
             value={observacao}
             onChange={(e) => setObservacao(e.target.value)}
           />
 
-          {/* BOTÃO */}
-          <button type="submit">Salvar</button>
+          {/* =========================
+              BOTÕES
+          ========================= */}
+          <div className="btn-group">
+            <button type="submit">Salvar</button>
+
+            <button type="button" onClick={handleBack} className="btn-voltar">
+              Voltar
+            </button>
+          </div>
         </form>
       </div>
 
       {/* =========================
-          LISTA DE OCORRÊNCIAS
+          LISTA
       ========================= */}
       <div className="ocorrencias-lista">
         {ocorrencias
           .filter((item) => {
-            // direção vê tudo
             if (user.role === "direcao") return true;
-
-            // professor vê só as dele
             return item.professorId === user.id;
           })
           .map((item) => (

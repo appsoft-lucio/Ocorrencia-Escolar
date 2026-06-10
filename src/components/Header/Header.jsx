@@ -10,6 +10,10 @@ import "./Header.css";
 
 import logo from "../../assets/logo-appsoft-orange.png";
 
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+
 // =====================================
 // COMPONENTE HEADER
 // =====================================
@@ -17,7 +21,15 @@ import logo from "../../assets/logo-appsoft-orange.png";
 function Header() {
   // Usuário temporário
   // Futuramente virá do AuthContext
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const usuario = "Administrador";
+
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
 
   return (
     <header className="header">
@@ -34,7 +46,7 @@ function Header() {
       <div className="header-user">
         <span>👤 {usuario}</span>
 
-        <button>Sair</button>
+        <button onClick={handleLogout}>Sair</button>
       </div>
     </header>
   );

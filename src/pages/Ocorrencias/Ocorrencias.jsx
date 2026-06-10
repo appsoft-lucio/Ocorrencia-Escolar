@@ -42,15 +42,16 @@ function Ocorrencias() {
   const [turno, setTurno] = useState("");
   const [horario, setHorario] = useState("");
   const [disciplina, setDisciplina] = useState("");
+  const [turma, setTurma] = useState("");
 
   // =========================
-  // ALUNOS (MÚLTIPLOS)
+  // ALUNOS
   // =========================
   const [alunos, setAlunos] = useState([]);
   const [alunoInput, setAlunoInput] = useState("");
 
   // =========================
-  // TIPOS DE OCORRÊNCIA
+  // TIPOS OCORRÊNCIA
   // =========================
   const [ocorrenciasTipo, setOcorrenciasTipo] = useState([]);
   const [outro, setOutro] = useState("");
@@ -61,7 +62,7 @@ function Ocorrencias() {
   const [observacao, setObservacao] = useState("");
 
   // =========================
-  // DADOS FIXOS
+  // FIXOS
   // =========================
   const tiposOcorrencia = [
     "Indisciplina",
@@ -84,19 +85,54 @@ function Ocorrencias() {
     "Artes",
   ];
 
+  const turmas = [
+    "101",
+    "102",
+    "103",
+    "201",
+    "202",
+    "203",
+    "301",
+    "302",
+    "303",
+    "401",
+    "402",
+    "403",
+    "501",
+    "502",
+    "503",
+    "601",
+    "602",
+    "603",
+    "701",
+    "702",
+    "703",
+    "801",
+    "802",
+    "803",
+    "901",
+    "902",
+    "903",
+    "1001",
+    "1002",
+    "1003",
+    "2001",
+    "2002",
+    "2003",
+    "3001",
+    "3002",
+    "3003",
+  ];
+
   // =========================
-  // ADICIONAR ALUNO
+  // ALUNO
   // =========================
   function adicionarAluno() {
     if (!alunoInput.trim()) return;
-
     setAlunos([...alunos, alunoInput.trim()]);
     setAlunoInput("");
   }
 
-  // =========================
-  // REMOVER ALUNO
-  // =========================
   function removerAluno(nome) {
     setAlunos(alunos.filter((a) => a !== nome));
   }
@@ -113,12 +149,12 @@ function Ocorrencias() {
   }
 
   // =========================
-  // SALVAR OCORRÊNCIA
+  // SALVAR
   // =========================
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (alunos.length === 0 || !disciplina || !turno) {
+    if (!alunos.length || !disciplina || !turno || !turma) {
       alert("Preencha os campos obrigatórios");
       return;
     }
@@ -132,8 +168,8 @@ function Ocorrencias() {
       turno,
       horario,
       disciplina,
+      turma,
 
-      // múltiplos alunos
       alunos,
 
       tipos: ocorrenciasTipo.includes("Outro")
@@ -143,17 +179,16 @@ function Ocorrencias() {
       observacao,
 
       data: new Date().toLocaleString(),
-
       status: "Aberta",
       resolvidoPor: null,
     };
 
     addOcorrencia(novaOcorrencia);
 
-    // limpa formulário
     setTurno("");
     setHorario("");
     setDisciplina("");
+    setTurma("");
     setAlunos([]);
     setAlunoInput("");
     setOcorrenciasTipo([]);
@@ -164,7 +199,7 @@ function Ocorrencias() {
   }
 
   // =========================
-  // VOLTAR COM CONFIRMAÇÃO
+  // VOLTAR
   // =========================
   function handleBack() {
     const confirmar = window.confirm(
@@ -178,14 +213,11 @@ function Ocorrencias() {
 
   return (
     <div className="ocorrencias-container">
-      {/* =========================
-          FORMULÁRIO
-      ========================= */}
+      {/* ========================= FORM ========================= */}
       <div className="ocorrencias-form">
         <h2>Nova Ocorrência</h2>
 
         <form onSubmit={handleSubmit}>
-          {/* TURNO */}
           <select value={turno} onChange={(e) => setTurno(e.target.value)}>
             <option value="">Turno</option>
             <option value="manha">Manhã</option>
@@ -193,7 +225,6 @@ function Ocorrencias() {
             <option value="noite">Noite</option>
           </select>
 
-          {/* HORÁRIO */}
           <select value={horario} onChange={(e) => setHorario(e.target.value)}>
             <option value="">Horário</option>
             <option value="1">1º</option>
@@ -204,40 +235,39 @@ function Ocorrencias() {
             <option value="6">6º</option>
           </select>
 
-          {/* DISCIPLINA */}
           <select
             value={disciplina}
             onChange={(e) => setDisciplina(e.target.value)}
           >
             <option value="">Disciplina</option>
             {disciplinas.map((d, i) => (
-              <option key={i} value={d}>
-                {d}
-              </option>
+              <option key={i}>{d}</option>
             ))}
           </select>
 
-          {/* =========================
-              ALUNOS
-          ========================= */}
+          <select value={turma} onChange={(e) => setTurma(e.target.value)}>
+            <option value="">Turma</option>
+            {turmas.map((t) => (
+              <option key={t}>{t}</option>
+            ))}
+          </select>
+
+          {/* alunos */}
           <div className="aluno-box">
             <input
-              type="text"
-              placeholder="Nome do aluno"
               value={alunoInput}
               onChange={(e) => setAlunoInput(e.target.value)}
+              placeholder="Aluno"
             />
-
             <button type="button" onClick={adicionarAluno}>
               Adicionar
             </button>
           </div>
 
-          {/* LISTA DE ALUNOS */}
           <div className="lista-alunos">
             {alunos.map((a, i) => (
-              <div key={i} className="aluno-item">
-                <span>{a}</span>
+              <div key={i}>
+                {a}
                 <button type="button" onClick={() => removerAluno(a)}>
                   x
                 </button>
@@ -245,121 +275,79 @@ function Ocorrencias() {
             ))}
           </div>
 
-          {/* TIPOS */}
-          <div className="checkbox-area">
-            {tiposOcorrencia.map((tipo, i) => (
-              <label key={i} className="checkbox-item">
+          {/* tipos */}
+          <div>
+            {tiposOcorrencia.map((t) => (
+              <label key={t}>
                 <input
                   type="checkbox"
-                  checked={ocorrenciasTipo.includes(tipo)}
-                  onChange={() => handleCheckbox(tipo)}
+                  checked={ocorrenciasTipo.includes(t)}
+                  onChange={() => handleCheckbox(t)}
                 />
-                <span>{tipo}</span>
+                {t}
               </label>
             ))}
           </div>
 
-          {/* OUTRO */}
           {ocorrenciasTipo.includes("Outro") && (
             <input
-              type="text"
-              placeholder="Descreva outro tipo"
               value={outro}
               onChange={(e) => setOutro(e.target.value)}
+              placeholder="Outro tipo"
             />
           )}
 
-          {/* OBSERVAÇÃO */}
           <textarea
-            placeholder="Observação"
             value={observacao}
             onChange={(e) => setObservacao(e.target.value)}
+            placeholder="Observação"
           />
 
-          {/* =========================
-              BOTÕES
-          ========================= */}
-          <div className="btn-group">
-            <button type="submit">Salvar</button>
-
-            <button type="button" onClick={handleBack} className="btn-voltar">
-              Voltar
-            </button>
-          </div>
+          <button type="submit">Salvar</button>
+          <button type="button" onClick={handleBack}>
+            Voltar
+          </button>
         </form>
       </div>
 
-      {/* =========================
-          LISTA (1 CARD POR ALUNO)
-      ========================= */}
-      {/* =========================
-    LISTA (1 CARD POR ALUNO)
-========================= */}
+      {/* ========================= LISTA ========================= */}
       <div className="ocorrencias-lista">
         {ocorrencias
-          .filter((item) => {
-            // direção vê tudo
-            if (user.role === "direcao") return true;
-
-            // professor vê só o dele
-            return item.professorId === user.id;
-          })
+          .filter(
+            (item) => user.role === "direcao" || item.professorId === user.id,
+          )
           .flatMap((item) =>
             item.alunos.map((aluno, index) => (
               <div key={`${item.id}-${index}`} className="card-ocorrencia">
-                {/* =========================
-              ALUNO
-          ========================= */}
                 <h3>{aluno}</h3>
 
-                {/* =========================
-              DADOS DA OCORRÊNCIA
-          ========================= */}
+                <p>
+                  <strong>Turma:</strong> {item.turma}
+                </p>
+
                 <p>
                   {item.disciplina} - {item.turno} - {item.horario}º aula
                 </p>
 
-                {/* =========================
-              TIPO DA OCORRÊNCIA
-          ========================= */}
                 <p>
-                  <strong>Tipo:</strong>{" "}
-                  {item.tipos && item.tipos.length > 0
-                    ? item.tipos.join(", ")
-                    : "Não informado"}
+                  <strong>Tipos:</strong>{" "}
+                  {item.tipos?.join(", ") || "Não informado"}
                 </p>
 
-                {/* =========================
-              OBSERVAÇÃO (OPCIONAL)
-          ========================= */}
-                {item.observacao && item.observacao.trim() !== "" && (
+                {item.observacao && (
                   <p>
-                    <strong>Observação:</strong> {item.observacao}
+                    <strong>Obs:</strong> {item.observacao}
                   </p>
                 )}
 
-                {/* =========================
-              PROFESSOR
-          ========================= */}
-                <small>Criado por: {item.professorNome}</small>
-
+                <small>{item.professorNome}</small>
                 <br />
-
-                {/* =========================
-              DATA
-          ========================= */}
                 <small>{item.data}</small>
 
-                {/* =========================
-              STATUS
-          ========================= */}
                 <p>
                   Status: <strong>{item.status}</strong>
                 </p>
 
-                {/* =========================
-              BOTÃO EXCLUIR
-          ========================= */}
                 <button onClick={() => removeOcorrencia(item.id)}>
                   Excluir
                 </button>

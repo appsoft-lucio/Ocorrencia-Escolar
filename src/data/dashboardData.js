@@ -3,6 +3,17 @@
 
 export const dashboardData = [
   {
+    title: "Turnos",
+    value: 3,
+    icon: "👨‍🎓",
+  },
+
+  {
+    title: "Turmas",
+    value: 36,
+    icon: "👨‍🎓",
+  },
+  {
     title: "Alunos",
     value: 120,
     icon: "👨‍🎓",

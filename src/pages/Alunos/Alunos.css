@@ -1,0 +1,39 @@
+/* =========================
+   VARIÁVEIS DO SISTEMA
+========================= */
+
+:root {
+  /* CORES PRINCIPAIS */
+  --cor-principal: #ff7a00;
+  --cor-principal-hover: #e66f00;
+  --cor-secundaria: #1f2937;
+
+  /* FUNDOS */
+  --cor-fundo: #f5f6fa;
+  --cor-card: #ffffff;
+
+  /* TEXTOS */
+  --cor-texto: #444;
+  --cor-texto-secundario: #6b7280;
+  --cor-texto-titulo: #1f2937;
+  --cor-texto-forte: #111827;
+
+  /* BORDAS */
+  --cor-borda: #dcdcdc;
+
+  /* STATUS */
+  --cor-sucesso: #22c55e;
+  --cor-erro: #ef4444;
+  --cor-alerta: #f59e0b;
+
+  /* SOMBRAS */
+  --sombra-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --sombra-hover: 0 8px 18px rgba(0, 0, 0, 0.12);
+
+  /* RAIOS */
+  --radius: 12px;
+  --radius-small: 8px;
+
+  /* TRANSIÇÃO */
+  --transition: 0.25s;
+}

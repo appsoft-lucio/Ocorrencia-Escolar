@@ -33,5 +33,5 @@ export default defineConfig({
   // Isso faz a página aparecer em branco devido ao erro de carregamento.
   //
   // O valor deve ser exatamente o nome do repositório entre barras.
-  base: "/Ocorrencia-Escolar/",
+  base: process.env.NODE_ENV === "production" ? "/Ocorrencia-Escolar/" : "/",
 });

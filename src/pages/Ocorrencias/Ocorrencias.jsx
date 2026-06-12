@@ -1,27 +1,13 @@
-// =========================
-// ESTILOS
-// =========================
 import "./Ocorrencias.css";
 
-// =========================
-// REACT
-// =========================
-import { useContext, useState } from "react";
-
-// =========================
-// NAVEGAÇÃO
-// =========================
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// =========================
-// CONTEXTOS
-// =========================
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import FormularioOcorrencia from "./components/FormularioOcorrencia";
+import ListaOcorrencias from "./components/ListaOcorrencias";
 
-// =========================
-// CONSTANTES FIXAS (fora do componente)
-// =========================
 const TIPOS_OCORRENCIA = [
   "Indisciplina",
   "Atraso",
@@ -82,6 +68,8 @@ const TURMAS = [
   "3003",
 ];
 
+const HORARIOS = [1, 2, 3, 4, 5, 6];
+
 function normalizarNomeAluno(valor) {
   return valor.trim().replace(/\s+/g, " ");
 }
@@ -96,124 +84,44 @@ function nomeAlunoValido(nome) {
 }
 
 function Ocorrencias() {
-  // =========================
-  // NAVEGAÇÃO
-  // =========================
   const navigate = useNavigate();
-
-  // =========================
-  // USUÁRIO LOGADO
-  // =========================
   const { user } = useContext(AuthContext);
-  if (!user) return <div>Carregando...</div>;
-
-  // =========================
-  // OCORRÊNCIAS GLOBAL
-  // =========================
   const { ocorrencias, addOcorrencia, removeOcorrencia } =
     useContext(OcorrenciaContext);
 
-  // =========================
-  // FORMULÁRIO
-  // =========================
   const [turno, setTurno] = useState("");
   const [horario, setHorario] = useState("");
   const [disciplina, setDisciplina] = useState("");
   const [turma, setTurma] = useState("");
-
-  // =========================
-  // ALUNOS
-  // =========================
-  const [alunos, setAlunos] = useState([]); // agora armazenamos {id, nome}
+  const [alunos, setAlunos] = useState([]);
   const [alunoInput, setAlunoInput] = useState("");
-
-  // =========================
-  // TIPOS OCORRÊNCIA
-  // =========================
   const [ocorrenciasTipo, setOcorrenciasTipo] = useState([]);
   const [outro, setOutro] = useState("");
-
-  // =========================
-  // OBSERVAÇÃO
-  // =========================
   const [observacao, setObservacao] = useState("");
+  const [notificacao, setNotificacao] = useState(null);
+  const notificacaoTimerRef = useRef(null);
 
-  // constantes fixas movidas para o topo do arquivo
-
-  // =========================
-  // ALUNO
-  // =========================
-  function adicionarAluno() {
-    const nome = normalizarNomeAluno(alunoInput);
-    if (!nome) return;
-    if (!nomeAlunoValido(nome)) {
-      alert("Informe nome e sobrenome, com no minimo 2 letras em cada palavra");
-      return;
+  const mostrarNotificacao = useCallback((mensagem, tipo = "info") => {
+    if (notificacaoTimerRef.current) {
+      window.clearTimeout(notificacaoTimerRef.current);
     }
-    if (alunos.some((a) => a.nome.toLowerCase() === nome.toLowerCase())) {
-      alert("Aluno já adicionado");
-      return;
-    }
-    setAlunos([...alunos, { id: Date.now(), nome }]);
-    setAlunoInput("");
-  }
 
-  function removerAluno(id) {
-    setAlunos(alunos.filter((a) => a.id !== id));
-  }
+    setNotificacao({ mensagem, tipo });
+    notificacaoTimerRef.current = window.setTimeout(() => {
+      setNotificacao(null);
+      notificacaoTimerRef.current = null;
+    }, 3500);
+  }, []);
 
-  // =========================
-  // CHECKBOX
-  // =========================
-  function handleCheckbox(tipo) {
-    if (ocorrenciasTipo.includes(tipo)) {
-      setOcorrenciasTipo(ocorrenciasTipo.filter((t) => t !== tipo));
-    } else {
-      setOcorrenciasTipo([...ocorrenciasTipo, tipo]);
-    }
-  }
-
-  // =========================
-  // SALVAR
-  // =========================
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    if (!alunos.length || !disciplina || !turno || !turma) {
-      alert("Preencha os campos obrigatórios");
-      return;
-    }
-    const tiposSelecionados = ocorrenciasTipo.includes("Outro")
-      ? [
-          ...ocorrenciasTipo.filter((t) => t !== "Outro"),
-          ...(outro.trim() ? [outro.trim()] : []),
-        ]
-      : ocorrenciasTipo;
-
-    const novaOcorrencia = {
-      id: Date.now(),
-
-      professorId: user.id,
-      professorNome: user.nome,
-
-      turno,
-      horario,
-      disciplina,
-      turma,
-
-      alunos: alunos.map((a) => a.nome),
-
-      tipos: tiposSelecionados,
-
-      observacao,
-
-      data: new Date().toLocaleString(),
-      status: "Aberta",
-      resolvidoPor: null,
+  useEffect(() => {
+    return () => {
+      if (notificacaoTimerRef.current) {
+        window.clearTimeout(notificacaoTimerRef.current);
+      }
     };
+  }, []);
 
-    addOcorrencia(novaOcorrencia);
-
+  const limparFormulario = useCallback(() => {
     setTurno("");
     setTurma("");
     setHorario("");
@@ -223,14 +131,117 @@ function Ocorrencias() {
     setOcorrenciasTipo([]);
     setOutro("");
     setObservacao("");
+  }, []);
 
-    alert("Ocorrência salva com sucesso!");
-  }
+  const handleAlunoInputChange = useCallback((event) => {
+    setAlunoInput(event.target.value.replace(/\s+/g, " "));
+  }, []);
 
-  // =========================
-  // VOLTAR
-  // =========================
-  function handleBack() {
+  const adicionarAluno = useCallback(() => {
+    const nome = normalizarNomeAluno(alunoInput);
+
+    if (!nome) return;
+
+    if (!nomeAlunoValido(nome)) {
+      mostrarNotificacao(
+        "Informe nome e sobrenome, com no mínimo 2 letras em cada palavra.",
+        "erro",
+      );
+      return;
+    }
+
+    if (alunos.some((aluno) => aluno.nome.toLowerCase() === nome.toLowerCase())) {
+      mostrarNotificacao("Aluno já adicionado.", "erro");
+      return;
+    }
+
+    setAlunos((alunosAtuais) => [...alunosAtuais, { id: Date.now(), nome }]);
+    setAlunoInput("");
+  }, [alunoInput, alunos, mostrarNotificacao]);
+
+  const removerAluno = useCallback((id) => {
+    setAlunos((alunosAtuais) => alunosAtuais.filter((aluno) => aluno.id !== id));
+  }, []);
+
+  const handleCheckbox = useCallback((tipo) => {
+    setOcorrenciasTipo((tiposAtuais) =>
+      tiposAtuais.includes(tipo)
+        ? tiposAtuais.filter((item) => item !== tipo)
+        : [...tiposAtuais, tipo],
+    );
+  }, []);
+
+  const tiposSelecionados = useMemo(() => {
+    if (!ocorrenciasTipo.includes("Outro")) return ocorrenciasTipo;
+
+    return [
+      ...ocorrenciasTipo.filter((tipo) => tipo !== "Outro"),
+      ...(outro.trim() ? [outro.trim()] : []),
+    ];
+  }, [ocorrenciasTipo, outro]);
+
+  const ocorrenciasFiltradas = useMemo(() => {
+    if (!user) return [];
+
+    return ocorrencias.filter(
+      (item) => user.role === "direcao" || item.professorId === user.id,
+    );
+  }, [ocorrencias, user]);
+
+  const handleSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      if (!user) {
+        mostrarNotificacao("Usuário não encontrado. Faça login novamente.", "erro");
+        return;
+      }
+
+      if (!alunos.length || !disciplina || !turno || !turma) {
+        mostrarNotificacao("Preencha os campos obrigatórios.", "erro");
+        return;
+      }
+
+      try {
+        addOcorrencia({
+          id: Date.now(),
+          professorId: user.id,
+          professorNome: user.nome,
+          turno,
+          horario,
+          disciplina,
+          turma,
+          alunos: alunos.map((aluno) => aluno.nome),
+          tipos: tiposSelecionados,
+          observacao,
+          data: new Date().toLocaleString(),
+          status: "Aberta",
+          resolvidoPor: null,
+        });
+
+        limparFormulario();
+        mostrarNotificacao("Ocorrência salva com sucesso.", "sucesso");
+      } catch (error) {
+        console.error("Erro ao salvar ocorrência:", error);
+        mostrarNotificacao("Não foi possível salvar a ocorrência.", "erro");
+      }
+    },
+    [
+      addOcorrencia,
+      alunos,
+      disciplina,
+      horario,
+      limparFormulario,
+      mostrarNotificacao,
+      observacao,
+      tiposSelecionados,
+      turma,
+      turno,
+      user,
+    ],
+  );
+
+  const handleBack = useCallback(() => {
     const confirmar = window.confirm(
       "Se voltar agora, os dados não salvos serão perdidos. Deseja continuar?",
     );
@@ -238,158 +249,65 @@ function Ocorrencias() {
     if (confirmar) {
       navigate("/dashboard");
     }
+  }, [navigate]);
+
+  const handleRemoveOcorrencia = useCallback(
+    (id) => {
+      try {
+        removeOcorrencia(id);
+        mostrarNotificacao("Ocorrência excluída.", "sucesso");
+      } catch (error) {
+        console.error("Erro ao excluir ocorrência:", error);
+        mostrarNotificacao("Não foi possível excluir a ocorrência.", "erro");
+      }
+    },
+    [mostrarNotificacao, removeOcorrencia],
+  );
+
+  if (!user) {
+    return <div className="ocorrencias-feedback">Carregando usuário...</div>;
   }
 
   return (
     <div className="ocorrencias-container">
-      {/* ========================= FORM ========================= */}
-      <div className="ocorrencias-form">
-        <h2>Nova Ocorrência</h2>
+      {notificacao && (
+        <div className={`notificacao notificacao-${notificacao.tipo}`} role="status">
+          {notificacao.mensagem}
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <select value={turno} onChange={(e) => setTurno(e.target.value)}>
-            <option value="">Turno</option>
-            <option value="manha">Manhã</option>
-            <option value="tarde">Tarde</option>
-            <option value="noite">Noite</option>
-          </select>
+      <FormularioOcorrencia
+        alunoInput={alunoInput}
+        alunos={alunos}
+        disciplina={disciplina}
+        disciplinas={DISCIPLINAS}
+        horario={horario}
+        horarios={HORARIOS}
+        observacao={observacao}
+        ocorrenciasTipo={ocorrenciasTipo}
+        outro={outro}
+        turma={turma}
+        turmas={TURMAS}
+        turno={turno}
+        tiposOcorrencia={TIPOS_OCORRENCIA}
+        onAdicionarAluno={adicionarAluno}
+        onAlunoInputChange={handleAlunoInputChange}
+        onCheckboxChange={handleCheckbox}
+        onDisciplinaChange={setDisciplina}
+        onHorarioChange={setHorario}
+        onObservacaoChange={setObservacao}
+        onOutroChange={setOutro}
+        onRemoverAluno={removerAluno}
+        onSubmit={handleSubmit}
+        onTurmaChange={setTurma}
+        onTurnoChange={setTurno}
+        onVoltar={handleBack}
+      />
 
-          <select value={turma} onChange={(e) => setTurma(e.target.value)}>
-            <option value="">Turma</option>
-            {TURMAS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-
-          <select value={horario} onChange={(e) => setHorario(e.target.value)}>
-            <option value="">Horário</option>
-
-            {[1, 2, 3, 4, 5, 6].map((hora) => (
-              <option key={hora} value={hora}>
-                {hora}º
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={disciplina}
-            onChange={(e) => setDisciplina(e.target.value)}
-          >
-            <option value="">Disciplina</option>
-            {DISCIPLINAS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-
-          {/* alunos */}
-          <div className="aluno-box">
-            <input
-              value={alunoInput}
-              onChange={(e) =>
-                setAlunoInput(e.target.value.replace(/\s+/g, " "))
-              }
-              placeholder="Aluno"
-            />
-            <button type="button" onClick={adicionarAluno}>
-              Adicionar
-            </button>
-          </div>
-
-          <div className="lista-alunos">
-            {alunos.map((a) => (
-              <div key={a.id}>
-                {a.nome}
-                <button type="button" onClick={() => removerAluno(a.id)}>
-                  x
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* tipos */}
-          <div>
-            {TIPOS_OCORRENCIA.map((t) => (
-              <label key={t}>
-                <input
-                  type="checkbox"
-                  checked={ocorrenciasTipo.includes(t)}
-                  onChange={() => handleCheckbox(t)}
-                />
-                {t}
-              </label>
-            ))}
-          </div>
-
-          {ocorrenciasTipo.includes("Outro") && (
-            <input
-              value={outro}
-              onChange={(e) => setOutro(e.target.value)}
-              placeholder="Outro tipo"
-            />
-          )}
-
-          <textarea
-            value={observacao}
-            onChange={(e) => setObservacao(e.target.value)}
-            placeholder="Observação"
-          />
-
-          <button type="submit">Salvar</button>
-          <button type="button" onClick={handleBack}>
-            Voltar
-          </button>
-        </form>
-      </div>
-
-      {/* ========================= LISTA ========================= */}
-      <div className="ocorrencias-lista">
-        {ocorrencias
-          .filter(
-            (item) => user.role === "direcao" || item.professorId === user.id,
-          )
-          .flatMap((item) =>
-            item.alunos.map((aluno, index) => (
-              <div key={`${item.id}-${index}`} className="card-ocorrencia">
-                <h3>{aluno}</h3>
-
-                <p>
-                  <strong>Turma:</strong> {item.turma}
-                </p>
-
-                <p>
-                  {item.disciplina} - {item.turno} - {item.horario}º aula
-                </p>
-
-                <p>
-                  <strong>Tipos:</strong>{" "}
-                  {item.tipos?.join(", ") || "Não informado"}
-                </p>
-
-                {item.observacao && (
-                  <p>
-                    <strong>Obs:</strong> {item.observacao}
-                  </p>
-                )}
-
-                <small>{item.professorNome}</small>
-                <br />
-                <small>{item.data}</small>
-
-                <p>
-                  Status: <strong>{item.status}</strong>
-                </p>
-
-                <button onClick={() => removeOcorrencia(item.id)}>
-                  Excluir
-                </button>
-              </div>
-            )),
-          )}
-      </div>
+      <ListaOcorrencias
+        ocorrencias={ocorrenciasFiltradas}
+        onRemoveOcorrencia={handleRemoveOcorrencia}
+      />
     </div>
   );
 }

@@ -19,6 +19,82 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
+// =========================
+// CONSTANTES FIXAS (fora do componente)
+// =========================
+const TIPOS_OCORRENCIA = [
+  "Indisciplina",
+  "Atraso",
+  "Falta de material",
+  "Desrespeito",
+  "Briga",
+  "Uso de celular",
+  "Outro",
+];
+
+const DISCIPLINAS = [
+  "Português",
+  "Matemática",
+  "História",
+  "Geografia",
+  "Ciências",
+  "Inglês",
+  "Educação Física",
+  "Artes",
+];
+
+const TURMAS = [
+  "101",
+  "102",
+  "103",
+  "201",
+  "202",
+  "203",
+  "301",
+  "302",
+  "303",
+  "401",
+  "402",
+  "403",
+  "501",
+  "502",
+  "503",
+  "601",
+  "602",
+  "603",
+  "701",
+  "702",
+  "703",
+  "801",
+  "802",
+  "803",
+  "901",
+  "902",
+  "903",
+  "1001",
+  "1002",
+  "1003",
+  "2001",
+  "2002",
+  "2003",
+  "3001",
+  "3002",
+  "3003",
+];
+
+function normalizarNomeAluno(valor) {
+  return valor.trim().replace(/\s+/g, " ");
+}
+
+function nomeAlunoValido(nome) {
+  const palavras = nome.split(" ");
+
+  return (
+    palavras.length >= 2 &&
+    palavras.every((palavra) => palavra.replace(/[^\p{L}]/gu, "").length >= 2)
+  );
+}
+
 function Ocorrencias() {
   // =========================
   // NAVEGAÇÃO
@@ -29,6 +105,7 @@ function Ocorrencias() {
   // USUÁRIO LOGADO
   // =========================
   const { user } = useContext(AuthContext);
+  if (!user) return <div>Carregando...</div>;
 
   // =========================
   // OCORRÊNCIAS GLOBAL
@@ -47,7 +124,7 @@ function Ocorrencias() {
   // =========================
   // ALUNOS
   // =========================
-  const [alunos, setAlunos] = useState([]);
+  const [alunos, setAlunos] = useState([]); // agora armazenamos {id, nome}
   const [alunoInput, setAlunoInput] = useState("");
 
   // =========================
@@ -61,80 +138,28 @@ function Ocorrencias() {
   // =========================
   const [observacao, setObservacao] = useState("");
 
-  // =========================
-  // FIXOS
-  // =========================
-  const tiposOcorrencia = [
-    "Indisciplina",
-    "Atraso",
-    "Falta de material",
-    "Desrespeito",
-    "Briga",
-    "Uso de celular",
-    "Outro",
-  ];
-
-  const disciplinas = [
-    "Português",
-    "Matemática",
-    "História",
-    "Geografia",
-    "Ciências",
-    "Inglês",
-    "Educação Física",
-    "Artes",
-  ];
-
-  const turmas = [
-    "101",
-    "102",
-    "103",
-    "201",
-    "202",
-    "203",
-    "301",
-    "302",
-    "303",
-    "401",
-    "402",
-    "403",
-    "501",
-    "502",
-    "503",
-    "601",
-    "602",
-    "603",
-    "701",
-    "702",
-    "703",
-    "801",
-    "802",
-    "803",
-    "901",
-    "902",
-    "903",
-    "1001",
-    "1002",
-    "1003",
-    "2001",
-    "2002",
-    "2003",
-    "3001",
-    "3002",
-    "3003",
-  ];
+  // constantes fixas movidas para o topo do arquivo
 
   // =========================
   // ALUNO
   // =========================
   function adicionarAluno() {
-    if (!alunoInput.trim()) return;
-    setAlunos([...alunos, alunoInput.trim()]);
+    const nome = normalizarNomeAluno(alunoInput);
+    if (!nome) return;
+    if (!nomeAlunoValido(nome)) {
+      alert("Informe nome e sobrenome, com no minimo 2 letras em cada palavra");
+      return;
+    }
+    if (alunos.some((a) => a.nome.toLowerCase() === nome.toLowerCase())) {
+      alert("Aluno já adicionado");
+      return;
+    }
+    setAlunos([...alunos, { id: Date.now(), nome }]);
     setAlunoInput("");
   }
 
-  function removerAluno(nome) {
-    setAlunos(alunos.filter((a) => a !== nome));
+  function removerAluno(id) {
+    setAlunos(alunos.filter((a) => a.id !== id));
   }
 
   // =========================
@@ -158,6 +183,12 @@ function Ocorrencias() {
       alert("Preencha os campos obrigatórios");
       return;
     }
+    const tiposSelecionados = ocorrenciasTipo.includes("Outro")
+      ? [
+          ...ocorrenciasTipo.filter((t) => t !== "Outro"),
+          ...(outro.trim() ? [outro.trim()] : []),
+        ]
+      : ocorrenciasTipo;
 
     const novaOcorrencia = {
       id: Date.now(),
@@ -170,11 +201,9 @@ function Ocorrencias() {
       disciplina,
       turma,
 
-      alunos,
+      alunos: alunos.map((a) => a.nome),
 
-      tipos: ocorrenciasTipo.includes("Outro")
-        ? [...ocorrenciasTipo, outro]
-        : ocorrenciasTipo,
+      tipos: tiposSelecionados,
 
       observacao,
 
@@ -186,9 +215,9 @@ function Ocorrencias() {
     addOcorrencia(novaOcorrencia);
 
     setTurno("");
+    setTurma("");
     setHorario("");
     setDisciplina("");
-    setTurma("");
     setAlunos([]);
     setAlunoInput("");
     setOcorrenciasTipo([]);
@@ -225,14 +254,23 @@ function Ocorrencias() {
             <option value="noite">Noite</option>
           </select>
 
+          <select value={turma} onChange={(e) => setTurma(e.target.value)}>
+            <option value="">Turma</option>
+            {TURMAS.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+
           <select value={horario} onChange={(e) => setHorario(e.target.value)}>
             <option value="">Horário</option>
-            <option value="1">1º</option>
-            <option value="2">2º</option>
-            <option value="3">3º</option>
-            <option value="4">4º</option>
-            <option value="5">5º</option>
-            <option value="6">6º</option>
+
+            {[1, 2, 3, 4, 5, 6].map((hora) => (
+              <option key={hora} value={hora}>
+                {hora}º
+              </option>
+            ))}
           </select>
 
           <select
@@ -240,15 +278,10 @@ function Ocorrencias() {
             onChange={(e) => setDisciplina(e.target.value)}
           >
             <option value="">Disciplina</option>
-            {disciplinas.map((d, i) => (
-              <option key={i}>{d}</option>
-            ))}
-          </select>
-
-          <select value={turma} onChange={(e) => setTurma(e.target.value)}>
-            <option value="">Turma</option>
-            {turmas.map((t) => (
-              <option key={t}>{t}</option>
+            {DISCIPLINAS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
           </select>
 
@@ -256,7 +289,9 @@ function Ocorrencias() {
           <div className="aluno-box">
             <input
               value={alunoInput}
-              onChange={(e) => setAlunoInput(e.target.value)}
+              onChange={(e) =>
+                setAlunoInput(e.target.value.replace(/\s+/g, " "))
+              }
               placeholder="Aluno"
             />
             <button type="button" onClick={adicionarAluno}>
@@ -265,10 +300,10 @@ function Ocorrencias() {
           </div>
 
           <div className="lista-alunos">
-            {alunos.map((a, i) => (
-              <div key={i}>
-                {a}
-                <button type="button" onClick={() => removerAluno(a)}>
+            {alunos.map((a) => (
+              <div key={a.id}>
+                {a.nome}
+                <button type="button" onClick={() => removerAluno(a.id)}>
                   x
                 </button>
               </div>
@@ -277,7 +312,7 @@ function Ocorrencias() {
 
           {/* tipos */}
           <div>
-            {tiposOcorrencia.map((t) => (
+            {TIPOS_OCORRENCIA.map((t) => (
               <label key={t}>
                 <input
                   type="checkbox"

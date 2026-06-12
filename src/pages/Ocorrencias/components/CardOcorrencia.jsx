@@ -1,9 +1,12 @@
 import { memo } from "react";
+import PropTypes from "prop-types";
 
 function CardOcorrencia({ aluno, ocorrencia, onRemoveOcorrencia }) {
+  const tituloId = `ocorrencia-${ocorrencia.id}-${aluno}-titulo`;
+
   return (
-    <div className="card-ocorrencia">
-      <h3>{aluno}</h3>
+    <article className="card-ocorrencia" aria-labelledby={tituloId}>
+      <h3 id={tituloId}>{aluno}</h3>
 
       <p>
         <strong>Turma:</strong> {ocorrencia.turma}
@@ -31,11 +34,33 @@ function CardOcorrencia({ aluno, ocorrencia, onRemoveOcorrencia }) {
         Status: <strong>{ocorrencia.status}</strong>
       </p>
 
-      <button type="button" onClick={() => onRemoveOcorrencia(ocorrencia.id)}>
+      <button
+        type="button"
+        aria-label={`Excluir ocorrência de ${aluno}`}
+        onClick={() => onRemoveOcorrencia(ocorrencia.id, aluno)}
+      >
         Excluir
       </button>
-    </div>
+    </article>
   );
 }
+
+CardOcorrencia.propTypes = {
+  aluno: PropTypes.string.isRequired,
+  ocorrencia: PropTypes.shape({
+    alunos: PropTypes.arrayOf(PropTypes.string).isRequired,
+    data: PropTypes.string.isRequired,
+    disciplina: PropTypes.string.isRequired,
+    horario: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    id: PropTypes.number.isRequired,
+    observacao: PropTypes.string,
+    professorNome: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    tipos: PropTypes.arrayOf(PropTypes.string),
+    turma: PropTypes.string.isRequired,
+    turno: PropTypes.string.isRequired,
+  }).isRequired,
+  onRemoveOcorrencia: PropTypes.func.isRequired,
+};
 
 export default memo(CardOcorrencia);

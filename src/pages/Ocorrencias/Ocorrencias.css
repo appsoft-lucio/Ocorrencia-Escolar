@@ -59,6 +59,21 @@
   color: #1f2937;
 }
 
+.campo-form {
+  display: block;
+  margin-bottom: 4px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.texto-ajuda {
+  display: block;
+  margin: -4px 0 10px;
+  color: #666;
+  font-size: 12px;
+}
+
 /* =========================
    INPUTS / SELECTS / TEXTAREA
 ========================= */
@@ -97,7 +112,16 @@
    CHECKBOX AREA
 ========================= */
 .checkbox-area {
+  border: 0;
   margin-bottom: 10px;
+  padding: 0;
+}
+
+.checkbox-area legend {
+  margin-bottom: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .checkbox-item {

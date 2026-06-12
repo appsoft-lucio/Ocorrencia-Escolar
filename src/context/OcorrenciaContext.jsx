@@ -1,39 +1,49 @@
-// Importa ferramentas do React
-import { createContext, useState, useEffect } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 
-// Cria contexto global das ocorrências
 export const OcorrenciaContext = createContext();
 
-// Provider
 export function OcorrenciaProvider({ children }) {
-  // Lista de ocorrências
   const [ocorrencias, setOcorrencias] = useState([]);
 
-  // Carrega dados salvos
   useEffect(() => {
     const saved = localStorage.getItem("ocorrencias");
 
-    if (saved) {
+    if (!saved) return;
+
+    try {
       setOcorrencias(JSON.parse(saved));
+    } catch (error) {
+      console.error("Erro ao carregar ocorrências:", error);
+      localStorage.removeItem("ocorrencias");
     }
   }, []);
 
-  // Salva sempre que mudar
   useEffect(() => {
     localStorage.setItem("ocorrencias", JSON.stringify(ocorrencias));
   }, [ocorrencias]);
 
-  // Criar ocorrência
-  function addOcorrencia(data) {
-    setOcorrencias([...ocorrencias, data]);
-  }
+  const addOcorrencia = useCallback((data) => {
+    setOcorrencias((ocorrenciasAtuais) => [...ocorrenciasAtuais, data]);
+  }, []);
 
-  // Remover ocorrência
-  function removeOcorrencia(index) {
-    const updated = ocorrencias.filter((_, i) => i !== index);
+  const removeOcorrencia = useCallback((id, alunoNome) => {
+    setOcorrencias((ocorrenciasAtuais) =>
+      ocorrenciasAtuais.flatMap((ocorrencia) => {
+        if (ocorrencia.id !== id) return [ocorrencia];
 
-    setOcorrencias(updated);
-  }
+        if (!alunoNome) return [];
+
+        const alunosAtualizados = ocorrencia.alunos.filter(
+          (aluno) => aluno !== alunoNome,
+        );
+
+        if (!alunosAtualizados.length) return [];
+
+        return [{ ...ocorrencia, alunos: alunosAtualizados }];
+      }),
+    );
+  }, []);
 
   return (
     <OcorrenciaContext.Provider
@@ -47,3 +57,7 @@ export function OcorrenciaProvider({ children }) {
     </OcorrenciaContext.Provider>
   );
 }
+
+OcorrenciaProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};

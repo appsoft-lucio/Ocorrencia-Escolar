@@ -252,9 +252,15 @@ function Ocorrencias() {
   }, [navigate]);
 
   const handleRemoveOcorrencia = useCallback(
-    (id) => {
+    (id, aluno) => {
+      const confirmar = window.confirm(
+        `Deseja realmente excluir a ocorrência de ${aluno}?`,
+      );
+
+      if (!confirmar) return;
+
       try {
-        removeOcorrencia(id);
+        removeOcorrencia(id, aluno);
         mostrarNotificacao("Ocorrência excluída.", "sucesso");
       } catch (error) {
         console.error("Erro ao excluir ocorrência:", error);

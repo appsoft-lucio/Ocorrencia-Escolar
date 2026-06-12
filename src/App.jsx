@@ -33,7 +33,9 @@ function App() {
         {/* ======================================
             🌐 SISTEMA DE ROTAS DA APLICAÇÃO
         ====================================== */}
-        <BrowserRouter basename="/Ocorrencia-Escolar">
+        <BrowserRouter
+          basename={import.meta.env.PROD ? "/Ocorrencia-Escolar" : ""}
+        >
           <Routes>
             {/* ======================================
                 🔑 ROTA PÚBLICA - LOGIN

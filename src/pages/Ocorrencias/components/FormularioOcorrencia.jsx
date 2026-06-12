@@ -1,4 +1,5 @@
 import { memo } from "react";
+import PropTypes from "prop-types";
 
 function FormularioOcorrencia({
   alunoInput,
@@ -28,18 +29,34 @@ function FormularioOcorrencia({
   onVoltar,
 }) {
   return (
-    <div className="ocorrencias-form">
-      <h2>Nova Ocorrência</h2>
+    <section className="ocorrencias-form" aria-labelledby="titulo-form-ocorrencia">
+      <h2 id="titulo-form-ocorrencia">Nova Ocorrência</h2>
 
       <form onSubmit={onSubmit}>
-        <select value={turno} onChange={(event) => onTurnoChange(event.target.value)}>
+        <label className="campo-form" htmlFor="turno">
+          Turno
+        </label>
+        <select
+          id="turno"
+          value={turno}
+          onChange={(event) => onTurnoChange(event.target.value)}
+          required
+        >
           <option value="">Turno</option>
           <option value="manha">Manhã</option>
           <option value="tarde">Tarde</option>
           <option value="noite">Noite</option>
         </select>
 
-        <select value={turma} onChange={(event) => onTurmaChange(event.target.value)}>
+        <label className="campo-form" htmlFor="turma">
+          Turma
+        </label>
+        <select
+          id="turma"
+          value={turma}
+          onChange={(event) => onTurmaChange(event.target.value)}
+          required
+        >
           <option value="">Turma</option>
           {turmas.map((item) => (
             <option key={item} value={item}>
@@ -48,7 +65,11 @@ function FormularioOcorrencia({
           ))}
         </select>
 
+        <label className="campo-form" htmlFor="horario">
+          Horário
+        </label>
         <select
+          id="horario"
           value={horario}
           onChange={(event) => onHorarioChange(event.target.value)}
         >
@@ -60,9 +81,14 @@ function FormularioOcorrencia({
           ))}
         </select>
 
+        <label className="campo-form" htmlFor="disciplina">
+          Disciplina
+        </label>
         <select
+          id="disciplina"
           value={disciplina}
           onChange={(event) => onDisciplinaChange(event.target.value)}
+          required
         >
           <option value="">Disciplina</option>
           {disciplinas.map((item) => (
@@ -73,28 +99,41 @@ function FormularioOcorrencia({
         </select>
 
         <div className="aluno-box">
+          <label className="campo-form" htmlFor="aluno">
+            Aluno
+          </label>
           <input
+            id="aluno"
             value={alunoInput}
             onChange={onAlunoInputChange}
             placeholder="Aluno"
+            aria-describedby="aluno-ajuda"
           />
           <button type="button" onClick={onAdicionarAluno}>
             Adicionar
           </button>
         </div>
+        <small id="aluno-ajuda" className="texto-ajuda">
+          Informe nome e sobrenome, com no mínimo 2 letras em cada palavra.
+        </small>
 
-        <div className="lista-alunos">
+        <div className="lista-alunos" aria-live="polite">
           {alunos.map((aluno) => (
             <div key={aluno.id}>
               {aluno.nome}
-              <button type="button" onClick={() => onRemoverAluno(aluno.id)}>
+              <button
+                type="button"
+                aria-label={`Remover aluno ${aluno.nome}`}
+                onClick={() => onRemoverAluno(aluno.id)}
+              >
                 x
               </button>
             </div>
           ))}
         </div>
 
-        <div className="checkbox-area">
+        <fieldset className="checkbox-area">
+          <legend>Tipos de ocorrência</legend>
           {tiposOcorrencia.map((tipo) => (
             <label className="checkbox-item" key={tipo}>
               <input
@@ -105,17 +144,27 @@ function FormularioOcorrencia({
               <span>{tipo}</span>
             </label>
           ))}
-        </div>
+        </fieldset>
 
         {ocorrenciasTipo.includes("Outro") && (
-          <input
-            value={outro}
-            onChange={(event) => onOutroChange(event.target.value)}
-            placeholder="Outro tipo"
-          />
+          <>
+            <label className="campo-form" htmlFor="outro-tipo">
+              Outro tipo
+            </label>
+            <input
+              id="outro-tipo"
+              value={outro}
+              onChange={(event) => onOutroChange(event.target.value)}
+              placeholder="Outro tipo"
+            />
+          </>
         )}
 
+        <label className="campo-form" htmlFor="observacao">
+          Observação
+        </label>
         <textarea
+          id="observacao"
           value={observacao}
           onChange={(event) => onObservacaoChange(event.target.value)}
           placeholder="Observação"
@@ -126,8 +175,41 @@ function FormularioOcorrencia({
           Voltar
         </button>
       </form>
-    </div>
+    </section>
   );
 }
+
+const alunoShape = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  nome: PropTypes.string.isRequired,
+});
+
+FormularioOcorrencia.propTypes = {
+  alunoInput: PropTypes.string.isRequired,
+  alunos: PropTypes.arrayOf(alunoShape).isRequired,
+  disciplina: PropTypes.string.isRequired,
+  disciplinas: PropTypes.arrayOf(PropTypes.string).isRequired,
+  horario: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  horarios: PropTypes.arrayOf(PropTypes.number).isRequired,
+  observacao: PropTypes.string.isRequired,
+  ocorrenciasTipo: PropTypes.arrayOf(PropTypes.string).isRequired,
+  outro: PropTypes.string.isRequired,
+  turma: PropTypes.string.isRequired,
+  turmas: PropTypes.arrayOf(PropTypes.string).isRequired,
+  turno: PropTypes.string.isRequired,
+  tiposOcorrencia: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onAdicionarAluno: PropTypes.func.isRequired,
+  onAlunoInputChange: PropTypes.func.isRequired,
+  onCheckboxChange: PropTypes.func.isRequired,
+  onDisciplinaChange: PropTypes.func.isRequired,
+  onHorarioChange: PropTypes.func.isRequired,
+  onObservacaoChange: PropTypes.func.isRequired,
+  onOutroChange: PropTypes.func.isRequired,
+  onRemoverAluno: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onTurmaChange: PropTypes.func.isRequired,
+  onTurnoChange: PropTypes.func.isRequired,
+  onVoltar: PropTypes.func.isRequired,
+};
 
 export default memo(FormularioOcorrencia);

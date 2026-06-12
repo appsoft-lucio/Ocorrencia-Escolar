@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
+import Alunos from "./pages/Alunos/Alunos.jsx";
 
 // Importa provider de autenticação (controle global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -64,6 +65,15 @@ function App() {
               element={
                 <PrivateRoute>
                   <Ocorrencias />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/alunos"
+              element={
+                <PrivateRoute>
+                  <Alunos />
                 </PrivateRoute>
               }
             />

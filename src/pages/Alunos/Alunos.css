@@ -1,39 +1,242 @@
-/* =========================
-   VARIÁVEIS DO SISTEMA
-========================= */
+.alunos-container {
+  background: #f5f6fa;
+  min-height: calc(100vh - 80px);
+  padding: 24px;
+}
 
-:root {
-  /* CORES PRINCIPAIS */
-  --cor-principal: #ff7a00;
-  --cor-principal-hover: #e66f00;
-  --cor-secundaria: #1f2937;
+.alunos-feedback {
+  padding: 24px;
+  color: #1f2937;
+}
 
-  /* FUNDOS */
-  --cor-fundo: #f5f6fa;
-  --cor-card: #ffffff;
+.alunos-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
 
-  /* TEXTOS */
-  --cor-texto: #444;
-  --cor-texto-secundario: #6b7280;
-  --cor-texto-titulo: #1f2937;
-  --cor-texto-forte: #111827;
+.alunos-topo h2 {
+  margin: 0 0 4px;
+  color: #1f2937;
+  font-size: 22px;
+}
 
-  /* BORDAS */
-  --cor-borda: #dcdcdc;
+.alunos-topo p {
+  margin: 0;
+  color: #6b7280;
+}
 
-  /* STATUS */
-  --cor-sucesso: #22c55e;
-  --cor-erro: #ef4444;
-  --cor-alerta: #f59e0b;
+.btn-imprimir,
+.acoes-card button,
+.historico-topo button {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
 
-  /* SOMBRAS */
-  --sombra-card: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --sombra-hover: 0 8px 18px rgba(0, 0, 0, 0.12);
+.btn-imprimir {
+  background: #ff7a00;
+  color: #fff;
+  padding: 10px 14px;
+}
 
-  /* RAIOS */
-  --radius: 12px;
-  --radius-small: 8px;
+.btn-imprimir:hover,
+.acoes-card button:last-child:hover {
+  background: #e66f00;
+}
 
-  /* TRANSIÇÃO */
-  --transition: 0.25s;
+.filtros {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px 12px;
+  margin-bottom: 20px;
+}
+
+.filtros label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filtros input,
+.filtros select {
+  width: 100%;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  padding: 11px 12px;
+}
+
+.filtros input:focus,
+.filtros select:focus {
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
+.alunos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.sem-registros {
+  grid-column: 1 / -1;
+  background: #fff;
+  border-radius: 8px;
+  color: #666;
+  padding: 22px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card-aluno {
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.avatar {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  place-items: center;
+  background: #1f2937;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.card-aluno h3 {
+  margin: 0 0 10px;
+  color: #1f2937;
+  font-size: 18px;
+}
+
+.card-aluno p {
+  margin: 7px 0;
+  color: #444;
+  font-size: 14px;
+}
+
+.acoes-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.acoes-card button {
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.acoes-card button:first-child {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.acoes-card button:first-child:hover {
+  background: #d1d5db;
+}
+
+.acoes-card button:last-child {
+  background: #ff7a00;
+  color: #fff;
+}
+
+.historico-aluno {
+  background: #fff;
+  border-radius: 8px;
+  margin-top: 22px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.historico-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.historico-topo h3 {
+  margin: 0 0 4px;
+  color: #1f2937;
+}
+
+.historico-topo p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.historico-topo button {
+  background: #e5e7eb;
+  color: #1f2937;
+  padding: 9px 12px;
+}
+
+.historico-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.historico-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.historico-item strong {
+  color: #1f2937;
+}
+
+.historico-item span,
+.historico-item p {
+  margin: 0;
+  color: #444;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .alunos-container {
+    padding: 16px;
+  }
+
+  .alunos-topo,
+  .historico-topo {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filtros,
+  .acoes-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .sidebar,
+  .header,
+  .btn-imprimir,
+  .acoes-card,
+  .historico-topo button {
+    display: none;
+  }
+
+  .alunos-container {
+    background: #fff;
+    padding: 0;
+  }
 }

@@ -1,101 +1,109 @@
-// =========================
-// ESTILOS
-// =========================
-//import "./Alunos.css";
+import "./Alunos.css";
 
-// =========================
-// REACT
-// =========================
-import { useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// =========================
-// COMPONENTES
-// =========================
-import Sidebar from "../../components/Sidebar/sidebar";
 import Header from "../../components/Header/Header";
-
-// =========================
-// CONTEXTOS
-// =========================
+import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
 function Alunos() {
-  // =========================
-  // CONTEXTOS
-  // =========================
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
 
-  // =========================
-  // FILTROS
-  // =========================
   const [pesquisa, setPesquisa] = useState("");
   const [filtroTurma, setFiltroTurma] = useState("");
   const [filtroTurno, setFiltroTurno] = useState("");
+  const [alunoSelecionado, setAlunoSelecionado] = useState(null);
 
-  // =========================
-  // OCORRÊNCIAS VISÍVEIS
-  // =========================
-  const ocorrenciasVisiveis =
-    user.role === "direcao"
+  const ocorrenciasVisiveis = useMemo(() => {
+    if (!user) return [];
+
+    return user.role === "direcao"
       ? ocorrencias
       : ocorrencias.filter((item) => item.professorId === user.id);
+  }, [ocorrencias, user]);
 
-  // =========================
-  // LISTA DE ALUNOS
-  // =========================
   const alunos = useMemo(() => {
-    const mapa = {};
+    const mapa = new Map();
 
     ocorrenciasVisiveis.forEach((ocorrencia) => {
       ocorrencia.alunos.forEach((nome) => {
-        if (!mapa[nome]) {
-          mapa[nome] = {
+        const alunoAtual = mapa.get(nome);
+
+        if (!alunoAtual) {
+          mapa.set(nome, {
             nome,
             turma: ocorrencia.turma,
             turno: ocorrencia.turno,
             professor: ocorrencia.professorNome,
             quantidade: 1,
             ultimaData: ocorrencia.data,
-          };
-        } else {
-          mapa[nome].quantidade += 1;
+            ocorrencias: [ocorrencia],
+          });
+          return;
         }
+
+        mapa.set(nome, {
+          ...alunoAtual,
+          quantidade: alunoAtual.quantidade + 1,
+          ultimaData: ocorrencia.data,
+          ocorrencias: [...alunoAtual.ocorrencias, ocorrencia],
+        });
       });
     });
 
-    return Object.values(mapa);
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR"),
+    );
   }, [ocorrenciasVisiveis]);
 
-  // =========================
-  // FILTRAGEM
-  // =========================
-  const alunosFiltrados = alunos.filter((aluno) => {
-    const nomeOk = aluno.nome.toLowerCase().includes(pesquisa.toLowerCase());
+  const alunosFiltrados = useMemo(() => {
+    const termo = pesquisa.trim().toLowerCase();
 
-    const turmaOk = filtroTurma === "" || aluno.turma === filtroTurma;
+    return alunos.filter((aluno) => {
+      const nomeOk = aluno.nome.toLowerCase().includes(termo);
+      const turmaOk = !filtroTurma || aluno.turma === filtroTurma;
+      const turnoOk = !filtroTurno || aluno.turno === filtroTurno;
 
-    const turnoOk = filtroTurno === "" || aluno.turno === filtroTurno;
+      return nomeOk && turmaOk && turnoOk;
+    });
+  }, [alunos, filtroTurma, filtroTurno, pesquisa]);
 
-    return nomeOk && turmaOk && turnoOk;
-  });
+  const turmas = useMemo(
+    () => [...new Set(alunos.map((aluno) => aluno.turma))].filter(Boolean).sort(),
+    [alunos],
+  );
 
-  // =========================
-  // TURMAS
-  // =========================
-  const turmas = [...new Set(alunos.map((a) => a.turma))].sort();
+  const turnos = useMemo(
+    () => [...new Set(alunos.map((aluno) => aluno.turno))].filter(Boolean).sort(),
+    [alunos],
+  );
 
-  // =========================
-  // IMPRIMIR
-  // =========================
-  function imprimirPagina() {
+  const detalhesAluno = useMemo(() => {
+    if (!alunoSelecionado) return null;
+
+    return alunos.find((aluno) => aluno.nome === alunoSelecionado) || null;
+  }, [alunoSelecionado, alunos]);
+
+  const imprimirPagina = useCallback(() => {
     window.print();
+  }, []);
+
+  const abrirHistorico = useCallback((nome) => {
+    setAlunoSelecionado((alunoAtual) => (alunoAtual === nome ? null : nome));
+  }, []);
+
+  const abrirNovaOcorrencia = useCallback(() => {
+    navigate("/ocorrencias");
+  }, [navigate]);
+
+  if (!user) {
+    return <div className="alunos-feedback">Carregando usuário...</div>;
   }
 
-  // =========================
-  // JSX
-  // =========================
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -104,38 +112,36 @@ function Alunos() {
         <Header />
 
         <main className="alunos-container">
-          {/* CABEÇALHO */}
-
-          <div className="alunos-topo">
+          <section className="alunos-topo" aria-labelledby="titulo-alunos">
             <div>
-              <h2>Alunos com Ocorrências</h2>
-
+              <h2 id="titulo-alunos">Alunos com Ocorrências</h2>
               <p>
                 Total encontrados: <strong>{alunosFiltrados.length}</strong>
               </p>
             </div>
 
-            <button className="btn-imprimir" onClick={imprimirPagina}>
-              🖨️ Imprimir
+            <button className="btn-imprimir" type="button" onClick={imprimirPagina}>
+              Imprimir
             </button>
-          </div>
+          </section>
 
-          {/* FILTROS */}
-
-          <div className="filtros">
+          <section className="filtros" aria-label="Filtros de alunos">
+            <label htmlFor="pesquisa-aluno">Pesquisar aluno</label>
             <input
+              id="pesquisa-aluno"
               type="text"
               placeholder="Pesquisar aluno..."
               value={pesquisa}
-              onChange={(e) => setPesquisa(e.target.value)}
+              onChange={(event) => setPesquisa(event.target.value)}
             />
 
+            <label htmlFor="filtro-turma">Turma</label>
             <select
+              id="filtro-turma"
               value={filtroTurma}
-              onChange={(e) => setFiltroTurma(e.target.value)}
+              onChange={(event) => setFiltroTurma(event.target.value)}
             >
               <option value="">Todas as turmas</option>
-
               {turmas.map((turma) => (
                 <option key={turma} value={turma}>
                   {turma}
@@ -143,30 +149,31 @@ function Alunos() {
               ))}
             </select>
 
+            <label htmlFor="filtro-turno">Turno</label>
             <select
+              id="filtro-turno"
               value={filtroTurno}
-              onChange={(e) => setFiltroTurno(e.target.value)}
+              onChange={(event) => setFiltroTurno(event.target.value)}
             >
               <option value="">Todos os turnos</option>
-
-              <option value="manha">Manhã</option>
-
-              <option value="tarde">Tarde</option>
-
-              <option value="noite">Noite</option>
+              {turnos.map((turno) => (
+                <option key={turno} value={turno}>
+                  {turno}
+                </option>
+              ))}
             </select>
-          </div>
+          </section>
 
-          {/* CARDS */}
-
-          <div className="alunos-grid">
+          <section className="alunos-grid" aria-label="Lista de alunos">
             {alunosFiltrados.length === 0 && (
               <div className="sem-registros">Nenhum aluno encontrado.</div>
             )}
 
-            {alunosFiltrados.map((aluno, index) => (
-              <div className="card-aluno" key={index}>
-                <div className="avatar">👨‍🎓</div>
+            {alunosFiltrados.map((aluno) => (
+              <article className="card-aluno" key={aluno.nome}>
+                <div className="avatar" aria-hidden="true">
+                  {aluno.nome.charAt(0).toUpperCase()}
+                </div>
 
                 <h3>{aluno.nome}</h3>
 
@@ -193,13 +200,46 @@ function Alunos() {
                 </p>
 
                 <div className="acoes-card">
-                  <button>👁️ Ver Histórico</button>
+                  <button type="button" onClick={() => abrirHistorico(aluno.nome)}>
+                    Ver Histórico
+                  </button>
 
-                  <button>📝 Nova Ocorrência</button>
+                  <button type="button" onClick={abrirNovaOcorrencia}>
+                    Nova Ocorrência
+                  </button>
                 </div>
-              </div>
+              </article>
             ))}
-          </div>
+          </section>
+
+          {detalhesAluno && (
+            <section className="historico-aluno" aria-labelledby="titulo-historico">
+              <div className="historico-topo">
+                <div>
+                  <h3 id="titulo-historico">Histórico de {detalhesAluno.nome}</h3>
+                  <p>{detalhesAluno.quantidade} ocorrência(s) registrada(s)</p>
+                </div>
+
+                <button type="button" onClick={() => setAlunoSelecionado(null)}>
+                  Fechar
+                </button>
+              </div>
+
+              <div className="historico-lista">
+                {detalhesAluno.ocorrencias.map((ocorrencia) => (
+                  <article className="historico-item" key={ocorrencia.id}>
+                    <strong>{ocorrencia.data}</strong>
+                    <span>
+                      {ocorrencia.disciplina} - {ocorrencia.turno} -{" "}
+                      {ocorrencia.horario}º aula
+                    </span>
+                    <span>{ocorrencia.tipos?.join(", ") || "Não informado"}</span>
+                    {ocorrencia.observacao && <p>{ocorrencia.observacao}</p>}
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
         </main>
       </div>
     </div>

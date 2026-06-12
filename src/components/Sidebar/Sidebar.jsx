@@ -46,7 +46,7 @@ function Sidebar() {
           </li>
 
           <li>
-            <Link to="#">👨‍🎓 Alunos</Link>
+            <Link to="/alunos">Alunos</Link>
           </li>
 
           <li>

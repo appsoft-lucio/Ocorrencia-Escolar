@@ -1,3 +1,7 @@
+/* =========================
+   CONTAINER PRINCIPAL
+========================= */
+
 .alunos-container {
   background: #f5f6fa;
   min-height: calc(100vh - 80px);
@@ -8,6 +12,10 @@
   padding: 24px;
   color: #1f2937;
 }
+
+/* =========================
+   TOPO
+========================= */
 
 .alunos-topo {
   display: flex;
@@ -28,6 +36,10 @@
   color: #6b7280;
 }
 
+/* =========================
+   BOTÕES
+========================= */
+
 .btn-imprimir,
 .acoes-card button,
 .historico-topo button {
@@ -39,45 +51,65 @@
   transition: 0.2s;
 }
 
+/* botão imprimir */
 .btn-imprimir {
   background: #ff7a00;
   color: #fff;
   padding: 10px 14px;
 }
 
-.btn-imprimir:hover,
-.acoes-card button:last-child:hover {
+.btn-imprimir:hover {
   background: #e66f00;
 }
+
+/* =========================
+   FILTROS (CORRIGIDO)
+========================= */
 
 .filtros {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 8px 12px;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-.filtros label {
-  color: #374151;
-  font-size: 14px;
-  font-weight: 600;
+/* cada campo separado (CORREÇÃO DO DESALINHAMENTO) */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.filtros input,
-.filtros select {
+.campo label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* inputs e selects alinhados */
+.campo input,
+.campo select {
   width: 100%;
+  height: 44px;
+  padding: 0 12px;
   border: 1px solid #dcdcdc;
   border-radius: 6px;
   font-size: 15px;
   outline: none;
-  padding: 11px 12px;
+  box-sizing: border-box;
+  background: #fff;
 }
 
-.filtros input:focus,
-.filtros select:focus {
+/* foco padronizado */
+.campo input:focus,
+.campo select:focus {
   border-color: #ff7a00;
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
 }
+
+/* =========================
+   GRID DE ALUNOS
+========================= */
 
 .alunos-grid {
   display: grid;
@@ -94,6 +126,10 @@
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+
+/* =========================
+   CARD DO ALUNO
+========================= */
 
 .card-aluno {
   background: #fff;
@@ -127,6 +163,10 @@
   font-size: 14px;
 }
 
+/* =========================
+   AÇÕES DO CARD
+========================= */
+
 .acoes-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -139,6 +179,7 @@
   padding: 8px 10px;
 }
 
+/* botão histórico */
 .acoes-card button:first-child {
   background: #e5e7eb;
   color: #1f2937;
@@ -148,10 +189,19 @@
   background: #d1d5db;
 }
 
+/* botão nova ocorrência */
 .acoes-card button:last-child {
   background: #ff7a00;
   color: #fff;
 }
+
+.acoes-card button:last-child:hover {
+  background: #e66f00;
+}
+
+/* =========================
+   HISTÓRICO
+========================= */
 
 .historico-aluno {
   background: #fff;
@@ -185,6 +235,7 @@
   padding: 9px 12px;
 }
 
+/* lista histórico */
 .historico-lista {
   display: grid;
   gap: 10px;
@@ -209,6 +260,10 @@
   font-size: 14px;
 }
 
+/* =========================
+   RESPONSIVO
+========================= */
+
 @media (max-width: 768px) {
   .alunos-container {
     padding: 16px;
@@ -216,15 +271,22 @@
 
   .alunos-topo,
   .historico-topo {
-    align-items: stretch;
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .filtros,
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+
   .acoes-card {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   IMPRESSÃO
+========================= */
 
 @media print {
   .sidebar,

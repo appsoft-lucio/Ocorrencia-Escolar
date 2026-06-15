@@ -10,6 +10,7 @@ import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
 function Alunos() {
   const navigate = useNavigate();
+
   const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
 
@@ -18,6 +19,9 @@ function Alunos() {
   const [filtroTurno, setFiltroTurno] = useState("");
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
 
+  /* =========================
+     OCORRÊNCIAS VISÍVEIS
+  ========================= */
   const ocorrenciasVisiveis = useMemo(() => {
     if (!user) return [];
 
@@ -26,6 +30,9 @@ function Alunos() {
       : ocorrencias.filter((item) => item.professorId === user.id);
   }, [ocorrencias, user]);
 
+  /* =========================
+     AGRUPA ALUNOS
+  ========================= */
   const alunos = useMemo(() => {
     const mapa = new Map();
 
@@ -60,6 +67,9 @@ function Alunos() {
     );
   }, [ocorrenciasVisiveis]);
 
+  /* =========================
+     FILTROS
+  ========================= */
   const alunosFiltrados = useMemo(() => {
     const termo = pesquisa.trim().toLowerCase();
 
@@ -70,40 +80,55 @@ function Alunos() {
 
       return nomeOk && turmaOk && turnoOk;
     });
-  }, [alunos, filtroTurma, filtroTurno, pesquisa]);
+  }, [alunos, pesquisa, filtroTurma, filtroTurno]);
 
+  /* =========================
+     LISTAS DE FILTRO
+  ========================= */
   const turmas = useMemo(
-    () => [...new Set(alunos.map((aluno) => aluno.turma))].filter(Boolean).sort(),
+    () => [...new Set(alunos.map((a) => a.turma))].filter(Boolean).sort(),
     [alunos],
   );
 
   const turnos = useMemo(
-    () => [...new Set(alunos.map((aluno) => aluno.turno))].filter(Boolean).sort(),
+    () => [...new Set(alunos.map((a) => a.turno))].filter(Boolean).sort(),
     [alunos],
   );
 
+  /* =========================
+     DETALHES DO ALUNO
+  ========================= */
   const detalhesAluno = useMemo(() => {
     if (!alunoSelecionado) return null;
 
-    return alunos.find((aluno) => aluno.nome === alunoSelecionado) || null;
+    return alunos.find((a) => a.nome === alunoSelecionado) || null;
   }, [alunoSelecionado, alunos]);
 
+  /* =========================
+     AÇÕES
+  ========================= */
   const imprimirPagina = useCallback(() => {
     window.print();
   }, []);
 
   const abrirHistorico = useCallback((nome) => {
-    setAlunoSelecionado((alunoAtual) => (alunoAtual === nome ? null : nome));
+    setAlunoSelecionado((atual) => (atual === nome ? null : nome));
   }, []);
 
   const abrirNovaOcorrencia = useCallback(() => {
     navigate("/ocorrencias");
   }, [navigate]);
 
+  /* =========================
+     LOADING USER
+  ========================= */
   if (!user) {
     return <div className="alunos-feedback">Carregando usuário...</div>;
   }
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -112,66 +137,75 @@ function Alunos() {
         <Header />
 
         <main className="alunos-container">
-          <section className="alunos-topo" aria-labelledby="titulo-alunos">
+          {/* TOPO */}
+          <section className="alunos-topo">
             <div>
-              <h2 id="titulo-alunos">Alunos com Ocorrências</h2>
+              <h2>Alunos com Ocorrências</h2>
               <p>
                 Total encontrados: <strong>{alunosFiltrados.length}</strong>
               </p>
             </div>
 
-            <button className="btn-imprimir" type="button" onClick={imprimirPagina}>
+            <button className="btn-imprimir" onClick={imprimirPagina}>
               Imprimir
             </button>
           </section>
 
-          <section className="filtros" aria-label="Filtros de alunos">
-            <label htmlFor="pesquisa-aluno">Pesquisar aluno</label>
-            <input
-              id="pesquisa-aluno"
-              type="text"
-              placeholder="Pesquisar aluno..."
-              value={pesquisa}
-              onChange={(event) => setPesquisa(event.target.value)}
-            />
+          {/* FILTROS */}
+          <section className="filtros">
+            <div className="campo">
+              <label htmlFor="pesquisa-aluno">Pesquisar aluno</label>
+              <input
+                id="pesquisa-aluno"
+                type="text"
+                placeholder="Pesquisar aluno..."
+                value={pesquisa}
+                onChange={(e) => setPesquisa(e.target.value)}
+              />
+            </div>
 
-            <label htmlFor="filtro-turma">Turma</label>
-            <select
-              id="filtro-turma"
-              value={filtroTurma}
-              onChange={(event) => setFiltroTurma(event.target.value)}
-            >
-              <option value="">Todas as turmas</option>
-              {turmas.map((turma) => (
-                <option key={turma} value={turma}>
-                  {turma}
-                </option>
-              ))}
-            </select>
+            <div className="campo">
+              <label htmlFor="filtro-turma">Turma</label>
+              <select
+                id="filtro-turma"
+                value={filtroTurma}
+                onChange={(e) => setFiltroTurma(e.target.value)}
+              >
+                <option value="">Todas as turmas</option>
+                {turmas.map((turma) => (
+                  <option key={turma} value={turma}>
+                    {turma}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <label htmlFor="filtro-turno">Turno</label>
-            <select
-              id="filtro-turno"
-              value={filtroTurno}
-              onChange={(event) => setFiltroTurno(event.target.value)}
-            >
-              <option value="">Todos os turnos</option>
-              {turnos.map((turno) => (
-                <option key={turno} value={turno}>
-                  {turno}
-                </option>
-              ))}
-            </select>
+            <div className="campo">
+              <label htmlFor="filtro-turno">Turno</label>
+              <select
+                id="filtro-turno"
+                value={filtroTurno}
+                onChange={(e) => setFiltroTurno(e.target.value)}
+              >
+                <option value="">Todos os turnos</option>
+                {turnos.map((turno) => (
+                  <option key={turno} value={turno}>
+                    {turno}
+                  </option>
+                ))}
+              </select>
+            </div>
           </section>
 
-          <section className="alunos-grid" aria-label="Lista de alunos">
+          {/* LISTA */}
+          <section className="alunos-grid">
             {alunosFiltrados.length === 0 && (
               <div className="sem-registros">Nenhum aluno encontrado.</div>
             )}
 
             {alunosFiltrados.map((aluno) => (
               <article className="card-aluno" key={aluno.nome}>
-                <div className="avatar" aria-hidden="true">
+                <div className="avatar">
                   {aluno.nome.charAt(0).toUpperCase()}
                 </div>
 
@@ -180,15 +214,12 @@ function Alunos() {
                 <p>
                   <strong>Turma:</strong> {aluno.turma}
                 </p>
-
                 <p>
                   <strong>Turno:</strong> {aluno.turno}
                 </p>
-
                 <p>
                   <strong>Professor:</strong> {aluno.professor}
                 </p>
-
                 <p>
                   <strong>Ocorrências:</strong> {aluno.quantidade}
                 </p>
@@ -200,27 +231,26 @@ function Alunos() {
                 </p>
 
                 <div className="acoes-card">
-                  <button type="button" onClick={() => abrirHistorico(aluno.nome)}>
+                  <button onClick={() => abrirHistorico(aluno.nome)}>
                     Ver Histórico
                   </button>
 
-                  <button type="button" onClick={abrirNovaOcorrencia}>
-                    Nova Ocorrência
-                  </button>
+                  <button onClick={abrirNovaOcorrencia}>Nova Ocorrência</button>
                 </div>
               </article>
             ))}
           </section>
 
+          {/* HISTÓRICO */}
           {detalhesAluno && (
-            <section className="historico-aluno" aria-labelledby="titulo-historico">
+            <section className="historico-aluno">
               <div className="historico-topo">
                 <div>
-                  <h3 id="titulo-historico">Histórico de {detalhesAluno.nome}</h3>
+                  <h3>Histórico de {detalhesAluno.nome}</h3>
                   <p>{detalhesAluno.quantidade} ocorrência(s) registrada(s)</p>
                 </div>
 
-                <button type="button" onClick={() => setAlunoSelecionado(null)}>
+                <button onClick={() => setAlunoSelecionado(null)}>
                   Fechar
                 </button>
               </div>
@@ -229,11 +259,16 @@ function Alunos() {
                 {detalhesAluno.ocorrencias.map((ocorrencia) => (
                   <article className="historico-item" key={ocorrencia.id}>
                     <strong>{ocorrencia.data}</strong>
+
                     <span>
                       {ocorrencia.disciplina} - {ocorrencia.turno} -{" "}
                       {ocorrencia.horario}º aula
                     </span>
-                    <span>{ocorrencia.tipos?.join(", ") || "Não informado"}</span>
+
+                    <span>
+                      {ocorrencia.tipos?.join(", ") || "Não informado"}
+                    </span>
+
                     {ocorrencia.observacao && <p>{ocorrencia.observacao}</p>}
                   </article>
                 ))}

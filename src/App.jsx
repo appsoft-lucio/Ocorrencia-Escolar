@@ -9,8 +9,8 @@ import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 import Alunos from "./pages/Alunos/Alunos.jsx";
-import Professor from "./pages/Professor/Professor.jsx";
-import Relatorios from "./pages/Relatorios/Relatorios.jsx";
+import Professor from "./pages/professor/professor.jsx";
+import Relatorios from "./pages/relatorios/relatorios.jsx";
 import Configuracao from "./pages/configuracao/configuracao.jsx";
 
 // Importa provider de autenticação (controle global do usuário)

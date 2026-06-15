@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Importa páginas do sistema
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
+import RecuperarSenha from "./pages/recuperarSenha/recuperarSenha.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 import Alunos from "./pages/Alunos/Alunos.jsx";
 import Professor from "./pages/professor/professor.jsx";
@@ -45,7 +46,7 @@ function App() {
                   🔑 ROTA PÚBLICA - LOGIN
               ====================================== */}
             <Route path="/" element={<Login />} />
-
+            <Route path="/recuperar-senha" element={<RecuperarSenha />} />
             {/* ======================================
                   📊 DASHBOARD (PROTEGIDO)
                   Só acessa se estiver logado

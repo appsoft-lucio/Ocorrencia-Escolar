@@ -10,6 +10,8 @@ import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Link } from "react-router-dom";
+
 // =========================
 // CONTEXTO DE AUTENTICAÇÃO
 // =========================
@@ -128,6 +130,9 @@ function Login() {
 
           {/* BOTÃO */}
           <button type="submit">Entrar</button>
+          <Link to="/recuperar-senha" className="login-recover">
+            Esqueci minha senha
+          </Link>
         </form>
       </div>
     </div>

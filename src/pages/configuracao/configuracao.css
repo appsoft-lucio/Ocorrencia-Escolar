@@ -1,3 +1,28 @@
+/* ==================================================
+   VARIÁVEIS (CLARO PROFISSIONAL)
+================================================== */
+
+:root {
+  --cor-primaria: #2563eb;
+  --cor-destaque: #ff7a00;
+
+  --cor-fundo: #ffffff;
+
+  /* texto principal (escuro) */
+  --cor-texto: #0f172a;
+
+  /* texto secundário (cinza suave) */
+  --cor-texto-secundario: #6b7280;
+
+  --cor-card: #1f2937; /* cards escuros continuam */
+
+  --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* ==================================================
+   LAYOUT
+================================================== */
+
 .configuracao-layout {
   display: flex;
   min-height: 100vh;
@@ -8,4 +33,129 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* ==================================================
+   CONTAINER
+================================================== */
+
+.configuracao-container {
+  padding: 24px;
+  color: var(--cor-texto);
+}
+
+/* título */
+.configuracao-container h1 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--cor-texto);
+}
+
+.configuracao-container p {
+  margin: 4px 0 20px;
+  color: var(--cor-texto-secundario);
+}
+
+/* ==================================================
+   SEÇÕES
+================================================== */
+
+.card-section {
+  margin-bottom: 20px;
+}
+
+.card-section h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--cor-texto);
+}
+
+/* ==================================================
+   CARD (escuro como você quer manter)
+================================================== */
+
+.card {
+  background: var(--cor-card);
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: var(--sombra-card);
+  color: #ffffff;
+}
+
+/* texto dentro do card */
+.card p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.card strong {
+  color: #ffffff;
+}
+
+/* ==================================================
+   FORMULÁRIOS
+================================================== */
+
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* inputs agora claros (importante no fundo branco) */
+input,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  background: #ffffff;
+  color: var(--cor-texto);
+  font-size: 14px;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--cor-destaque);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.25);
+}
+
+/* ==================================================
+   BOTÕES
+================================================== */
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  background: var(--cor-destaque);
+  color: #fff;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.upgrade {
+  background: var(--cor-primaria);
+}
+
+/* ==================================================
+   RESPONSIVO
+================================================== */
+
+@media (max-width: 768px) {
+  .configuracao-container {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 14px;
+  }
 }

@@ -3,7 +3,6 @@
 ===================================== */
 
 :root {
-
   /* Azul principal */
   --cor-primaria: #2563eb;
 
@@ -37,7 +36,6 @@
 ===================================== */
 
 .login-container {
-
   /* Altura total da tela */
   min-height: 100vh;
 
@@ -50,7 +48,6 @@
 ===================================== */
 
 .login-banner {
-
   /* Ocupa todo espaço disponível */
   flex: 1;
 
@@ -63,18 +60,13 @@
   padding: 50px;
 
   /* Fundo escuro */
-  background: linear-gradient(
-    135deg,
-    #111827,
-    #1f2937
-  );
+  background: linear-gradient(135deg, #111827, #1f2937);
 
   color: white;
 }
 
 /* Conteúdo da área esquerda */
 .banner-content {
-
   max-width: 650px;
 
   text-align: center;
@@ -85,13 +77,11 @@
 ===================================== */
 
 .logo-container {
-
   margin-bottom: 30px;
 }
 
 /* Imagem da logo */
 .logo-img {
-
   width: 450px;
 
   max-width: 100%;
@@ -108,7 +98,6 @@
 ===================================== */
 
 .banner-content h2 {
-
   font-size: 2rem;
 
   margin-bottom: 20px;
@@ -119,7 +108,6 @@
 ===================================== */
 
 .banner-content p {
-
   font-size: 1.1rem;
 
   line-height: 1.8;
@@ -130,7 +118,6 @@
 ===================================== */
 
 .login-card {
-
   width: 500px;
 
   background: white;
@@ -149,7 +136,6 @@
 ===================================== */
 
 .login-card h2 {
-
   font-size: 2rem;
 
   margin-bottom: 10px;
@@ -159,7 +145,6 @@
 
 /* Subtítulo */
 .subtitle {
-
   margin-bottom: 30px;
 
   color: var(--cor-texto-secundario);
@@ -170,7 +155,6 @@
 ===================================== */
 
 form {
-
   display: flex;
 
   flex-direction: column;
@@ -180,7 +164,6 @@ form {
 
 /* Grupo label + input */
 .input-group {
-
   display: flex;
 
   flex-direction: column;
@@ -188,7 +171,6 @@ form {
 
 /* Texto acima do campo */
 .input-group label {
-
   margin-bottom: 8px;
 
   font-weight: 500;
@@ -196,7 +178,6 @@ form {
 
 /* Campos */
 .input-group input {
-
   padding: 14px;
 
   border: 1px solid var(--cor-borda);
@@ -212,7 +193,6 @@ form {
 
 /* Campo selecionado */
 .input-group input:focus {
-
   border-color: var(--cor-primaria);
 
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
@@ -223,7 +203,6 @@ form {
 ===================================== */
 
 button {
-
   margin-top: 10px;
 
   padding: 14px;
@@ -245,9 +224,24 @@ button {
   transition: 0.3s;
 }
 
+.login-recover {
+  display: block;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--cor-destaque);
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.login-recover:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 /* Hover do botão */
 button:hover {
-
   background: var(--cor-destaque-hover);
 }
 
@@ -256,16 +250,13 @@ button:hover {
 ===================================== */
 
 @media (max-width: 900px) {
-
   /* Empilha os blocos */
   .login-container {
-
     flex-direction: column;
   }
 
   /* Área da logo */
   .login-banner {
-
     min-height: 280px;
 
     padding: 30px;
@@ -273,13 +264,11 @@ button:hover {
 
   /* Logo menor */
   .logo-img {
-
     width: 250px;
   }
 
   /* Card ocupa tela toda */
   .login-card {
-
     width: 100%;
 
     padding: 30px;
@@ -287,14 +276,11 @@ button:hover {
 
   /* Título menor */
   .banner-content h2 {
-
     font-size: 1.5rem;
   }
 
   /* Texto menor */
   .banner-content p {
-
     font-size: 1rem;
   }
-
 }

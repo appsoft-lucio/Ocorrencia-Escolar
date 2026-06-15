@@ -10,7 +10,7 @@ import html2pdf from "html2pdf.js";
 /* GRÁFICOS */
 import GraficoTurmas from "../../components/graficos/graficoTurmas.jsx";
 import GraficoTurnos from "../../components/graficos/graficoTurno.jsx";
-import GraficoProfessores from "../../components/graficos/garficoProfessor.jsx";
+import GraficoProfessores from "../../components/graficos/graficoProfessor.jsx";
 
 /* =========================
    DADOS DEMO (SAAS)

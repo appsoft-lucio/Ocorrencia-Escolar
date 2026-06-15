@@ -3,13 +3,19 @@ import "./configuracao.css";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext.jsx";
+
 function Configuracao() {
+  const { user } = useContext(AuthContext);
+
   return (
     <div className="configuracao-layout">
       <Sidebar />
       <div className="configuracao-main">
         <Header />
         <h1>Configurações</h1>
+        <h2>Bem-vindo, {user.nome}!</h2>
       </div>
     </div>
   );

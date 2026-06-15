@@ -30,26 +30,26 @@ function App() {
     // ==========================================
     <AuthProvider>
       {/* ==========================================
-          🗂 CONTEXTO GLOBAL DE OCORRÊNCIAS
-          (necessário para Dashboard e CRUD funcionar)
-      ========================================== */}
+            🗂 CONTEXTO GLOBAL DE OCORRÊNCIAS
+            (necessário para Dashboard e CRUD funcionar)
+        ========================================== */}
       <OcorrenciaProvider>
         {/* ======================================
-            🌐 SISTEMA DE ROTAS DA APLICAÇÃO
-        ====================================== */}
+              🌐 SISTEMA DE ROTAS DA APLICAÇÃO
+          ====================================== */}
         <BrowserRouter
           basename={import.meta.env.PROD ? "/Ocorrencia-Escolar" : ""}
         >
           <Routes>
             {/* ======================================
-                🔑 ROTA PÚBLICA - LOGIN
-            ====================================== */}
+                  🔑 ROTA PÚBLICA - LOGIN
+              ====================================== */}
             <Route path="/" element={<Login />} />
 
             {/* ======================================
-                📊 DASHBOARD (PROTEGIDO)
-                Só acessa se estiver logado
-            ====================================== */}
+                  📊 DASHBOARD (PROTEGIDO)
+                  Só acessa se estiver logado
+              ====================================== */}
             <Route
               path="/dashboard"
               element={
@@ -60,9 +60,9 @@ function App() {
             />
 
             {/* ======================================
-                📝 OCORRÊNCIAS (PROTEGIDA)
-                Módulo principal do sistema
-            ====================================== */}
+                  📝 OCORRÊNCIAS (PROTEGIDA)
+                  Módulo principal do sistema
+              ====================================== */}
             <Route
               path="/ocorrencias"
               element={

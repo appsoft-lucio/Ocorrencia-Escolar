@@ -9,3 +9,27 @@
   display: flex;
   flex-direction: column;
 }
+
+.professores-content {
+  padding: 24px;
+  flex: 1;
+}
+
+.professores-content h1 {
+  margin-bottom: 8px;
+}
+
+.professores-content h2 {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.professores-descricao {
+  margin-bottom: 24px;
+}
+
+.professores-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}

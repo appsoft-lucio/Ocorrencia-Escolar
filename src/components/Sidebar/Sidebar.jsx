@@ -50,15 +50,15 @@ function Sidebar() {
           </li>
 
           <li>
-            <Link to="#">👨‍🏫 Professores</Link>
+            <Link to="/professores">👨‍🏫 Professores</Link>
           </li>
 
           <li>
-            <Link to="#">📈 Relatórios</Link>
+            <Link to="/relatorios">📈 Relatórios</Link>
           </li>
 
           <li>
-            <Link to="#">⚙️ Configurações</Link>
+            <Link to="/configuracao">⚙️ Configurações</Link>
           </li>
         </ul>
       </nav>

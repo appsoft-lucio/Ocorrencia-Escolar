@@ -1,0 +1,11 @@
+.professores-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--cor-fundo);
+}
+
+.professores-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

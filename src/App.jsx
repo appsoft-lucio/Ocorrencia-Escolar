@@ -9,6 +9,9 @@ import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 import Alunos from "./pages/Alunos/Alunos.jsx";
+import Professor from "./pages/Professor/Professor.jsx";
+import Relatorios from "./pages/Relatorios/Relatorios.jsx";
+import Configuracao from "./pages/Configuracao/Configuracao.jsx";
 
 // Importa provider de autenticação (controle global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -74,6 +77,30 @@ function App() {
               element={
                 <PrivateRoute>
                   <Alunos />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/professores"
+              element={
+                <PrivateRoute>
+                  <Professor />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/relatorios"
+              element={
+                <PrivateRoute>
+                  <Relatorios />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/configuracao"
+              element={
+                <PrivateRoute>
+                  <Configuracao />
                 </PrivateRoute>
               }
             />

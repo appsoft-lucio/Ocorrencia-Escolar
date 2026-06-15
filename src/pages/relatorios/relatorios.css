@@ -1,0 +1,11 @@
+.relatorios-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--cor-fundo);
+}
+
+.relatorios-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,11 +1,262 @@
+/* ==================================================
+   LAYOUT GERAL
+================================================== */
+
 .relatorios-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--cor-fundo);
+  background: #f5f6fa;
 }
 
 .relatorios-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* conteúdo interno */
+.relatorios-main-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==================================================
+   HEADER
+================================================== */
+
+.relatorios-header h1 {
+  margin: 0;
+  font-size: 22px;
+  color: #1f2937;
+}
+
+.relatorios-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
+/* ==================================================
+   CARDS (PADRÃO StatsCard)
+================================================== */
+
+.relatorios-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.relatorios-cards .card {
+  background: #1f2937;
+  color: #ffffff;
+
+  padding: 20px;
+  border-radius: 10px;
+
+  display: flex;
+  gap: 15px;
+  align-items: center;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+  transition: transform 0.3s ease;
+}
+
+.relatorios-cards .card:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* texto do card */
+.relatorios-cards .card h3 {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.relatorios-cards .card span {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* ==================================================
+   GRÁFICOS
+================================================== */
+
+.relatorios-graficos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.grafico-box {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  border-top: 3px solid #ff7a00;
+}
+
+.grafico-box h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.grafico-placeholder {
+  height: 220px;
+  background: #f3f4f6;
+  border-radius: 6px;
+
+  display: grid;
+  place-items: center;
+
+  color: #6b7280;
+}
+
+/* ==================================================
+   RANKING
+================================================== */
+
+.relatorios-ranking {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  border-left: 4px solid #ff7a00;
+}
+
+.relatorios-ranking h3 {
+  margin: 0 0 10px;
+  color: #1f2937;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.ranking-item strong {
+  color: #ff7a00;
+}
+
+/* ==================================================
+   RESPONSIVO
+================================================== */
+
+@media (max-width: 768px) {
+  .relatorios-graficos {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   IMPRESSÃO
+========================= */
+
+@media print {
+  .sidebar,
+  .header,
+  .btn-imprimir {
+    display: none !important;
+  }
+
+  .relatorios-layout {
+    background: #fff;
+  }
+
+  .grafico-placeholder {
+    background: #fff;
+    border: 1px solid #ddd;
+  }
+
+  .card {
+    box-shadow: none;
+  }
+}
+
+/* =========================
+   FILTROS MULTI-SELEÇÃO
+========================= */
+
+.relatorios-filtros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.filtro-bloco {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.filtro-bloco h4 {
+  margin: 0 0 10px;
+  color: #1f2937;
+}
+
+.filtro-bloco label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  font-size: 14px;
+  color: #374151;
+
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.filtro-bloco input {
+  accent-color: #ff7a00;
+}
+/* =========================
+   IMPRESSÃO PROFISSIONAL
+========================= */
+
+@media print {
+  /* Esconde tudo do app */
+  .sidebar,
+  .header,
+  .relatorios-actions,
+  .relatorios-filtros {
+    display: none !important;
+  }
+
+  /* Remove fundo do app */
+  .relatorios-layout,
+  .relatorios-main {
+    background: #fff !important;
+  }
+
+  /* Área impressa */
+  #relatorio-pdf {
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Cards mais simples na impressão */
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+
+  /* Gráficos ajustados */
+  svg {
+    max-width: 100% !important;
+  }
 }

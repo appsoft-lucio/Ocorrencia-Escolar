@@ -11,7 +11,7 @@ import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 import Alunos from "./pages/Alunos/Alunos.jsx";
 import Professor from "./pages/Professor/Professor.jsx";
 import Relatorios from "./pages/Relatorios/Relatorios.jsx";
-import Configuracao from "./pages/Configuracao/Configuracao.jsx";
+import Configuracao from "./pages/configuracao/configuracao.jsx";
 
 // Importa provider de autenticação (controle global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";

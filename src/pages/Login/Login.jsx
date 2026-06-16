@@ -21,8 +21,8 @@ function Login() {
   // =========================
   // ESTADOS DO FORMULÁRIO
   // =========================
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [userName, setUserName] = useState("Teste");
+  const [password, setPassword] = useState("12345");
 
   // =========================
   // CONTEXTO + NAVEGAÇÃO

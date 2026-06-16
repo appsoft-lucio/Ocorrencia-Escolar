@@ -1,36 +1,4 @@
 /* ===================================
-   VARIÁVEIS
-=================================== */
-
-:root {
-  --cor-laranja: #ff7a00;
-
-  --cor-fundo: #f5f6fa;
-  --cor-branco: #ffffff;
-
-  --cor-texto: #222222;
-  --cor-texto-secundario: #666666;
-  --cor-texto-claro: #ffffff;
-
-  --cor-borda: #d6d6d6;
-
-  --cor-overlay: rgba(0, 0, 0, 0.5);
-
-  --cor-cinza-claro: #f3f4f6;
-
-  --cor-erro: #d32f2f;
-  --cor-erro-hover: #b71c1c;
-
-  --sombra-modal: 0 8px 30px rgba(0, 0, 0, 0.15);
-  --sombra-laranja: 0 4px 12px rgba(255, 122, 0, 0.35);
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-
-  --transicao: 0.2s ease;
-}
-
-/* ===================================
    LAYOUT
 =================================== */
 
@@ -48,7 +16,7 @@
 
 .professores-content {
   flex: 1;
-  padding: 24px;
+  padding: var(--spacing-xl);
 }
 
 /* ===================================
@@ -59,27 +27,27 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
   flex-wrap: wrap;
 }
 
 .professores-content h1 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--spacing-sm);
   color: var(--cor-texto);
 }
 
 .professores-content h2 {
   margin: 0;
-  color: var(--cor-texto-secundario);
-  font-size: 1rem;
-  font-weight: 400;
+  color: var(--cor-texto-secondary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-regular);
 }
 
 .professores-descricao {
-  margin-bottom: 24px;
-  color: var(--cor-texto-secundario);
-  line-height: 1.6;
+  margin-bottom: var(--spacing-xl);
+  color: var(--cor-texto-secondary);
+  line-height: var(--line-height-relaxed);
 }
 
 /* ===================================
@@ -88,24 +56,33 @@
 
 .btn-novo-professor {
   background: var(--cor-laranja);
-  color: var(--cor-texto-claro);
+  color: var(--cor-texto-light);
 
   border: none;
   border-radius: var(--radius-sm);
 
   padding: 12px 18px;
 
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--font-semi-bold);
 
   cursor: pointer;
 
-  transition: all var(--transicao);
+  transition: all var(--transition-normal);
 }
 
 .btn-novo-professor:hover {
-  transform: scale(1.05);
-  box-shadow: var(--sombra-laranja);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-laranja);
+}
+
+.btn-novo-professor:active {
+  transform: scale(0.98);
+}
+
+.btn-novo-professor:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
 }
 
 /* ===================================
@@ -116,6 +93,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 20px;
+}
+
+.professores-cards .sem-dados {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--cor-texto-secundario);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-md);
+  font-size: 16px;
 }
 
 /* ===================================
@@ -130,7 +117,7 @@
   justify-content: center;
   align-items: center;
 
-  padding: 20px;
+  padding: var(--spacing-lg);
 
   background: var(--cor-overlay);
 
@@ -141,7 +128,7 @@
   width: 100%;
   max-width: 550px;
 
-  padding: 24px;
+  padding: var(--spacing-xl);
 
   background: var(--cor-branco);
 
@@ -149,36 +136,111 @@
 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-md);
 
-  box-shadow: var(--sombra-modal);
+  box-shadow: var(--shadow-modal);
+
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-professor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-professor::-webkit-scrollbar-track {
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
+}
+
+.modal-professor::-webkit-scrollbar-thumb {
+  background: var(--cor-laranja);
+  border-radius: var(--radius-sm);
+}
+
+.modal-professor::-webkit-scrollbar-thumb:hover {
+  background: #e67000;
 }
 
 .modal-professor h2 {
-  margin: 0;
+  margin: 0 0 var(--spacing-md);
   color: var(--cor-texto);
+  font-size: var(--text-3xl);
+}
+
+/* Mensagens de feedback */
+.mensagem {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-medium);
+  margin-bottom: var(--spacing-md);
+  animation: slideIn var(--transition-slow);
+}
+
+.mensagem.sucesso {
+  background: var(--cor-sucesso-bg);
+  color: var(--cor-sucesso-text);
+  border-left: 4px solid var(--cor-sucesso);
+}
+
+.mensagem.erro {
+  background: var(--cor-erro-bg);
+  color: var(--cor-erro-text);
+  border-left: 4px solid var(--cor-erro);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Grupos de formulário */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-group label {
+  font-weight: var(--font-semi-bold);
+  color: var(--cor-texto);
+  font-size: var(--text-sm);
 }
 
 .modal-professor input,
 .modal-professor select {
   width: 100%;
 
-  padding: 12px;
+  padding: var(--spacing-md);
 
   border: 1px solid var(--cor-borda);
   border-radius: var(--radius-sm);
 
-  font-size: 15px;
+  font-size: var(--text-base);
 
   outline: none;
 
-  transition: all var(--transicao);
+  transition: all var(--transition-normal);
+  font-family: inherit;
 }
 
 .modal-professor input:focus,
 .modal-professor select:focus {
   border-color: var(--cor-laranja);
   box-shadow: 0 0 5px rgba(255, 122, 0, 0.3);
+}
+
+.modal-professor input:disabled,
+.modal-professor select:disabled {
+  background: var(--cor-cinza-claro);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* ===================================
@@ -188,17 +250,18 @@
 .turmas-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 .turmas-section h3 {
   margin: 0;
   color: var(--cor-texto);
+  font-size: var(--text-xl);
 }
 
 .turma-adicionar {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .turma-adicionar input {
@@ -209,44 +272,66 @@
   min-width: 50px;
 
   background: var(--cor-laranja);
-  color: var(--cor-texto-claro);
+  color: var(--cor-texto-light);
 
   border: none;
   border-radius: var(--radius-sm);
 
-  font-size: 20px;
-  font-weight: bold;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
 
   cursor: pointer;
 
-  transition: all var(--transicao);
+  transition: all var(--transition-normal);
 }
 
 .btn-add-turma:hover {
-  transform: scale(1.08);
-  box-shadow: var(--sombra-laranja);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-laranja);
+}
+
+.btn-add-turma:active {
+  transform: scale(0.95);
+}
+
+.btn-add-turma:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
 }
 
 .lista-turmas {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--spacing-sm);
+  min-height: 40px;
+  align-items: center;
+}
+
+.lista-turmas .vazio {
+  width: 100%;
+  text-align: center;
+  color: var(--cor-texto-secondary);
+  font-size: var(--text-sm);
+  margin: 0;
+  padding: var(--spacing-md);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
 }
 
 .turma-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
 
-  padding: 8px 12px;
+  padding: var(--spacing-xs) var(--spacing-md);
 
   background: var(--cor-cinza-claro);
 
-  border-radius: 20px;
+  border-radius: var(--radius-full);
 }
 
 .turma-item span {
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
 .turma-item button {
@@ -255,14 +340,28 @@
 
   color: var(--cor-erro);
 
-  font-size: 16px;
-  font-weight: bold;
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
 
   cursor: pointer;
+
+  transition: color var(--transition-normal);
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .turma-item button:hover {
   color: var(--cor-erro-hover);
+}
+
+.turma-item button:focus-visible {
+  outline: 2px solid var(--cor-erro);
+  outline-offset: 2px;
+  border-radius: 50%;
 }
 
 /* ===================================
@@ -284,34 +383,52 @@
   padding: 12px 18px;
 
   font-weight: 600;
+  font-size: 15px;
 
   cursor: pointer;
 
   transition: all var(--transicao);
 }
 
+.modal-botoes button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Cancelar */
 
 .modal-botoes button:first-child {
-  background: var(--cor-laranja);
-  color: var(--cor-texto-claro);
+  background: transparent;
+  color: var(--cor-laranja);
+  border: 2px solid var(--cor-laranja);
 }
 
-.modal-botoes button:first-child:hover {
-  transform: scale(1.05);
-  box-shadow: var(--sombra-laranja);
+.modal-botoes button:first-child:hover:not(:disabled) {
+  background: var(--cor-laranja);
+  color: var(--cor-texto-light);
+  transform: scale(1.02);
+}
+
+.modal-botoes button:first-child:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
 }
 
 /* Salvar */
 
 .modal-botoes button:last-child {
   background: var(--cor-laranja);
-  color: var(--cor-texto-claro);
+  color: var(--cor-texto-light);
 }
 
-.modal-botoes button:last-child:hover {
-  transform: scale(1.05);
-  box-shadow: var(--sombra-laranja);
+.modal-botoes button:last-child:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-laranja);
+}
+
+.modal-botoes button:last-child:focus-visible {
+  outline: 2px solid var(--cor-texto-light);
+  outline-offset: 2px;
 }
 
 /* ===================================
@@ -320,37 +437,114 @@
 
 @media (max-width: 768px) {
   .professores-content {
-    padding: 16px;
+    padding: var(--spacing-lg);
   }
 
   .professores-topo {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .professores-content h1 {
+    font-size: var(--text-3xl);
   }
 
   .btn-novo-professor {
     width: 100%;
+    padding: var(--spacing-lg);
+  }
+
+  .modal-overlay {
+    padding: var(--spacing-md);
   }
 
   .modal-professor {
     max-width: 100%;
-    padding: 20px;
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+    max-height: 95vh;
+  }
+
+  .modal-professor h2 {
+    font-size: var(--text-2xl);
+  }
+
+  .form-group label {
+    font-size: var(--text-xs);
+  }
+
+  .modal-professor input,
+  .modal-professor select {
+    font-size: var(--text-lg);
+    padding: var(--spacing-lg);
   }
 
   .turma-adicionar {
     flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .turma-adicionar input {
+    padding: var(--spacing-lg);
   }
 
   .btn-add-turma {
     width: 100%;
     min-height: 45px;
+    font-size: var(--text-3xl);
   }
 
   .modal-botoes {
     flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
   }
 
   .modal-botoes button {
     width: 100%;
+    padding: var(--spacing-lg);
+    font-size: var(--text-sm);
+  }
+
+  .lista-turmas {
+    gap: var(--spacing-xs);
+  }
+
+  .turma-item {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--text-sm);
+  }
+
+  .professores-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .professores-content {
+    padding: var(--spacing-md);
+  }
+
+  .professores-content h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .professores-content h2 {
+    font-size: var(--text-sm);
+  }
+
+  .modal-professor {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+
+  .modal-professor h2 {
+    font-size: var(--text-xl);
+  }
+
+  .turma-item {
+    font-size: var(--text-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }

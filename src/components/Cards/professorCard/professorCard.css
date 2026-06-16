@@ -1,107 +1,191 @@
-:root {
-  --cor-primaria: #2563eb;
-  --cor-destaque: #ff7a00;
-  --cor-secundaria: #1f2937;
-  --cor-branco: #ffffff;
-  --cor-texto-secundario: rgba(255, 255, 255, 0.7);
-  --sombra-card: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-/* ==================================================
-   CARD PROFESSOR
-================================================== */
+/* ===================================
+   CARD DO PROFESSOR - TEMA ESCURO
+=================================== */
 
 .professor-card {
-  background: var(--cor-secundaria);
+  background: #1f2937;
+  color: var(--cor-texto-light);
 
-  color: var(--cor-branco);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
 
-  border-radius: 10px;
-
-  padding: 20px;
-
-  box-shadow: var(--sombra-card);
+  box-shadow: var(--shadow-md);
 
   display: flex;
-
   flex-direction: column;
+  gap: var(--spacing-lg);
 
-  gap: 15px;
-
-  transition:
-    transform 0.3s ease,
-    background-color 0.3s ease;
+  transition: all var(--transition-normal);
 }
-
-/* ==================================================
-   HOVER
-================================================== */
 
 .professor-card:hover {
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
-/* ==================================================
-   CABEÇALHO
-================================================== */
+/* ===================================
+   HEADER - NOME
+=================================== */
+
+.professor-header {
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
 .professor-header h3 {
   margin: 0;
-
-  color: var(--cor-destaque);
-
-  font-size: 1.3rem;
+  color: var(--cor-laranja);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
 }
 
-/* ==================================================
-   CORPO
-================================================== */
+/* ===================================
+   BODY - INFORMAÇÕES
+=================================== */
 
 .professor-body {
   display: flex;
-
   flex-direction: column;
-
-  gap: 8px;
+  gap: var(--spacing-md);
+  flex: 1;
 }
 
 .professor-body p {
   margin: 0;
-
-  color: var(--cor-texto-secundario);
-
-  line-height: 1.5;
+  font-size: var(--text-base);
+  line-height: var(--line-height-normal);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .professor-body strong {
-  color: var(--cor-branco);
+  color: var(--cor-texto-light);
+  font-weight: var(--font-semi-bold);
 }
 
-/* ==================================================
-   BOTÃO
-================================================== */
+/* ===================================
+   AÇÕES - BOTÕES
+=================================== */
 
-.professor-btn {
+.professor-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
   margin-top: auto;
-
-  background: var(--cor-destaque);
-
-  color: var(--cor-branco);
-
-  border: none;
-
-  border-radius: 8px;
-
-  padding: 10px;
-
-  cursor: pointer;
-
-  font-weight: 600;
-
-  transition:
-    transform 0.3s ease,
-    background-color 0.3s ease;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.professor-btn:hover {
-  transform: translateY(-2px) scale(1.03);
+.professor-actions button {
+  flex: 1;
+  max-width: 120px;
+  padding: var(--spacing-md) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.professor-actions button:hover {
+  transform: scale(1.05);
+}
+
+.professor-actions button:active {
+  transform: scale(0.98);
+}
+
+.professor-actions button:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
+}
+
+/* Botão Detalhes */
+.btn-detalhes {
+  background: var(--cor-info);
+  color: var(--cor-texto-light);
+}
+
+.btn-detalhes:hover {
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.35);
+}
+
+/* Botão Editar */
+.btn-editar {
+  background: var(--cor-laranja);
+  color: var(--cor-texto-light);
+}
+
+.btn-editar:hover {
+  box-shadow: var(--shadow-laranja);
+}
+
+/* Botão Excluir */
+.btn-excluir {
+  background: var(--cor-erro);
+  color: var(--cor-texto-light);
+}
+
+.btn-excluir:hover {
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.35);
+}
+
+/* ===================================
+   RESPONSIVIDADE
+=================================== */
+
+@media (max-width: 768px) {
+  .professor-card {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .professor-header h3 {
+    font-size: var(--text-lg);
+  }
+
+  .professor-body {
+    gap: var(--spacing-sm);
+  }
+
+  .professor-body p {
+    font-size: var(--text-sm);
+  }
+
+  .professor-actions {
+    gap: var(--spacing-xs);
+    padding-top: var(--spacing-sm);
+  }
+
+  .professor-actions button {
+    max-width: 100%;
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .professor-card {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .professor-header h3 {
+    font-size: var(--text-base);
+  }
+
+  .professor-body p {
+    font-size: var(--text-sm);
+  }
+
+  .professor-actions {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .professor-actions button {
+    max-width: 100%;
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: var(--text-xs);
+  }
 }

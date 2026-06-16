@@ -1,4 +1,107 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap");
+
+/* ===================================
+   VARIÁVEIS GLOBAIS
+=================================== */
+
+:root {
+  /* CORES */
+  --cor-laranja: #ff7a00;
+  --cor-laranja-hover: #e67000;
+  --cor-laranja-light: #ffe4cc;
+
+  --cor-fundo: #f5f6fa;
+  --cor-fundo-alt: #f9f9f9;
+
+  --cor-branco: #ffffff;
+
+  --cor-texto: #222222;
+  --cor-texto-secondary: #666666;
+  --cor-texto-light: #ffffff;
+
+  --cor-borda: #d6d6d6;
+  --cor-borda-light: #e8e8e8;
+
+  --cor-overlay: rgba(0, 0, 0, 0.5);
+
+  --cor-cinza-claro: #f3f4f6;
+
+  --cor-sucesso: #4caf50;
+  --cor-sucesso-bg: #e8f5e9;
+  --cor-sucesso-text: #2e7d32;
+
+  --cor-erro: #d32f2f;
+  --cor-erro-bg: #ffebee;
+  --cor-erro-text: #c62828;
+  --cor-erro-hover: #b71c1c;
+
+  --cor-aviso: #ff9800;
+  --cor-aviso-bg: #fff3e0;
+
+  --cor-info: #2196f3;
+  --cor-info-bg: #e3f2fd;
+
+  /* TIPOGRAFIA */
+  --font-family: "Roboto", sans-serif;
+  --font-light: 300;
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semi-bold: 600;
+  --font-bold: 700;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 15px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 28px;
+  --text-5xl: 32px;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ESPAÇAMENTO */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+
+  /* BORDAS */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* SOMBRAS */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 8px 30px rgba(0, 0, 0, 0.15);
+  --shadow-laranja: 0 4px 12px rgba(255, 122, 0, 0.35);
+
+  /* TRANSIÇÕES */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* ===================================
+   RESET E ESTILOS GLOBAIS
+=================================== */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 * {
   margin: 0;
@@ -7,8 +110,319 @@
 }
 
 body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  font-weight: var(--font-regular);
+  line-height: var(--line-height-normal);
+  color: var(--cor-texto);
+  background-color: var(--cor-fundo);
+  overflow-x: hidden;
+}
 
-  font-family: 'Roboto', sans-serif;
+/* ===================================
+   TIPOGRAFIA GLOBAL
+=================================== */
 
-  background: #f5f6fa;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-bold);
+  line-height: var(--line-height-tight);
+  color: var(--cor-texto);
+}
+
+h1 {
+  font-size: var(--text-5xl);
+}
+
+h2 {
+  font-size: var(--text-4xl);
+}
+
+h3 {
+  font-size: var(--text-3xl);
+}
+
+h4 {
+  font-size: var(--text-2xl);
+}
+
+h5 {
+  font-size: var(--text-xl);
+}
+
+h6 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semi-bold);
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  line-height: var(--line-height-normal);
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===================================
+   INPUTS E FORMULÁRIOS
+=================================== */
+
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+}
+
+input,
+select,
+textarea {
+  color: var(--cor-texto);
+  background-color: var(--cor-branco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md);
+  transition: all var(--transition-normal);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--cor-laranja);
+  box-shadow: 0 0 5px rgba(255, 122, 0, 0.3);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--cor-texto-secondary);
+  opacity: 0.7;
+}
+
+/* ===================================
+   BOTÕES GLOBAIS
+=================================== */
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-weight: var(--font-semi-bold);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
+}
+
+/* ===================================
+   CLASSES UTILITÁRIAS - TIPOGRAFIA
+=================================== */
+
+.text-xs {
+  font-size: var(--text-xs);
+}
+.text-sm {
+  font-size: var(--text-sm);
+}
+.text-base {
+  font-size: var(--text-base);
+}
+.text-lg {
+  font-size: var(--text-lg);
+}
+.text-xl {
+  font-size: var(--text-xl);
+}
+.text-2xl {
+  font-size: var(--text-2xl);
+}
+.text-3xl {
+  font-size: var(--text-3xl);
+}
+.text-4xl {
+  font-size: var(--text-4xl);
+}
+.text-5xl {
+  font-size: var(--text-5xl);
+}
+
+.font-light {
+  font-weight: var(--font-light);
+}
+.font-regular {
+  font-weight: var(--font-regular);
+}
+.font-medium {
+  font-weight: var(--font-medium);
+}
+.font-semibold {
+  font-weight: var(--font-semi-bold);
+}
+.font-bold {
+  font-weight: var(--font-bold);
+}
+
+.leading-tight {
+  line-height: var(--line-height-tight);
+}
+.leading-normal {
+  line-height: var(--line-height-normal);
+}
+.leading-relaxed {
+  line-height: var(--line-height-relaxed);
+}
+
+/* ===================================
+   CLASSES UTILITÁRIAS - CORES
+=================================== */
+
+.text-primary {
+  color: var(--cor-texto);
+}
+.text-secondary {
+  color: var(--cor-texto-secondary);
+}
+.text-light {
+  color: var(--cor-texto-light);
+}
+.text-laranja {
+  color: var(--cor-laranja);
+}
+
+.bg-primary {
+  background-color: var(--cor-branco);
+}
+.bg-secondary {
+  background-color: var(--cor-fundo);
+}
+.bg-laranja {
+  background-color: var(--cor-laranja);
+}
+.bg-cinza-claro {
+  background-color: var(--cor-cinza-claro);
+}
+
+/* ===================================
+   CLASSES UTILITÁRIAS - ESPAÇAMENTO
+=================================== */
+
+.p-xs {
+  padding: var(--spacing-xs);
+}
+.p-sm {
+  padding: var(--spacing-sm);
+}
+.p-md {
+  padding: var(--spacing-md);
+}
+.p-lg {
+  padding: var(--spacing-lg);
+}
+.p-xl {
+  padding: var(--spacing-xl);
+}
+.p-2xl {
+  padding: var(--spacing-2xl);
+}
+
+.m-xs {
+  margin: var(--spacing-xs);
+}
+.m-sm {
+  margin: var(--spacing-sm);
+}
+.m-md {
+  margin: var(--spacing-md);
+}
+.m-lg {
+  margin: var(--spacing-lg);
+}
+.m-xl {
+  margin: var(--spacing-xl);
+}
+.m-2xl {
+  margin: var(--spacing-2xl);
+}
+
+/* ===================================
+   CLASSES UTILITÁRIAS - SOMBRAS
+=================================== */
+
+.shadow-xs {
+  box-shadow: var(--shadow-xs);
+}
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+.shadow-xl {
+  box-shadow: var(--shadow-xl);
+}
+
+/* ===================================
+   LINKS
+=================================== */
+
+a {
+  color: var(--cor-laranja);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+}
+
+a:hover {
+  color: var(--cor-laranja-hover);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
+}
+
+/* ===================================
+   SCROLLBAR
+=================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cor-cinza-claro);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cor-borda);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cor-laranja);
+}
+
+/* ===================================
+   SELEÇÃO DE TEXTO
+=================================== */
+
+::selection {
+  background-color: var(--cor-laranja);
+  color: var(--cor-texto-light);
 }

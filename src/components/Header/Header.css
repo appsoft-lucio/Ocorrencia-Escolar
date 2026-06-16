@@ -95,6 +95,24 @@
   gap: 18px;
 }
 
+.header-left h1 {
+  margin: 0;
+
+  font-size: 1.8rem;
+
+  font-weight: 700;
+
+  color: var(--cor-branco);
+}
+
+.header-left p {
+  margin: 5px 0 0 0;
+
+  font-size: 0.95rem;
+
+  color: rgba(255, 255, 255, 0.75);
+}
+
 /* ==========================================================
    LOGO
 ========================================================== */

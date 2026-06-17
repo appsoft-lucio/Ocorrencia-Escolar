@@ -1,76 +1,68 @@
-// Importa CSS do componente
 import "./Sidebar.css";
 
-// Importa logo
-import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
-
-// React hooks
 import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-// Contexto de autenticação
+import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext";
 
-// React Router
-import { useNavigate, Link } from "react-router-dom";
+const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
 
-// Componente Sidebar
 function Sidebar() {
-  // Função logout do contexto
-  const { logout } = useContext(AuthContext);
-
-  // Navegação programática
+  const { logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const isGestao = GESTAO_ROLES.includes(user?.role);
 
-  // Função de logout
   function handleLogout() {
-    logout(); // limpa usuário
-    navigate("/"); // volta para login
+    logout();
+    navigate("/");
   }
 
   return (
     <aside className="sidebar">
-      {/* LOGO */}
       <div className="sidebar-logo">
         <img src={logo} alt="AppSoft" className="sidebar-logo-img" />
       </div>
 
-      {/* MENU */}
       <nav>
         <ul>
           <li>
-            <Link to="/dashboard">📊 Dashboard</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </li>
 
           <li>
-            <Link to="/ocorrencias">📝 Ocorrências</Link>
+            <Link to="/ocorrencias">Ocorrências</Link>
           </li>
 
           <li>
             <Link to="/alunos">Alunos</Link>
           </li>
 
-          <li>
-            <Link to="/professores">👨‍🏫 Professores</Link>
-          </li>
+          {isGestao && (
+            <li>
+              <Link to="/professores">Professores</Link>
+            </li>
+          )}
 
           <li>
-            <Link to="/coordenador">🎯 Coordenador</Link>
+            <Link to="/coordenador">Coordenador</Link>
           </li>
 
-          <li>
-            <Link to="/relatorios">📈 Relatórios</Link>
-          </li>
+          {isGestao && (
+            <li>
+              <Link to="/relatorios">Relatórios</Link>
+            </li>
+          )}
 
           <li>
-            <Link to="/configuracao">⚙️ Configurações</Link>
+            <Link to="/configuracao">Configurações</Link>
           </li>
         </ul>
       </nav>
 
-      {/* LOGOUT */}
-      <div className="sidebar-footer" onClick={handleLogout}>
-        🚪 Sair
-      </div>
+      <button type="button" className="sidebar-footer" onClick={handleLogout}>
+        Sair
+      </button>
     </aside>
   );
 }

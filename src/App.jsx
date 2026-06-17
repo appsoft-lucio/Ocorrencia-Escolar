@@ -85,7 +85,7 @@ function App() {
             <Route
               path="/professores"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador"]}>
                   <Professor />
                 </PrivateRoute>
               }
@@ -93,7 +93,7 @@ function App() {
             <Route
               path="/relatorios"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador"]}>
                   <Relatorios />
                 </PrivateRoute>
               }

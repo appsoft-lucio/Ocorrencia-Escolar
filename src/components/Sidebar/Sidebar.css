@@ -63,6 +63,9 @@ nav li:hover {
 
 /* Footer */
 .sidebar-footer {
+  width: 100%;
+  background: transparent;
+  color: var(--cor-branco);
   padding: 20px;
   border-top: 1px solid var(--cor-borda-escura);
   text-align: center;

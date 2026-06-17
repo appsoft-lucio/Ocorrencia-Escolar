@@ -227,9 +227,11 @@ function Alunos() {
             </div>
 
             <div className="alunos-acoes-topo">
-              <button type="button" className="btn-secundario" onClick={abrirRelatorios}>
-                Relatórios
-              </button>
+              {isGestao && (
+                <button type="button" className="btn-secundario" onClick={abrirRelatorios}>
+                  Relatórios
+                </button>
+              )}
               <button type="button" className="btn-secundario" onClick={imprimirPagina}>
                 Imprimir
               </button>

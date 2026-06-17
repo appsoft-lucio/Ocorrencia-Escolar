@@ -1,4 +1,5 @@
 import "./recuperarSenha.css";
+
 import { useState } from "react";
 
 function RecuperarSenha() {
@@ -7,15 +8,12 @@ function RecuperarSenha() {
 
   const enviar = () => {
     if (!email) return;
-
-    // futuro: chamar API
     setEnviado(true);
   };
 
   return (
     <div className="recuperar-container">
       <div className="recuperar-card">
-
         <h1>Recuperar senha</h1>
 
         {!enviado ? (
@@ -26,19 +24,25 @@ function RecuperarSenha() {
               type="email"
               placeholder="Seu e-mail"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
             />
 
-            <button onClick={enviar}>
+            <button type="button" onClick={enviar}>
               Enviar link
             </button>
+
+            <small>
+              Sem acesso ao email cadastrado? Peça ao seu superior para atualizar
+              seu email nas configurações.
+            </small>
           </>
         ) : (
           <p>
             Se este email estiver cadastrado, você receberá um link de redefinição.
+            Caso não tenha mais acesso ao email, peça ao seu superior para atualizar
+            o cadastro antes de tentar novamente.
           </p>
         )}
-
       </div>
     </div>
   );

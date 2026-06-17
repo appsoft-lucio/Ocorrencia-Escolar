@@ -2,7 +2,7 @@ import "./professor.css";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import ProfessorCard from "../../components/Cards/professorCard/professorCard";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
 const CINCO_ANOS_EM_MS = 5 * 365 * 24 * 60 * 60 * 1000;
@@ -76,6 +76,11 @@ function Professor() {
     turmas: [],
   });
   const [mensagem, setMensagem] = useState("");
+  const [filtros, setFiltros] = useState({
+    busca: "",
+    status: "",
+    turma: "",
+  });
 
   // Estados dos dados
   const [professores, setProfessores] = useState(() => {
@@ -132,6 +137,73 @@ function Professor() {
   useEffect(() => {
     localStorage.setItem("professores", JSON.stringify(professores));
   }, [professores]);
+
+  const professoresResumo = useMemo(() => {
+    const ativos = professores.filter((professor) => professor.status !== "inativo");
+    const turmasAtivas = new Set(
+      professores.flatMap((professor) =>
+        normalizarTurmas(professor.turmas)
+          .filter(turmaEstaAtiva)
+          .map((turma) => turma.codigo),
+      ),
+    );
+
+    return {
+      total: professores.length,
+      ativos: ativos.length,
+      inativos: professores.length - ativos.length,
+      turmas: turmasAtivas.size,
+    };
+  }, [professores]);
+
+  const turmasDisponiveis = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          professores.flatMap((professor) =>
+            normalizarTurmas(professor.turmas).map((turma) => turma.codigo),
+          ),
+        ),
+      ).sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true })),
+    [professores],
+  );
+
+  const professoresFiltrados = useMemo(() => {
+    const termo = filtros.busca
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+
+    return professores.filter((professor) => {
+      const turmas = normalizarTurmas(professor.turmas);
+      const textoProfessor = [professor.nome, professor.disciplina, professor.turno]
+        .join(" ")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      const buscaOk =
+        !termo ||
+        textoProfessor.includes(termo) ||
+        turmas.some((turma) => turma.codigo.toLowerCase().includes(termo));
+      const statusOk = !filtros.status || professor.status === filtros.status;
+      const turmaOk =
+        !filtros.turma || turmas.some((turma) => turma.codigo === filtros.turma);
+
+      return buscaOk && statusOk && turmaOk;
+    });
+  }, [filtros, professores]);
+
+  const atualizarFiltro = (campo, valor) => {
+    setFiltros((filtrosAtuais) => ({
+      ...filtrosAtuais,
+      [campo]: valor,
+    }));
+  };
+
+  const limparFiltros = () => {
+    setFiltros({ busca: "", status: "", turma: "" });
+  };
 
   const limparFormulario = () => {
     setFormData({
@@ -694,9 +766,71 @@ function Professor() {
             do vínculo com a escola.
           </p>
 
+          <section className="professores-resumo" aria-label="Resumo de professores">
+            <div>
+              <strong>{professoresResumo.total}</strong>
+              <span>Total</span>
+            </div>
+            <div>
+              <strong>{professoresResumo.ativos}</strong>
+              <span>Ativos</span>
+            </div>
+            <div>
+              <strong>{professoresResumo.inativos}</strong>
+              <span>Desativados</span>
+            </div>
+            <div>
+              <strong>{professoresResumo.turmas}</strong>
+              <span>Turmas ativas</span>
+            </div>
+          </section>
+
+          <section className="professores-filtros" aria-label="Filtros de professores">
+            <label>
+              Buscar
+              <input
+                type="search"
+                placeholder="Nome, disciplina ou turma"
+                value={filtros.busca}
+                onChange={(event) => atualizarFiltro("busca", event.target.value)}
+              />
+            </label>
+
+            <label>
+              Status
+              <select
+                value={filtros.status}
+                onChange={(event) => atualizarFiltro("status", event.target.value)}
+              >
+                <option value="">Todos</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Desativados</option>
+              </select>
+            </label>
+
+            <label>
+              Turma
+              <select
+                value={filtros.turma}
+                onChange={(event) => atualizarFiltro("turma", event.target.value)}
+              >
+                <option value="">Todas</option>
+                {turmasDisponiveis.map((turma) => (
+                  <option key={turma} value={turma}>
+                    {turma}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <button type="button" onClick={limparFiltros}>
+              Limpar
+            </button>
+          </section>
+
           <section className="professores-cards">
-            {professores.length > 0 ? (
-              professores.map((professor) => (
+            {professoresFiltrados.length > 0 ? (
+              professoresFiltrados.map((professor) => (
                 <ProfessorCard
                   key={professor.id}
                   nome={professor.nome}

@@ -50,6 +50,76 @@
   line-height: var(--line-height-relaxed);
 }
 
+.professores-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.professores-resumo div {
+  padding: var(--spacing-lg);
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.professores-resumo strong {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.professores-resumo span {
+  display: block;
+  margin-top: var(--spacing-sm);
+  color: var(--cor-texto-claro-suave);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.professores-filtros {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(150px, 0.8fr) minmax(150px, 0.8fr) auto;
+  align-items: end;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--cor-branco);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.professores-filtros label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  color: #374151;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.professores-filtros input,
+.professores-filtros select {
+  width: 100%;
+  height: 44px;
+}
+
+.professores-filtros button {
+  min-height: 44px;
+  padding: 0 var(--spacing-lg);
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.professores-filtros button:hover {
+  background: #d1d5db;
+}
+
 /* ===================================
    BOTÃO NOVO PROFESSOR
 =================================== */
@@ -429,6 +499,11 @@
 @media (max-width: 520px) {
   .modal-professor {
     padding: var(--spacing-lg);
+  }
+
+  .professores-resumo,
+  .professores-filtros {
+    grid-template-columns: 1fr;
   }
 
   .turma-adicionar,

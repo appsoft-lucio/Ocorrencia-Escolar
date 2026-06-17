@@ -59,10 +59,10 @@ function Login() {
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
       .trim();
-    const role = ["direcao", "coordenacao", "coordenador"].includes(
+    const role = ["teste", "direcao", "coordenacao", "coordenador"].includes(
       nomeNormalizado,
     )
-      ? nomeNormalizado === "direcao"
+      ? ["teste", "direcao"].includes(nomeNormalizado)
         ? "direcao"
         : "coordenacao"
       : "professor";

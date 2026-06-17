@@ -7,6 +7,8 @@ import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { DEMO_USERS, encontrarUsuarioDemo } from "../../data/demoUsers";
 
+const USUARIOS_VISIVEIS = DEMO_USERS.filter((usuario) => usuario.role === "professor");
+
 function Login() {
   const [userName, setUserName] = useState("professor");
   const [password, setPassword] = useState("123");
@@ -67,13 +69,13 @@ function Login() {
         <p className="subtitle">Faça login para acessar o sistema</p>
 
         <div className="login-demo-users" aria-label="Contas para apresentação">
-          {DEMO_USERS.map((usuario) => (
+          {USUARIOS_VISIVEIS.map((usuario) => (
             <button
               type="button"
               key={usuario.id}
               onClick={() => preencherUsuarioDemo(usuario)}
             >
-              {usuario.role === "direcao" ? "Usar Direção" : "Usar Professor"}
+              Usar Professor
             </button>
           ))}
         </div>

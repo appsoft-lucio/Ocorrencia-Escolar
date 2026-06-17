@@ -17,6 +17,42 @@ function professorDentroDoPrazoDeRetencao(professor) {
   return Date.now() - dataDesativacao < CINCO_ANOS_EM_MS;
 }
 
+function criarTurma(codigo) {
+  return {
+    id: `${codigo}-${Date.now()}`,
+    codigo,
+    status: "ativo",
+    desativadaEm: null,
+  };
+}
+
+function normalizarTurma(turma) {
+  if (typeof turma === "string") {
+    return {
+      id: turma,
+      codigo: turma,
+      status: "ativo",
+      desativadaEm: null,
+    };
+  }
+
+  return {
+    ...turma,
+    id: turma.id || turma.codigo || String(Date.now()),
+    codigo: turma.codigo || turma.nome || "",
+    status: turma.status || "ativo",
+    desativadaEm: turma.desativadaEm || null,
+  };
+}
+
+function normalizarTurmas(turmas = []) {
+  return turmas.map(normalizarTurma).filter((turma) => turma.codigo);
+}
+
+function turmaEstaAtiva(turma) {
+  return normalizarTurma(turma).status !== "inativo";
+}
+
 function Professor() {
   const { user } = useContext(AuthContext);
 
@@ -87,6 +123,7 @@ function Professor() {
         ...professor,
         status: professor.status || "ativo",
         desativadoEm: professor.desativadoEm || null,
+        turmas: normalizarTurmas(professor.turmas),
       }))
       .filter(professorDentroDoPrazoDeRetencao);
   });
@@ -113,33 +150,63 @@ function Professor() {
   };
 
   const adicionarTurma = () => {
-    const turma = formData.novaTurma.trim();
+    const codigoTurma = formData.novaTurma.trim();
 
-    if (!turma) {
-      setMensagem("Digite o código da turma.");
+    if (!codigoTurma) {
+      setMensagem("Digite o codigo da turma.");
       return;
     }
 
-    if (formData.turmas.includes(turma)) {
-      setMensagem("Esta turma já foi adicionada.");
+    const turmaExistente = formData.turmas.find(
+      (item) =>
+        normalizarTurma(item).codigo.toLowerCase() ===
+        codigoTurma.toLowerCase(),
+    );
+
+    if (turmaExistente && turmaEstaAtiva(turmaExistente)) {
+      setMensagem("Esta turma ja esta ativa.");
       return;
     }
 
     setFormData((prev) => ({
       ...prev,
-      turmas: [...prev.turmas, turma],
+      turmas: turmaExistente
+        ? prev.turmas.map((item) => {
+            const turmaAtual = normalizarTurma(item);
+
+            return turmaAtual.codigo.toLowerCase() ===
+              codigoTurma.toLowerCase()
+              ? { ...turmaAtual, status: "ativo", desativadaEm: null }
+              : turmaAtual;
+          })
+        : [...prev.turmas, criarTurma(codigoTurma)],
       novaTurma: "",
     }));
-    setMensagem("");
+    setMensagem(
+      turmaExistente
+        ? "Turma reativada com sucesso."
+        : "Turma adicionada com sucesso.",
+    );
   };
 
-  const removerTurma = (turmaRemover) => {
+  const alternarStatusTurma = (codigoTurma) => {
     setFormData((prev) => ({
       ...prev,
-      turmas: prev.turmas.filter((turma) => turma !== turmaRemover),
+      turmas: prev.turmas.map((item) => {
+        const turma = normalizarTurma(item);
+
+        if (turma.codigo !== codigoTurma) return turma;
+
+        const estaInativa = turma.status === "inativo";
+
+        return {
+          ...turma,
+          status: estaInativa ? "ativo" : "inativo",
+          desativadaEm: estaInativa ? null : new Date().toISOString(),
+        };
+      }),
     }));
   };
-
   const salvarProfessor = () => {
     if (!formData.nome.trim()) {
       setMensagem("Informe o nome do professor.");
@@ -151,8 +218,8 @@ function Professor() {
       return;
     }
 
-    if (formData.turmas.length === 0) {
-      setMensagem("Adicione pelo menos uma turma.");
+    if (!formData.turmas.some(turmaEstaAtiva)) {
+      setMensagem("Adicione pelo menos uma turma ativa.");
       return;
     }
 
@@ -161,7 +228,7 @@ function Professor() {
       nome: formData.nome,
       disciplina: formData.disciplina,
       turno: formData.turno,
-      turmas: formData.turmas,
+      turmas: normalizarTurmas(formData.turmas),
       ocorrencias: 0,
       status: "ativo",
       desativadoEm: null,
@@ -200,7 +267,7 @@ function Professor() {
       disciplina: professor.disciplina,
       turno: professor.turno,
       novaTurma: "",
-      turmas: [...professor.turmas],
+      turmas: normalizarTurmas(professor.turmas),
     });
     setAbrirModalEdicao(true);
   };
@@ -216,8 +283,8 @@ function Professor() {
       return;
     }
 
-    if (formData.turmas.length === 0) {
-      setMensagem("Adicione pelo menos uma turma.");
+    if (!formData.turmas.some(turmaEstaAtiva)) {
+      setMensagem("Adicione pelo menos uma turma ativa.");
       return;
     }
 
@@ -229,7 +296,7 @@ function Professor() {
               nome: formData.nome,
               disciplina: formData.disciplina,
               turno: formData.turno,
-              turmas: formData.turmas,
+              turmas: normalizarTurmas(formData.turmas),
             }
           : prof,
       ),
@@ -320,14 +387,26 @@ function Professor() {
 
                 <div className="detalhe-item">
                   <strong>
-                    Turmas ({professorSelecionado.turmas.length}):
+                    Turmas ativas (
+                    {normalizarTurmas(professorSelecionado.turmas).filter(
+                      turmaEstaAtiva,
+                    ).length}
+                    ):
                   </strong>
                   <div className="turmas-detalhes">
-                    {professorSelecionado.turmas.map((turma, idx) => (
-                      <span key={idx} className="turma-badge">
-                        {turma}
+                    {normalizarTurmas(professorSelecionado.turmas).map(
+                      (turma) => (
+                      <span
+                        key={turma.id}
+                        className={`turma-badge ${
+                          turma.status === "inativo" ? "turma-inativa" : ""
+                        }`}
+                      >
+                        {turma.codigo}
+                        {turma.status === "inativo" ? " (desativada)" : ""}
                       </span>
-                    ))}
+                      ),
+                    )}
                   </div>
                 </div>
 
@@ -424,25 +503,36 @@ function Professor() {
                     onClick={adicionarTurma}
                     title="Adicionar turma"
                   >
-                    Adicinar
+                    Adicionar
                   </button>
                 </div>
 
                 <div className="lista-turmas">
                   {formData.turmas.length > 0 ? (
-                    formData.turmas.map((turma) => (
-                      <div key={turma} className="turma-item">
-                        <span>{turma}</span>
+                    formData.turmas.map((item) => {
+                      const turma = normalizarTurma(item);
+                      const estaInativa = turma.status === "inativo";
+
+                      return (
+                      <div
+                        key={turma.id}
+                        className={`turma-item ${estaInativa ? "turma-inativa" : ""}`}
+                      >
+                        <span>
+                          {turma.codigo}
+                          {estaInativa ? " (desativada)" : ""}
+                        </span>
                         <button
                           type="button"
-                          onClick={() => removerTurma(turma)}
-                          title="Remover turma"
-                          aria-label={`Remover turma ${turma}`}
+                          onClick={() => alternarStatusTurma(turma.codigo)}
+                          title={estaInativa ? "Reativar turma" : "Desativar turma"}
+                          aria-label={`${estaInativa ? "Reativar" : "Desativar"} turma ${turma.codigo}`}
                         >
-                          Remover
+                          {estaInativa ? "Reativar" : "Desativar"}
                         </button>
                       </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="vazio">Nenhuma turma adicionada</p>
                   )}
@@ -534,25 +624,36 @@ function Professor() {
                     onClick={adicionarTurma}
                     title="Adicionar turma"
                   >
-                    Adicinar
+                    Adicionar
                   </button>
                 </div>
 
                 <div className="lista-turmas">
                   {formData.turmas.length > 0 ? (
-                    formData.turmas.map((turma) => (
-                      <div key={turma} className="turma-item">
-                        <span>{turma}</span>
+                    formData.turmas.map((item) => {
+                      const turma = normalizarTurma(item);
+                      const estaInativa = turma.status === "inativo";
+
+                      return (
+                      <div
+                        key={turma.id}
+                        className={`turma-item ${estaInativa ? "turma-inativa" : ""}`}
+                      >
+                        <span>
+                          {turma.codigo}
+                          {estaInativa ? " (desativada)" : ""}
+                        </span>
                         <button
                           type="button"
-                          onClick={() => removerTurma(turma)}
-                          title="Remover turma"
-                          aria-label={`Remover turma ${turma}`}
+                          onClick={() => alternarStatusTurma(turma.codigo)}
+                          title={estaInativa ? "Reativar turma" : "Desativar turma"}
+                          aria-label={`${estaInativa ? "Reativar" : "Desativar"} turma ${turma.codigo}`}
                         >
-                          Remover
+                          {estaInativa ? "Reativar" : "Desativar"}
                         </button>
                       </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="vazio">Nenhuma turma adicionada</p>
                   )}
@@ -621,3 +722,4 @@ function Professor() {
 }
 
 export default Professor;
+

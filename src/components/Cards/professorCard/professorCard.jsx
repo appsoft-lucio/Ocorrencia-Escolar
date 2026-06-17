@@ -14,6 +14,15 @@ function ProfessorCard({
   onDetalhes,
 }) {
   const estaInativo = status === "inativo";
+  const turmasNormalizadas = turmas.map((turma) =>
+    typeof turma === "string"
+      ? { codigo: turma, status: "ativo" }
+      : { ...turma, status: turma.status || "ativo" },
+  );
+  const turmasAtivas = turmasNormalizadas.filter(
+    (turma) => turma.status !== "inativo",
+  );
+  const turmasInativas = turmasNormalizadas.length - turmasAtivas.length;
 
   return (
     <div className={`professor-card ${estaInativo ? "professor-card-inativo" : ""}`}>
@@ -37,7 +46,10 @@ function ProfessorCard({
 
         <p>
           <strong>Turmas:</strong>{" "}
-          {turmas?.length ? turmas.join(" • ") : "Sem turmas"}
+          {turmasAtivas.length
+            ? turmasAtivas.map((turma) => turma.codigo).join(" • ")
+            : "Sem turmas ativas"}
+          {turmasInativas > 0 ? ` (${turmasInativas} desativada${turmasInativas > 1 ? "s" : ""})` : ""}
         </p>
 
         <p>
@@ -88,7 +100,16 @@ ProfessorCard.propTypes = {
   nome: PropTypes.string.isRequired,
   disciplina: PropTypes.string.isRequired,
   turno: PropTypes.string.isRequired,
-  turmas: PropTypes.arrayOf(PropTypes.string).isRequired,
+  turmas: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        codigo: PropTypes.string.isRequired,
+        status: PropTypes.string,
+        desativadaEm: PropTypes.string,
+      }),
+    ]),
+  ).isRequired,
   ocorrencias: PropTypes.number.isRequired,
   status: PropTypes.string,
   desativadoEm: PropTypes.string,

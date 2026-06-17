@@ -168,6 +168,149 @@
   font-size: var(--text-3xl);
 }
 
+.mensagem {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.mensagem.sucesso {
+  background: var(--cor-sucesso-bg);
+  color: var(--cor-sucesso-text);
+}
+
+.mensagem.erro {
+  background: var(--cor-erro-bg);
+  color: var(--cor-erro-text);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-group label,
+.turmas-section h3 {
+  color: var(--cor-texto);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.form-group input,
+.form-group select,
+.turma-adicionar input {
+  width: 100%;
+  min-height: 44px;
+}
+
+.turmas-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.turmas-section h3 {
+  margin: 0;
+}
+
+.turma-adicionar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+}
+
+.btn-add-turma,
+.modal-botoes button,
+.turma-item button {
+  min-height: 40px;
+  padding: 0 var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--cor-texto-light);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-normal);
+}
+
+.btn-add-turma,
+.modal-botoes button:last-child {
+  background: var(--cor-laranja);
+}
+
+.btn-add-turma:hover,
+.modal-botoes button:last-child:hover {
+  box-shadow: var(--shadow-laranja);
+  transform: translateY(-1px);
+}
+
+.lista-turmas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.turma-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
+}
+
+.turma-item span {
+  min-width: 0;
+  color: var(--cor-texto);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  word-break: break-word;
+}
+
+.turma-item button {
+  flex: 0 0 auto;
+  background: var(--cor-erro);
+}
+
+.turma-item.turma-inativa button {
+  background: var(--cor-sucesso-text);
+}
+
+.turma-item button:hover {
+  transform: translateY(-1px);
+}
+
+.vazio {
+  margin: 0;
+  padding: var(--spacing-md);
+  color: var(--cor-texto-secondary);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.modal-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+}
+
+.modal-botoes button:first-child {
+  background: #e5e7eb;
+  color: var(--cor-texto);
+}
+
+.modal-botoes button:first-child:hover {
+  background: #d1d5db;
+}
+
 /* Modal de Detalhes */
 .modal-detalhes {
   width: 100%;
@@ -264,6 +407,15 @@
   font-size: var(--text-sm);
 }
 
+.turma-badge.turma-inativa,
+.turma-item.turma-inativa {
+  opacity: 0.65;
+}
+
+.turma-badge.turma-inativa {
+  text-decoration: line-through;
+}
+
 .ocorrencias-total {
   display: inline-block;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -272,4 +424,24 @@
   border-radius: var(--radius-sm);
   font-weight: var(--font-bold);
   font-size: var(--text-lg);
+}
+
+@media (max-width: 520px) {
+  .modal-professor {
+    padding: var(--spacing-lg);
+  }
+
+  .turma-adicionar,
+  .turma-item,
+  .modal-botoes {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add-turma,
+  .turma-item button,
+  .modal-botoes button {
+    width: 100%;
+  }
 }

@@ -48,20 +48,65 @@
   flex: 1;
   min-width: 320px;
   background: var(--cor-branco);
-  padding: 20px;
+  padding: 22px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.ocorrencias-form h2 {
-  margin-bottom: 15px;
+.formulario-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cor-borda-light);
+}
+
+.formulario-cabecalho h2 {
+  margin: 0 0 6px;
   font-size: 18px;
   color: var(--cor-secundaria);
 }
 
+.formulario-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+  font-size: 13px;
+}
+
+.ocorrencias-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formulario-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.formulario-grupo > legend {
+  margin-bottom: 2px;
+  color: var(--cor-secundaria);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.formulario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .campo-form {
-  display: block;
-  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   color: #374151;
   font-size: 14px;
   font-weight: 600;
@@ -69,7 +114,7 @@
 
 .texto-ajuda {
   display: block;
-  margin: -4px 0 10px;
+  margin-top: -4px;
   color: #666;
   font-size: 12px;
 }
@@ -81,9 +126,8 @@
 .ocorrencias-form select,
 .ocorrencias-form textarea {
   width: 100%;
+  min-height: 44px;
   padding: 12px;
-
-  margin-bottom: 10px;
 
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -105,23 +149,20 @@
 /* textarea */
 .ocorrencias-form textarea {
   min-height: 100px;
-  resize: none;
+  resize: vertical;
 }
 
 /* =========================
    CHECKBOX AREA
 ========================= */
 .checkbox-area {
-  border: 0;
-  margin-bottom: 10px;
-  padding: 0;
+  gap: 10px;
 }
 
-.checkbox-area legend {
-  margin-bottom: 6px;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 600;
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .checkbox-item {
@@ -129,12 +170,15 @@
   align-items: center;
   gap: 10px;
 
-  padding: 6px 8px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--cor-borda-light);
   border-radius: 6px;
+  background: var(--cor-fundo-alt);
 
   cursor: pointer;
 
-  font-size: 16px;
+  font-size: 14px;
 
   transition: 0.2s;
 }
@@ -148,6 +192,8 @@
 .checkbox-item input {
   width: 18px;
   height: 18px;
+  min-height: auto;
+  padding: 0;
 
   accent-color: var(--cor-laranja);
   cursor: pointer;
@@ -190,6 +236,95 @@
 
 .ocorrencias-form button:hover {
   background: var(--cor-destaque-hover);
+}
+
+.aluno-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.aluno-box button {
+  width: auto;
+  min-width: 112px;
+  margin: 0;
+}
+
+.lista-alunos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px;
+  border: 1px dashed var(--cor-borda);
+  border-radius: 8px;
+  background: var(--cor-fundo-alt);
+}
+
+.lista-alunos div {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 8px 6px 10px;
+  border-radius: var(--radius-full);
+  background: var(--cor-laranja-light);
+  color: var(--cor-secundaria);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lista-alunos button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: var(--cor-branco);
+  color: var(--cor-erro-text);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.lista-alunos button:hover {
+  background: var(--cor-erro-bg);
+}
+
+.lista-alunos-vazia {
+  align-self: center;
+  color: var(--cor-texto-secundario);
+  font-size: 13px;
+}
+
+.campo-outro-tipo {
+  margin-top: -4px;
+}
+
+.formulario-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.ocorrencias-form .formulario-acoes button {
+  width: auto;
+  min-width: 140px;
+  margin: 0;
+}
+
+.ocorrencias-form .formulario-acoes .btn-voltar {
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+}
+
+.ocorrencias-form .formulario-acoes .btn-voltar:hover {
+  background: #d1d5db;
 }
 
 /* =========================
@@ -394,6 +529,20 @@
   }
 
   .ocorrencias-form button {
+    width: 100%;
+  }
+
+  .formulario-grid,
+  .checkbox-grid,
+  .aluno-box {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .ocorrencias-form .formulario-acoes button {
     width: 100%;
   }
 

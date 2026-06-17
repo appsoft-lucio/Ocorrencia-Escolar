@@ -195,9 +195,134 @@
 /* =========================
    LISTA DE OCORRÊNCIAS
 ========================= */
-.ocorrencias-lista {
+.ocorrencias-consulta {
   flex: 1;
   min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ocorrencias-filtros {
+  background: var(--cor-branco);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.filtros-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.filtros-topo h2 {
+  margin: 0 0 4px;
+  color: var(--cor-secundaria);
+  font-size: 18px;
+}
+
+.filtros-topo p {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.btn-limpar-filtros {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-limpar-filtros:not(:disabled):hover {
+  background: #d1d5db;
+}
+
+.filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.filtros-grid label,
+.filtros-tipos legend {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filtros-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtros-grid input,
+.filtros-grid select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+}
+
+.filtros-grid input:focus,
+.filtros-grid select:focus {
+  border-color: var(--cor-laranja);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
+.filtros-tipos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+}
+
+.filtros-tipos legend {
+  flex: 0 0 100%;
+  margin-bottom: 2px;
+}
+
+.filtros-tipos label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-full);
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filtros-tipos input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--cor-laranja);
+}
+
+.filtros-tipos p {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.ocorrencias-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .ocorrencias-vazia {
@@ -218,7 +343,6 @@
 .card-ocorrencia {
   background: var(--cor-branco);
   padding: 15px;
-  margin-bottom: 10px;
 
   border-radius: 10px;
 
@@ -270,6 +394,18 @@
   }
 
   .ocorrencias-form button {
+    width: 100%;
+  }
+
+  .filtros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtros-topo {
+    flex-direction: column;
+  }
+
+  .btn-limpar-filtros {
     width: 100%;
   }
 }

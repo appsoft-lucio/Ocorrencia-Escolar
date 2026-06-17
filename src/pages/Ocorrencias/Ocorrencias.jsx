@@ -8,7 +8,7 @@ import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import FormularioOcorrencia from "./components/FormularioOcorrencia";
 import ListaOcorrencias from "./components/ListaOcorrencias";
 
-const TIPOS_OCORRENCIA = [
+const TIPOS_OCORRENCIA_PADRAO = [
   "Indisciplina",
   "Atraso",
   "Falta de material",
@@ -17,6 +17,40 @@ const TIPOS_OCORRENCIA = [
   "Uso de celular",
   "Outro",
 ];
+
+function carregarTiposOcorrencia() {
+  const stored = localStorage.getItem("tiposOcorrencia");
+
+  if (!stored) {
+    return TIPOS_OCORRENCIA_PADRAO.map((nome) => ({
+      id: nome,
+      nome,
+      status: "ativo",
+    }));
+  }
+
+  try {
+    const tipos = JSON.parse(stored);
+
+    return tipos.map((tipo) =>
+      typeof tipo === "string"
+        ? { id: tipo, nome: tipo, status: "ativo" }
+        : {
+            ...tipo,
+            id: tipo.id || tipo.nome,
+            nome: tipo.nome,
+            status: tipo.status || "ativo",
+          },
+    );
+  } catch (error) {
+    console.error("Erro ao carregar tipos de ocorrência:", error);
+    return TIPOS_OCORRENCIA_PADRAO.map((nome) => ({
+      id: nome,
+      nome,
+      status: "ativo",
+    }));
+  }
+}
 
 const DISCIPLINAS = [
   "Português",
@@ -29,7 +63,7 @@ const DISCIPLINAS = [
   "Artes",
 ];
 
-const TURMAS = [
+const TURMAS_PADRAO = [
   "101",
   "102",
   "103",
@@ -68,10 +102,78 @@ const TURMAS = [
   "3003",
 ];
 
+function carregarTurmasEscolares() {
+  const stored = localStorage.getItem("turmasEscolares");
+
+  if (!stored) {
+    return TURMAS_PADRAO.map((nome) => ({
+      id: nome,
+      nome,
+      status: "ativo",
+    }));
+  }
+
+  try {
+    const turmas = JSON.parse(stored);
+
+    return turmas.map((turma) =>
+      typeof turma === "string"
+        ? { id: turma, nome: turma, status: "ativo" }
+        : {
+            ...turma,
+            id: turma.id || turma.nome || turma.codigo,
+            nome: turma.nome || turma.codigo,
+            status: turma.status || "ativo",
+          },
+    );
+  } catch (error) {
+    console.error("Erro ao carregar turmas:", error);
+    return TURMAS_PADRAO.map((nome) => ({
+      id: nome,
+      nome,
+      status: "ativo",
+    }));
+  }
+}
+
 const HORARIOS = [1, 2, 3, 4, 5, 6];
+
+const FILTROS_INICIAIS = {
+  data: "",
+  nome: "",
+  professor: "",
+  tipos: [],
+  turno: "",
+};
 
 function normalizarNomeAluno(valor) {
   return valor.trim().replace(/\s+/g, " ");
+}
+
+function normalizarTexto(valor = "") {
+  return valor
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function dataOcorrenciaParaISO(data) {
+  if (!data) return "";
+
+  const [dataParte] = data.split(",");
+  const partes = dataParte.trim().split(/[/-]/);
+
+  if (partes.length !== 3) return "";
+
+  const [primeiro, segundo, terceiro] = partes;
+
+  if (primeiro.length === 4) {
+    return `${primeiro}-${segundo.padStart(2, "0")}-${terceiro.padStart(2, "0")}`;
+  }
+
+  return `${terceiro}-${segundo.padStart(2, "0")}-${primeiro.padStart(2, "0")}`;
 }
 
 function nomeAlunoValido(nome) {
@@ -99,6 +201,9 @@ function Ocorrencias() {
   const [outro, setOutro] = useState("");
   const [observacao, setObservacao] = useState("");
   const [notificacao, setNotificacao] = useState(null);
+  const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
+  const [tiposOcorrencia, setTiposOcorrencia] = useState(carregarTiposOcorrencia);
+  const [turmasEscolares, setTurmasEscolares] = useState(carregarTurmasEscolares);
   const notificacaoTimerRef = useRef(null);
 
   const mostrarNotificacao = useCallback((mensagem, tipo = "info") => {
@@ -120,6 +225,37 @@ function Ocorrencias() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const atualizarCadastros = () => {
+      setTiposOcorrencia(carregarTiposOcorrencia());
+      setTurmasEscolares(carregarTurmasEscolares());
+    };
+
+    window.addEventListener("storage", atualizarCadastros);
+    window.addEventListener("focus", atualizarCadastros);
+
+    return () => {
+      window.removeEventListener("storage", atualizarCadastros);
+      window.removeEventListener("focus", atualizarCadastros);
+    };
+  }, []);
+
+  const tiposOcorrenciaAtivos = useMemo(
+    () =>
+      tiposOcorrencia
+        .filter((tipo) => tipo.status !== "inativo")
+        .map((tipo) => tipo.nome),
+    [tiposOcorrencia],
+  );
+
+  const turmasAtivas = useMemo(
+    () =>
+      turmasEscolares
+        .filter((turma) => turma.status !== "inativo")
+        .map((turma) => turma.nome),
+    [turmasEscolares],
+  );
 
   const limparFormulario = useCallback(() => {
     setTurno("");
@@ -180,13 +316,100 @@ function Ocorrencias() {
     ];
   }, [ocorrenciasTipo, outro]);
 
-  const ocorrenciasFiltradas = useMemo(() => {
+  const ocorrenciasVisiveis = useMemo(() => {
     if (!user) return [];
 
     return ocorrencias.filter(
       (item) => user.role === "direcao" || item.professorId === user.id,
     );
   }, [ocorrencias, user]);
+
+  const professoresDisponiveis = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          ocorrenciasVisiveis
+            .map((ocorrencia) => ocorrencia.professorNome)
+            .filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [ocorrenciasVisiveis],
+  );
+
+  const tiposDisponiveis = useMemo(
+    () =>
+      Array.from(
+        new Set(ocorrenciasVisiveis.flatMap((ocorrencia) => ocorrencia.tipos || [])),
+      ).sort((a, b) => a.localeCompare(b)),
+    [ocorrenciasVisiveis],
+  );
+
+  const ocorrenciasFiltradas = useMemo(() => {
+    const nomeFiltro = normalizarTexto(filtros.nome);
+    const professorFiltro = normalizarTexto(filtros.professor);
+
+    return ocorrenciasVisiveis.filter((ocorrencia) => {
+      const alunos = ocorrencia.alunos || [];
+      const tipos = ocorrencia.tipos || [];
+
+      const combinaNome =
+        !nomeFiltro ||
+        alunos.some((aluno) => normalizarTexto(aluno).includes(nomeFiltro));
+
+      const combinaData =
+        !filtros.data || dataOcorrenciaParaISO(ocorrencia.data) === filtros.data;
+
+      const combinaTurno = !filtros.turno || ocorrencia.turno === filtros.turno;
+
+      const combinaProfessor =
+        !professorFiltro ||
+        normalizarTexto(ocorrencia.professorNome).includes(professorFiltro);
+
+      const combinaTipos =
+        filtros.tipos.length === 0 ||
+        filtros.tipos.some((tipo) => tipos.includes(tipo));
+
+      return (
+        combinaNome &&
+        combinaData &&
+        combinaTurno &&
+        combinaProfessor &&
+        combinaTipos
+      );
+    });
+  }, [filtros, ocorrenciasVisiveis]);
+
+  const filtrosAtivos = useMemo(
+    () =>
+      Boolean(
+        filtros.nome ||
+          filtros.data ||
+          filtros.turno ||
+          filtros.professor ||
+          filtros.tipos.length,
+      ),
+    [filtros],
+  );
+
+  const atualizarFiltro = useCallback((campo, valor) => {
+    setFiltros((filtrosAtuais) => ({
+      ...filtrosAtuais,
+      [campo]: valor,
+    }));
+  }, []);
+
+  const alternarFiltroTipo = useCallback((tipo) => {
+    setFiltros((filtrosAtuais) => ({
+      ...filtrosAtuais,
+      tipos: filtrosAtuais.tipos.includes(tipo)
+        ? filtrosAtuais.tipos.filter((item) => item !== tipo)
+        : [...filtrosAtuais.tipos, tipo],
+    }));
+  }, []);
+
+  const limparFiltros = useCallback(() => {
+    setFiltros(FILTROS_INICIAIS);
+  }, []);
 
   const handleSubmit = useCallback(
     (event) => {
@@ -293,9 +516,9 @@ function Ocorrencias() {
         ocorrenciasTipo={ocorrenciasTipo}
         outro={outro}
         turma={turma}
-        turmas={TURMAS}
+        turmas={turmasAtivas}
         turno={turno}
-        tiposOcorrencia={TIPOS_OCORRENCIA}
+        tiposOcorrencia={tiposOcorrenciaAtivos}
         onAdicionarAluno={adicionarAluno}
         onAlunoInputChange={handleAlunoInputChange}
         onCheckboxChange={handleCheckbox}
@@ -310,10 +533,100 @@ function Ocorrencias() {
         onVoltar={handleBack}
       />
 
-      <ListaOcorrencias
-        ocorrencias={ocorrenciasFiltradas}
-        onRemoveOcorrencia={handleRemoveOcorrencia}
-      />
+      <section className="ocorrencias-consulta" aria-label="Consulta de ocorrências">
+        <div className="ocorrencias-filtros">
+          <div className="filtros-topo">
+            <div>
+              <h2>Pesquisar ocorrências</h2>
+              <p>
+                {ocorrenciasFiltradas.length} de {ocorrenciasVisiveis.length}{" "}
+                ocorrência(s)
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="btn-limpar-filtros"
+              onClick={limparFiltros}
+              disabled={!filtrosAtivos}
+            >
+              Limpar
+            </button>
+          </div>
+
+          <div className="filtros-grid">
+            <label>
+              Nome do aluno
+              <input
+                type="search"
+                placeholder="Pesquisar por nome"
+                value={filtros.nome}
+                onChange={(event) => atualizarFiltro("nome", event.target.value)}
+              />
+            </label>
+
+            <label>
+              Data
+              <input
+                type="date"
+                value={filtros.data}
+                onChange={(event) => atualizarFiltro("data", event.target.value)}
+              />
+            </label>
+
+            <label>
+              Turno
+              <select
+                value={filtros.turno}
+                onChange={(event) => atualizarFiltro("turno", event.target.value)}
+              >
+                <option value="">Todos</option>
+                <option value="manha">Manhã</option>
+                <option value="tarde">Tarde</option>
+                <option value="noite">Noite</option>
+              </select>
+            </label>
+
+            <label>
+              Professor
+              <select
+                value={filtros.professor}
+                onChange={(event) => atualizarFiltro("professor", event.target.value)}
+              >
+                <option value="">Todos</option>
+                {professoresDisponiveis.map((professor) => (
+                  <option key={professor} value={professor}>
+                    {professor}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <fieldset className="filtros-tipos">
+            <legend>Ocorrência</legend>
+            {tiposDisponiveis.length > 0 ? (
+              tiposDisponiveis.map((tipo) => (
+                <label key={tipo}>
+                  <input
+                    type="checkbox"
+                    checked={filtros.tipos.includes(tipo)}
+                    onChange={() => alternarFiltroTipo(tipo)}
+                  />
+                  <span>{tipo}</span>
+                </label>
+              ))
+            ) : (
+              <p>Nenhum tipo registrado ainda.</p>
+            )}
+          </fieldset>
+        </div>
+
+        <ListaOcorrencias
+          ocorrencias={ocorrenciasFiltradas}
+          onRemoveOcorrencia={handleRemoveOcorrencia}
+        />
+      </section>
     </div>
   );
 }

@@ -25,7 +25,7 @@ function Alunos() {
   const ocorrenciasVisiveis = useMemo(() => {
     if (!user) return [];
 
-    return user.role === "direcao"
+    return ["direcao", "coordenacao", "coordenador"].includes(user.role)
       ? ocorrencias
       : ocorrencias.filter((item) => item.professorId === user.id);
   }, [ocorrencias, user]);

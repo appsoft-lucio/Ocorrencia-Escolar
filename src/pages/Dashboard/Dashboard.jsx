@@ -1,79 +1,288 @@
-// =========================
-// ESTILOS
-// =========================
 import "./Dashboard.css";
 
-// =========================
-// REACT
-// =========================
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 
-// =========================
-// CONTEXTO
-// =========================
-import { AuthContext } from "../../context/AuthContext.jsx";
-
-// =========================
-// COMPONENTES
-// =========================
-import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import StatsCard from "../../components/Cards/Card";
+import { AuthContext } from "../../context/AuthContext.jsx";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.jsx";
 
-// =========================
-// DADOS
-// =========================
-import { dashboardData } from "../../data/dashboardData";
+const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
 
-function getDashboardData(role) {
-  return dashboardData.filter((item) => {
-    if (role === "direcao") return true;
-    return item.role === "professor" || !item.role;
-  });
+function lerStorage(chave, fallback = []) {
+  try {
+    const valor = localStorage.getItem(chave);
+    return valor ? JSON.parse(valor) : fallback;
+  } catch (error) {
+    console.error(`Erro ao carregar ${chave}:`, error);
+    return fallback;
+  }
+}
+
+function normalizarTexto(valor = "") {
+  return valor
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function normalizarTurmasProfessor(turmas = []) {
+  return turmas
+    .map((turma) => {
+      if (typeof turma === "string") return turma;
+      return turma.codigo || turma.nome || "";
+    })
+    .filter(Boolean);
+}
+
+function perfilGestao(role) {
+  return GESTAO_ROLES.includes(normalizarTexto(role));
+}
+
+function nomePerfil(role) {
+  if (normalizarTexto(role) === "direcao") return "Direção";
+  if (perfilGestao(role)) return "Coordenação";
+  return "Professor";
+}
+
+function dataParaOrdenacao(data) {
+  if (!data) return 0;
+
+  const valor = new Date(data).getTime();
+  if (!Number.isNaN(valor)) return valor;
+
+  const [dataParte] = data.split(",");
+  const partes = dataParte.trim().split(/[/-]/);
+  if (partes.length !== 3) return 0;
+
+  const [dia, mes, ano] = partes;
+  return new Date(`${ano}-${mes}-${dia}`).getTime() || 0;
 }
 
 function Dashboard() {
   const { user } = useContext(AuthContext);
+  const { ocorrencias } = useContext(OcorrenciaContext);
 
-  // =========================
-  // LOADING SEGURO
-  // =========================
-  if (!user) {
+  const dadosDashboard = useMemo(() => {
+    if (!user) return null;
+
+    const professores = lerStorage("professores");
+    const turmasEscolares = lerStorage("turmasEscolares");
+    const tiposOcorrencia = lerStorage("tiposOcorrencia");
+    const isGestao = perfilGestao(user.role);
+    const nomeUsuario = normalizarTexto(user.nome);
+
+    const professorAtual = professores.find((professor) => {
+      const mesmoId = professor.id === user.id;
+      const mesmoNome = normalizarTexto(professor.nome) === nomeUsuario;
+      return mesmoId || mesmoNome;
+    });
+
+    const turmasDoProfessor = new Set(
+      normalizarTurmasProfessor(professorAtual?.turmas),
+    );
+
+    const ocorrenciasVisiveis = isGestao
+      ? ocorrencias
+      : ocorrencias.filter((ocorrencia) => {
+          const mesmoProfessorId = ocorrencia.professorId === user.id;
+          const mesmoProfessorNome =
+            normalizarTexto(ocorrencia.professorNome) === nomeUsuario;
+          const turmaDoProfessor = turmasDoProfessor.has(ocorrencia.turma);
+
+          return mesmoProfessorId || mesmoProfessorNome || turmaDoProfessor;
+        });
+
+    const alunosUnicos = new Set(
+      ocorrenciasVisiveis.flatMap((ocorrencia) => ocorrencia.alunos || []),
+    );
+    const turmasComOcorrencia = new Set(
+      ocorrenciasVisiveis.map((ocorrencia) => ocorrencia.turma).filter(Boolean),
+    );
+    const tiposUsados = new Set(
+      ocorrenciasVisiveis.flatMap((ocorrencia) => ocorrencia.tipos || []),
+    );
+    const abertas = ocorrenciasVisiveis.filter(
+      (ocorrencia) => normalizarTexto(ocorrencia.status || "Aberta") !== "resolvida",
+    );
+
+    const professoresAtivos = professores.filter(
+      (professor) => professor.status !== "inativo",
+    );
+    const turmasAtivas = turmasEscolares.filter(
+      (turma) => (turma.status || "ativo") !== "inativo",
+    );
+    const tiposAtivos = tiposOcorrencia.filter(
+      (tipo) => (tipo.status || "ativo") !== "inativo",
+    );
+
+    const cards = isGestao
+      ? [
+          {
+            title: "Ocorrências registradas",
+            value: ocorrenciasVisiveis.length,
+            icon: "📝",
+          },
+          { title: "Alunos envolvidos", value: alunosUnicos.size, icon: "👥" },
+          { title: "Turmas ativas", value: turmasAtivas.length, icon: "🏫" },
+          {
+            title: "Professores ativos",
+            value: professoresAtivos.length,
+            icon: "👨‍🏫",
+          },
+          { title: "Tipos ativos", value: tiposAtivos.length, icon: "🏷️" },
+          { title: "Ocorrências abertas", value: abertas.length, icon: "⚠️" },
+        ]
+      : [
+          {
+            title: "Minhas ocorrências",
+            value: ocorrenciasVisiveis.length,
+            icon: "📝",
+          },
+          { title: "Alunos envolvidos", value: alunosUnicos.size, icon: "👥" },
+          {
+            title: "Minhas turmas",
+            value: turmasDoProfessor.size || turmasComOcorrencia.size,
+            icon: "🏫",
+          },
+          { title: "Tipos usados", value: tiposUsados.size, icon: "🏷️" },
+          { title: "Ocorrências abertas", value: abertas.length, icon: "⚠️" },
+          {
+            title: "Turmas com registro",
+            value: turmasComOcorrencia.size,
+            icon: "📌",
+          },
+        ];
+
+    const recentes = [...ocorrenciasVisiveis]
+      .sort((a, b) => dataParaOrdenacao(b.data) - dataParaOrdenacao(a.data))
+      .slice(0, 5);
+
+    const ocorrenciasPorTurma = Array.from(
+      ocorrenciasVisiveis.reduce((mapa, ocorrencia) => {
+        const turma = ocorrencia.turma || "Sem turma";
+        mapa.set(turma, (mapa.get(turma) || 0) + 1);
+        return mapa;
+      }, new Map()),
+      ([turma, total]) => ({ turma, total }),
+    )
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    return {
+      cards,
+      isGestao,
+      ocorrenciasPorTurma,
+      recentes,
+      totalVisivel: ocorrenciasVisiveis.length,
+    };
+  }, [ocorrencias, user]);
+
+  if (!user || !dadosDashboard) {
     return <div className="loading-screen">Carregando sistema...</div>;
   }
 
-  const isDirecao = user.role === "direcao";
-  const dadosFiltrados = getDashboardData(user.role);
-
   return (
     <div className="dashboard-layout">
-      {/* SIDEBAR */}
       <Sidebar />
 
-      {/* CONTEÚDO PRINCIPAL */}
       <div className="dashboard-main">
-        {/* HEADER */}
         <Header />
 
-        {/* CONTEÚDO */}
         <main className="dashboard-content">
-          {/* BOAS-VINDAS */}
-          <div className="welcome-box">
-            <h2>Bem-vindo, {user.nome}</h2>
-            <p>Perfil: {isDirecao ? "Direção" : "Professor"}</p>
-          </div>
+          <section className="welcome-box">
+            <div>
+              <h1>Dashboard</h1>
+              <p>
+                Bem-vindo, <strong>{user.nome}</strong>. Perfil:{" "}
+                {nomePerfil(user.role)}.
+              </p>
+            </div>
 
-          {/* CARDS */}
-          <div className="cards-grid">
-            {dadosFiltrados.map((item, index) => (
+            <span className="dashboard-escopo">
+              {dadosDashboard.isGestao
+                ? "Visualizando todos os registros"
+                : "Visualizando suas turmas"}
+            </span>
+          </section>
+
+          <section className="cards-grid" aria-label="Resumo da dashboard">
+            {dadosDashboard.cards.map((item) => (
               <StatsCard
-                key={index}
+                key={item.title}
                 title={item.title}
                 value={item.value}
                 icon={item.icon}
               />
             ))}
-          </div>
+          </section>
+
+          <section className="dashboard-grid">
+            <article className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <h2>Ocorrências recentes</h2>
+                <span>{dadosDashboard.totalVisivel} no total</span>
+              </div>
+
+              {dadosDashboard.recentes.length === 0 ? (
+                <p className="dashboard-vazio">Nenhuma ocorrência registrada.</p>
+              ) : (
+                <div className="dashboard-lista">
+                  {dadosDashboard.recentes.map((ocorrencia) => (
+                    <div className="dashboard-lista-item" key={ocorrencia.id}>
+                      <div>
+                        <strong>
+                          {(ocorrencia.alunos || []).join(", ") || "Sem aluno"}
+                        </strong>
+                        <span>
+                          {ocorrencia.turma} • {ocorrencia.turno} •{" "}
+                          {ocorrencia.professorNome}
+                        </span>
+                      </div>
+                      <small>{ocorrencia.data}</small>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+
+            <article className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <h2>Turmas com mais registros</h2>
+                <span>Top 5</span>
+              </div>
+
+              {dadosDashboard.ocorrenciasPorTurma.length === 0 ? (
+                <p className="dashboard-vazio">Nenhuma turma com ocorrência.</p>
+              ) : (
+                <div className="dashboard-ranking">
+                  {dadosDashboard.ocorrenciasPorTurma.map((item) => (
+                    <div className="ranking-item" key={item.turma}>
+                      <div>
+                        <strong>{item.turma}</strong>
+                        <span>{item.total} ocorrência(s)</span>
+                      </div>
+                      <div className="ranking-barra">
+                        <span
+                          style={{
+                            width: `${Math.max(
+                              12,
+                              (item.total /
+                                dadosDashboard.ocorrenciasPorTurma[0].total) *
+                                100,
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+          </section>
         </main>
       </div>
     </div>

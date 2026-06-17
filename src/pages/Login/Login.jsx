@@ -54,7 +54,18 @@ function Login() {
     // =========================
     // DEFINIÇÃO DE PERFIL
     // =========================
-    const role = userName.toLowerCase() === "direcao" ? "direcao" : "professor";
+    const nomeNormalizado = userName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+    const role = ["direcao", "coordenacao", "coordenador"].includes(
+      nomeNormalizado,
+    )
+      ? nomeNormalizado === "direcao"
+        ? "direcao"
+        : "coordenacao"
+      : "professor";
 
     // =========================
     // CRIA USUÁRIO

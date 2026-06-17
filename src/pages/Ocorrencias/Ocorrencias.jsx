@@ -320,7 +320,9 @@ function Ocorrencias() {
     if (!user) return [];
 
     return ocorrencias.filter(
-      (item) => user.role === "direcao" || item.professorId === user.id,
+      (item) =>
+        ["direcao", "coordenacao", "coordenador"].includes(user.role) ||
+        item.professorId === user.id,
     );
   }, [ocorrencias, user]);
 

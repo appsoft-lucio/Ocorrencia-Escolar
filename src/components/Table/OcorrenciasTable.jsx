@@ -1,12 +1,18 @@
 function OcorrenciasTable() {
   const dados = [
-    { data: "10/06", aluno: "João", tipo: "Indisciplina", status: "Aberta" },
-    { data: "09/06", aluno: "Maria", tipo: "Atraso", status: "Resolvida" },
+    { data: "10/06", aluno: "João", tipo: "Indisciplina", status: "Pendente" },
+    { data: "09/06", aluno: "Maria", tipo: "Atraso", status: "Confirmada" },
     {
       data: "08/06",
       aluno: "Pedro",
       tipo: "Advertência",
-      status: "Em andamento",
+      status: "Não confirmada",
+    },
+    {
+      data: "07/06",
+      aluno: "Ana",
+      tipo: "Registro duplicado",
+      status: "Cancelada",
     },
   ];
 

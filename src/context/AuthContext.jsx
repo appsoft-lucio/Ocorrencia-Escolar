@@ -3,6 +3,8 @@
 // =========================
 import { createContext, useState, useEffect } from "react";
 
+import { usuarioDemoValido } from "../data/demoUsers";
+
 // =========================
 // CONTEXTO GLOBAL
 // =========================
@@ -44,7 +46,7 @@ export function AuthProvider({ children }) {
         const parsedUser = JSON.parse(saved);
 
         // validação simples para evitar crash
-        if (parsedUser && parsedUser.nome) {
+        if (parsedUser && parsedUser.nome && usuarioDemoValido(parsedUser)) {
           setUser(parsedUser);
         } else {
           localStorage.removeItem("user");

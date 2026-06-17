@@ -13,7 +13,10 @@ const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
 function lerStorage(chave, fallback = []) {
   try {
     const valor = localStorage.getItem(chave);
-    return valor ? JSON.parse(valor) : fallback;
+    if (!valor) return fallback;
+
+    const parsed = JSON.parse(valor);
+    return Array.isArray(parsed) ? parsed : fallback;
   } catch (error) {
     console.error(`Erro ao carregar ${chave}:`, error);
     return fallback;
@@ -105,8 +108,9 @@ function Dashboard() {
     const tiposUsados = new Set(
       ocorrenciasVisiveis.flatMap((ocorrencia) => ocorrencia.tipos || []),
     );
-    const abertas = ocorrenciasVisiveis.filter(
-      (ocorrencia) => normalizarTexto(ocorrencia.status || "Aberta") !== "resolvida",
+    const pendentes = ocorrenciasVisiveis.filter(
+      (ocorrencia) =>
+        ["pendente", "aberta"].includes(normalizarTexto(ocorrencia.status || "")),
     );
 
     const professoresAtivos = professores.filter(
@@ -134,7 +138,7 @@ function Dashboard() {
             icon: "👨‍🏫",
           },
           { title: "Tipos ativos", value: tiposAtivos.length, icon: "🏷️" },
-          { title: "Ocorrências abertas", value: abertas.length, icon: "⚠️" },
+          { title: "Ocorrências pendentes", value: pendentes.length, icon: "⚠️" },
         ]
       : [
           {
@@ -149,7 +153,7 @@ function Dashboard() {
             icon: "🏫",
           },
           { title: "Tipos usados", value: tiposUsados.size, icon: "🏷️" },
-          { title: "Ocorrências abertas", value: abertas.length, icon: "⚠️" },
+          { title: "Ocorrências pendentes", value: pendentes.length, icon: "⚠️" },
           {
             title: "Turmas com registro",
             value: turmasComOcorrencia.size,

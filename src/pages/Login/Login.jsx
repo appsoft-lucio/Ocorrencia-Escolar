@@ -1,145 +1,108 @@
-// =========================
-// ESTILOS E ASSETS
-// =========================
 import "./Login.css";
+
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
-
-// =========================
-// REACT
-// =========================
-import { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { Link } from "react-router-dom";
-
-// =========================
-// CONTEXTO DE AUTENTICAÇÃO
-// =========================
 import { AuthContext } from "../../context/AuthContext.jsx";
+import { DEMO_USERS, encontrarUsuarioDemo } from "../../data/demoUsers";
 
 function Login() {
-  // =========================
-  // ESTADOS DO FORMULÁRIO
-  // =========================
-  const [userName, setUserName] = useState("Teste");
-  const [password, setPassword] = useState("12345");
+  const [userName, setUserName] = useState("professor");
+  const [password, setPassword] = useState("123");
 
-  // =========================
-  // CONTEXTO + NAVEGAÇÃO
-  // =========================
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // =========================
-  // REDIRECIONAMENTO SE JÁ LOGADO
-  // =========================
   useEffect(() => {
     if (user) {
       navigate("/dashboard");
     }
   }, [user, navigate]);
 
-  // =========================
-  // FUNÇÃO DE LOGIN
-  // =========================
-  function handleSubmit(e) {
-    e.preventDefault();
+  function handleSubmit(event) {
+    event.preventDefault();
 
-    // validação simples
-    if (!userName.trim()) {
-      alert("Digite um usuário válido");
+    const usuarioDemo = encontrarUsuarioDemo(userName, password);
+
+    if (!usuarioDemo) {
+      alert("Usuário ou senha inválidos para a demonstração.");
       return;
     }
 
-    // =========================
-    // DEFINIÇÃO DE PERFIL
-    // =========================
-    const nomeNormalizado = userName
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
-    const role = ["teste", "direcao", "coordenacao", "coordenador"].includes(
-      nomeNormalizado,
-    )
-      ? ["teste", "direcao"].includes(nomeNormalizado)
-        ? "direcao"
-        : "coordenacao"
-      : "professor";
+    login({
+      id: usuarioDemo.id,
+      nome: usuarioDemo.nome,
+      role: usuarioDemo.role,
+      login: usuarioDemo.login,
+    });
+  }
 
-    // =========================
-    // CRIA USUÁRIO
-    // =========================
-    const userData = {
-      id: Date.now(),
-      nome: userName,
-      role: role,
-    };
-
-    // =========================
-    // SALVA NO CONTEXTO
-    // =========================
-    login(userData);
-
-    // ⚠️ IMPORTANTE:
-    // não precisa navigate aqui
-    // o useEffect já faz o redirecionamento
+  function preencherUsuarioDemo(usuario) {
+    setUserName(usuario.login);
+    setPassword(usuario.senha);
   }
 
   return (
     <div className="login-container">
-      {/* =========================
-          BANNER ESQUERDO
-      ========================= */}
       <div className="login-banner">
         <div className="banner-content">
           <div className="logo-container">
             <img src={logo} alt="AppSoft" className="logo-img" />
           </div>
 
-          <h2>Sistema de Ocorrência Escolar</h2>
+          <h2>EduRegistro</h2>
+          <strong>Acompanhamento e Gestão Escolar</strong>
 
           <p>
-            Registre, acompanhe e gerencie ocorrências escolares de forma
-            simples e organizada.
+            Registre ocorrências, acompanhe cada caso e apoie decisões para uma
+            escola mais organizada.
           </p>
         </div>
       </div>
 
-      {/* =========================
-          FORMULÁRIO
-      ========================= */}
       <div className="login-card">
         <h2>Bem-vindo</h2>
 
         <p className="subtitle">Faça login para acessar o sistema</p>
 
+        <div className="login-demo-users" aria-label="Contas para apresentação">
+          {DEMO_USERS.map((usuario) => (
+            <button
+              type="button"
+              key={usuario.id}
+              onClick={() => preencherUsuarioDemo(usuario)}
+            >
+              {usuario.role === "direcao" ? "Usar Direção" : "Usar Professor"}
+            </button>
+          ))}
+        </div>
+
         <form onSubmit={handleSubmit}>
-          {/* USUÁRIO */}
           <div className="input-group">
-            <label>Usuário ou E-mail</label>
+            <label htmlFor="login-usuario">Usuário</label>
 
             <input
+              id="login-usuario"
               type="text"
               value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              onChange={(event) => setUserName(event.target.value)}
               placeholder="Digite seu usuário"
             />
           </div>
 
-          {/* SENHA (simulado) */}
           <div className="input-group">
-            <label>Senha</label>
+            <label htmlFor="login-senha">Senha</label>
 
             <input
+              id="login-senha"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="Digite sua senha"
             />
           </div>
 
-          {/* BOTÃO */}
           <button type="submit">Entrar</button>
           <Link to="/recuperar-senha" className="login-recover">
             Esqueci minha senha

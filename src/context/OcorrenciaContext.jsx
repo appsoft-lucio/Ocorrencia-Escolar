@@ -12,7 +12,8 @@ export function OcorrenciaProvider({ children }) {
     if (!saved) return;
 
     try {
-      setOcorrencias(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      setOcorrencias(Array.isArray(parsed) ? parsed : []);
     } catch (error) {
       console.error("Erro ao carregar ocorrências:", error);
       localStorage.removeItem("ocorrencias");
@@ -27,21 +28,11 @@ export function OcorrenciaProvider({ children }) {
     setOcorrencias((ocorrenciasAtuais) => [...ocorrenciasAtuais, data]);
   }, []);
 
-  const removeOcorrencia = useCallback((id, alunoNome) => {
+  const updateOcorrenciaStatus = useCallback((id, statusData) => {
     setOcorrencias((ocorrenciasAtuais) =>
-      ocorrenciasAtuais.flatMap((ocorrencia) => {
-        if (ocorrencia.id !== id) return [ocorrencia];
-
-        if (!alunoNome) return [];
-
-        const alunosAtualizados = ocorrencia.alunos.filter(
-          (aluno) => aluno !== alunoNome,
-        );
-
-        if (!alunosAtualizados.length) return [];
-
-        return [{ ...ocorrencia, alunos: alunosAtualizados }];
-      }),
+      ocorrenciasAtuais.map((ocorrencia) =>
+        ocorrencia.id === id ? { ...ocorrencia, ...statusData } : ocorrencia,
+      ),
     );
   }, []);
 
@@ -50,7 +41,7 @@ export function OcorrenciaProvider({ children }) {
       value={{
         ocorrencias,
         addOcorrencia,
-        removeOcorrencia,
+        updateOcorrenciaStatus,
       }}
     >
       {children}

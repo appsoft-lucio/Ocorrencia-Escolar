@@ -31,6 +31,13 @@ function carregarTiposOcorrencia() {
 
   try {
     const tipos = JSON.parse(stored);
+    if (!Array.isArray(tipos)) {
+      return TIPOS_OCORRENCIA_PADRAO.map((nome) => ({
+        id: nome,
+        nome,
+        status: "ativo",
+      }));
+    }
 
     return tipos.map((tipo) =>
       typeof tipo === "string"
@@ -115,6 +122,13 @@ function carregarTurmasEscolares() {
 
   try {
     const turmas = JSON.parse(stored);
+    if (!Array.isArray(turmas)) {
+      return TURMAS_PADRAO.map((nome) => ({
+        id: nome,
+        nome,
+        status: "ativo",
+      }));
+    }
 
     return turmas.map((turma) =>
       typeof turma === "string"
@@ -145,6 +159,18 @@ const FILTROS_INICIAIS = {
   tipos: [],
   turno: "",
 };
+
+const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
+
+const STATUS_INICIAL = "Pendente";
+const STATUS_FINAIS = ["Confirmada", "Não confirmada", "Cancelada"];
+const VISAO_INICIAL = "novas";
+
+function normalizarStatusOcorrencia(status) {
+  if (status === "Aberta") return STATUS_INICIAL;
+  if (status === "Revisada") return "Confirmada";
+  return status || STATUS_INICIAL;
+}
 
 function normalizarNomeAluno(valor) {
   return valor.trim().replace(/\s+/g, " ");
@@ -188,7 +214,7 @@ function nomeAlunoValido(nome) {
 function Ocorrencias() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { ocorrencias, addOcorrencia, removeOcorrencia } =
+  const { ocorrencias, addOcorrencia, updateOcorrenciaStatus } =
     useContext(OcorrenciaContext);
 
   const [turno, setTurno] = useState("");
@@ -202,9 +228,11 @@ function Ocorrencias() {
   const [observacao, setObservacao] = useState("");
   const [notificacao, setNotificacao] = useState(null);
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
+  const [visaoOcorrencias, setVisaoOcorrencias] = useState(VISAO_INICIAL);
   const [tiposOcorrencia, setTiposOcorrencia] = useState(carregarTiposOcorrencia);
   const [turmasEscolares, setTurmasEscolares] = useState(carregarTurmasEscolares);
   const notificacaoTimerRef = useRef(null);
+  const isGestao = GESTAO_ROLES.includes(user?.role);
 
   const mostrarNotificacao = useCallback((mensagem, tipo = "info") => {
     if (notificacaoTimerRef.current) {
@@ -321,7 +349,7 @@ function Ocorrencias() {
 
     return ocorrencias.filter(
       (item) =>
-        ["direcao", "coordenacao", "coordenador"].includes(user.role) ||
+        GESTAO_ROLES.includes(user.role) ||
         item.professorId === user.id,
     );
   }, [ocorrencias, user]);
@@ -380,6 +408,34 @@ function Ocorrencias() {
       );
     });
   }, [filtros, ocorrenciasVisiveis]);
+
+  const ocorrenciasPorVisao = useMemo(() => {
+    const novas = ocorrenciasFiltradas.filter(
+      (ocorrencia) => normalizarStatusOcorrencia(ocorrencia.status) === STATUS_INICIAL,
+    );
+    const revisadas = ocorrenciasFiltradas.filter((ocorrencia) =>
+      STATUS_FINAIS.includes(normalizarStatusOcorrencia(ocorrencia.status)),
+    );
+
+    return {
+      novas,
+      revisadas,
+      todas: ocorrenciasFiltradas,
+    };
+  }, [ocorrenciasFiltradas]);
+
+  const ocorrenciasExibidas =
+    ocorrenciasPorVisao[visaoOcorrencias] || ocorrenciasPorVisao.novas;
+
+  const abasOcorrencias = [
+    { id: "novas", label: "Novas ocorrências", total: ocorrenciasPorVisao.novas.length },
+    {
+      id: "revisadas",
+      label: "Ocorrências revisadas",
+      total: ocorrenciasPorVisao.revisadas.length,
+    },
+    { id: "todas", label: "Todas ocorrências", total: ocorrenciasPorVisao.todas.length },
+  ];
 
   const filtrosAtivos = useMemo(
     () =>
@@ -440,8 +496,9 @@ function Ocorrencias() {
           tipos: tiposSelecionados,
           observacao,
           data: new Date().toLocaleString(),
-          status: "Aberta",
-          resolvidoPor: null,
+          status: STATUS_INICIAL,
+          statusAtualizadoPor: null,
+          statusAtualizadoEm: null,
         });
 
         limparFormulario();
@@ -476,23 +533,29 @@ function Ocorrencias() {
     }
   }, [navigate]);
 
-  const handleRemoveOcorrencia = useCallback(
-    (id, aluno) => {
-      const confirmar = window.confirm(
-        `Deseja realmente excluir a ocorrência de ${aluno}?`,
-      );
-
-      if (!confirmar) return;
+  const handleAtualizarStatusOcorrencia = useCallback(
+    (id, status) => {
+      if (!isGestao || !user) {
+        mostrarNotificacao(
+          "Somente coordenação ou direção pode alterar o status.",
+          "erro",
+        );
+        return;
+      }
 
       try {
-        removeOcorrencia(id, aluno);
-        mostrarNotificacao("Ocorrência excluída.", "sucesso");
+        updateOcorrenciaStatus(id, {
+          status,
+          statusAtualizadoPor: user.nome,
+          statusAtualizadoEm: new Date().toLocaleString(),
+        });
+        mostrarNotificacao(`Ocorrência marcada como ${status}.`, "sucesso");
       } catch (error) {
-        console.error("Erro ao excluir ocorrência:", error);
-        mostrarNotificacao("Não foi possível excluir a ocorrência.", "erro");
+        console.error("Erro ao alterar status da ocorrência:", error);
+        mostrarNotificacao("Não foi possível alterar o status.", "erro");
       }
     },
-    [mostrarNotificacao, removeOcorrencia],
+    [isGestao, mostrarNotificacao, updateOcorrenciaStatus, user],
   );
 
   if (!user) {
@@ -541,7 +604,7 @@ function Ocorrencias() {
             <div>
               <h2>Pesquisar ocorrências</h2>
               <p>
-                {ocorrenciasFiltradas.length} de {ocorrenciasVisiveis.length}{" "}
+                {ocorrenciasExibidas.length} de {ocorrenciasFiltradas.length}{" "}
                 ocorrência(s)
               </p>
             </div>
@@ -624,9 +687,27 @@ function Ocorrencias() {
           </fieldset>
         </div>
 
+        <div className="ocorrencias-abas" role="tablist" aria-label="Status das ocorrências">
+          {abasOcorrencias.map((aba) => (
+            <button
+              type="button"
+              key={aba.id}
+              className={visaoOcorrencias === aba.id ? "ativo" : ""}
+              role="tab"
+              aria-selected={visaoOcorrencias === aba.id}
+              onClick={() => setVisaoOcorrencias(aba.id)}
+            >
+              <span>{aba.label}</span>
+              <strong>{aba.total}</strong>
+            </button>
+          ))}
+        </div>
+
         <ListaOcorrencias
-          ocorrencias={ocorrenciasFiltradas}
-          onRemoveOcorrencia={handleRemoveOcorrencia}
+          canManage={isGestao}
+          ocorrencias={ocorrenciasExibidas}
+          onStatusChange={handleAtualizarStatusOcorrencia}
+          normalizeStatus={normalizarStatusOcorrencia}
         />
       </section>
     </div>
@@ -634,3 +715,4 @@ function Ocorrencias() {
 }
 
 export default Ocorrencias;
+

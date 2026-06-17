@@ -454,6 +454,47 @@
   font-size: 13px;
 }
 
+.ocorrencias-abas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ocorrencias-abas button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--cor-borda-light);
+  border-radius: 8px;
+  background: var(--cor-branco);
+  color: #374151;
+  cursor: pointer;
+  font-weight: 600;
+  text-align: left;
+}
+
+.ocorrencias-abas button.ativo {
+  border-color: var(--cor-laranja);
+  background: rgba(255, 122, 0, 0.1);
+  color: var(--cor-secundaria);
+}
+
+.ocorrencias-abas strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  background: var(--cor-fundo-alt);
+  color: var(--cor-secundaria);
+  font-size: 12px;
+}
+
 .ocorrencias-lista {
   display: flex;
   flex-direction: column;
@@ -485,7 +526,7 @@
 }
 
 .card-ocorrencia h3 {
-  margin-bottom: 5px;
+  margin: 0;
 }
 
 .card-ocorrencia p {
@@ -499,25 +540,116 @@
   color: gray;
 }
 
-/* botão excluir */
-.card-ocorrencia button {
-  margin-top: 10px;
-
-  background: #e74c3c;
-  color: var(--cor-branco);
-
-  border: none;
-  padding: 6px 10px;
-
-  border-radius: 5px;
-
-  cursor: pointer;
-
-  transition: 0.3s;
+.card-ocorrencia-criacao {
+  color: #555;
 }
 
-.card-ocorrencia button:hover {
-  background: #c0392b;
+.card-ocorrencia-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.status-badge {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pendente {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.status-confirmada {
+  background: #e7f7ec;
+  color: #166534;
+}
+
+.status-nao-confirmada {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.status-cancelada {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.card-ocorrencia-pendente {
+  border-left: 4px solid #f97316;
+}
+
+.card-ocorrencia-confirmada {
+  border-left: 4px solid #16803c;
+}
+
+.card-ocorrencia-nao-confirmada {
+  border-left: 4px solid #dc2626;
+}
+
+.card-ocorrencia-cancelada {
+  border-left: 4px solid #4f46e5;
+}
+
+.card-ocorrencia-criacao,
+.card-ocorrencia-status,
+.card-ocorrencia-status-meta {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--cor-fundo-alt);
+}
+
+.card-status-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-alterar-status {
+  align-self: flex-start;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-alterar-status:hover {
+  background: var(--cor-destaque-hover);
+}
+
+.card-status-controle {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card-status-controle select {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: var(--cor-branco);
+  color: #374151;
+  outline: none;
+}
+
+.card-status-controle select:focus {
+  border-color: var(--cor-laranja);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
 }
 
 /* =========================
@@ -556,5 +688,9 @@
 
   .btn-limpar-filtros {
     width: 100%;
+  }
+
+  .ocorrencias-abas {
+    grid-template-columns: 1fr;
   }
 }

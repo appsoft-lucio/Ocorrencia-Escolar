@@ -11,13 +11,20 @@ const ocorrenciaShape = PropTypes.shape({
   id: PropTypes.number.isRequired,
   observacao: PropTypes.string,
   professorNome: PropTypes.string.isRequired,
-  status: PropTypes.string.isRequired,
+  statusAtualizadoEm: PropTypes.string,
+  statusAtualizadoPor: PropTypes.string,
+  status: PropTypes.string,
   tipos: PropTypes.arrayOf(PropTypes.string),
   turma: PropTypes.string.isRequired,
   turno: PropTypes.string.isRequired,
 });
 
-function ListaOcorrencias({ ocorrencias, onRemoveOcorrencia }) {
+function ListaOcorrencias({
+  canManage,
+  ocorrencias,
+  onStatusChange,
+  normalizeStatus,
+}) {
   if (!ocorrencias.length) {
     return (
       <section className="ocorrencias-lista" aria-label="Lista de ocorrências">
@@ -32,9 +39,11 @@ function ListaOcorrencias({ ocorrencias, onRemoveOcorrencia }) {
         ocorrencia.alunos.map((aluno, index) => (
           <CardOcorrencia
             aluno={aluno}
+            canManage={canManage}
             key={`${ocorrencia.id}-${index}`}
             ocorrencia={ocorrencia}
-            onRemoveOcorrencia={onRemoveOcorrencia}
+            onStatusChange={onStatusChange}
+            normalizeStatus={normalizeStatus}
           />
         )),
       )}
@@ -43,8 +52,10 @@ function ListaOcorrencias({ ocorrencias, onRemoveOcorrencia }) {
 }
 
 ListaOcorrencias.propTypes = {
+  canManage: PropTypes.bool.isRequired,
   ocorrencias: PropTypes.arrayOf(ocorrenciaShape).isRequired,
-  onRemoveOcorrencia: PropTypes.func.isRequired,
+  onStatusChange: PropTypes.func.isRequired,
+  normalizeStatus: PropTypes.func.isRequired,
 };
 
 export default memo(ListaOcorrencias);

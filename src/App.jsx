@@ -4,6 +4,8 @@ import "./App.css";
 // Importa sistema de rotas do React Router
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import AnalyticsTracker from "./components/AnalyticsTracker";
+
 // Importa páginas do sistema
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
@@ -42,6 +44,8 @@ function App() {
         <BrowserRouter
           basename={import.meta.env.PROD ? "/Ocorrencia-Escolar" : ""}
         >
+          <AnalyticsTracker />
+
           <Routes>
             {/* ======================================
                   🔑 ROTA PÚBLICA - LOGIN
@@ -85,7 +89,9 @@ function App() {
             <Route
               path="/professores"
               element={
-                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador"]}>
+                <PrivateRoute
+                  allowedRoles={["direcao", "coordenacao", "coordenador"]}
+                >
                   <Professor />
                 </PrivateRoute>
               }
@@ -93,7 +99,9 @@ function App() {
             <Route
               path="/relatorios"
               element={
-                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador"]}>
+                <PrivateRoute
+                  allowedRoles={["direcao", "coordenacao", "coordenador"]}
+                >
                   <Relatorios />
                 </PrivateRoute>
               }

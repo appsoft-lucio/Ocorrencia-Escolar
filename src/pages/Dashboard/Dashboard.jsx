@@ -108,9 +108,8 @@ function Dashboard() {
     const tiposUsados = new Set(
       ocorrenciasVisiveis.flatMap((ocorrencia) => ocorrencia.tipos || []),
     );
-    const pendentes = ocorrenciasVisiveis.filter(
-      (ocorrencia) =>
-        ["pendente", "aberta"].includes(normalizarTexto(ocorrencia.status || "")),
+    const pendentes = ocorrenciasVisiveis.filter((ocorrencia) =>
+      ["pendente", "aberta"].includes(normalizarTexto(ocorrencia.status || "")),
     );
 
     const professoresAtivos = professores.filter(
@@ -138,7 +137,11 @@ function Dashboard() {
             icon: "👨‍🏫",
           },
           { title: "Tipos ativos", value: tiposAtivos.length, icon: "🏷️" },
-          { title: "Ocorrências pendentes", value: pendentes.length, icon: "⚠️" },
+          {
+            title: "Ocorrências pendentes",
+            value: pendentes.length,
+            icon: "⚠️",
+          },
         ]
       : [
           {
@@ -153,7 +156,11 @@ function Dashboard() {
             icon: "🏫",
           },
           { title: "Tipos usados", value: tiposUsados.size, icon: "🏷️" },
-          { title: "Ocorrências pendentes", value: pendentes.length, icon: "⚠️" },
+          {
+            title: "Ocorrências pendentes",
+            value: pendentes.length,
+            icon: "⚠️",
+          },
           {
             title: "Turmas com registro",
             value: turmasComOcorrencia.size,
@@ -232,7 +239,9 @@ function Dashboard() {
               </div>
 
               {dadosDashboard.recentes.length === 0 ? (
-                <p className="dashboard-vazio">Nenhuma ocorrência registrada.</p>
+                <p className="dashboard-vazio">
+                  Nenhuma ocorrência registrada.
+                </p>
               ) : (
                 <div className="dashboard-lista">
                   {dadosDashboard.recentes.map((ocorrencia) => (

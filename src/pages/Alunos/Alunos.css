@@ -1,11 +1,7 @@
-/* =========================
-   CONTAINER PRINCIPAL
-========================= */
-
 .alunos-container {
-  background: var(--cor-fundo);
   min-height: calc(100vh - 80px);
   padding: 24px;
+  background: var(--cor-fundo);
 }
 
 .alunos-feedback {
@@ -13,67 +9,115 @@
   color: var(--cor-secundaria);
 }
 
-/* =========================
-   TOPO
-========================= */
-
 .alunos-topo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-.alunos-topo h2 {
-  margin: 0 0 4px;
+.alunos-topo h1 {
+  margin: 0 0 6px;
   color: var(--cor-secundaria);
-  font-size: 22px;
+  font-size: 26px;
 }
 
 .alunos-topo p {
+  max-width: 680px;
   margin: 0;
   color: var(--cor-texto-secundario);
 }
 
-/* =========================
-   BOTÕES
-========================= */
+.alunos-acoes-topo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
 
-.btn-imprimir,
+.btn-primario,
+.btn-secundario,
+.btn-limpar,
 .acoes-card button,
 .historico-topo button {
+  min-height: 40px;
+  padding: 9px 12px;
   border: 0;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   transition: 0.2s;
 }
 
-/* botão imprimir */
-.btn-imprimir {
+.btn-primario,
+.acoes-card button:last-child {
   background: var(--cor-laranja);
   color: var(--cor-branco);
-  padding: 10px 14px;
 }
 
-.btn-imprimir:hover {
+.btn-primario:hover,
+.acoes-card button:last-child:hover {
   background: var(--cor-destaque-hover);
 }
 
-/* =========================
-   FILTROS (CORRIGIDO)
-========================= */
+.btn-secundario,
+.btn-limpar,
+.acoes-card button:first-child,
+.historico-topo button {
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+}
+
+.btn-secundario:hover,
+.btn-limpar:hover,
+.acoes-card button:first-child:hover,
+.historico-topo button:hover {
+  background: #d1d5db;
+}
+
+.alunos-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.alunos-resumo div {
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.alunos-resumo strong {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.alunos-resumo span {
+  display: block;
+  margin-top: 6px;
+  color: var(--cor-texto-claro-suave);
+  font-size: 13px;
+  font-weight: 600;
+}
 
 .filtros {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(150px, 1fr)) auto;
+  align-items: end;
+  gap: 14px;
   margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
 }
 
-/* cada campo separado (CORREÇÃO DO DESALINHAMENTO) */
 .campo {
   display: flex;
   flex-direction: column;
@@ -81,12 +125,11 @@
 }
 
 .campo label {
-  font-size: 14px;
-  font-weight: 600;
   color: #374151;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-/* inputs e selects alinhados */
 .campo input,
 .campo select {
   width: 100%;
@@ -94,55 +137,54 @@
   padding: 0 12px;
   border: 1px solid #dcdcdc;
   border-radius: 6px;
+  background: var(--cor-branco);
   font-size: 15px;
   outline: none;
-  box-sizing: border-box;
-  background: var(--cor-branco);
 }
 
-/* foco padronizado */
 .campo input:focus,
 .campo select:focus {
   border-color: var(--cor-laranja);
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
 }
 
-/* =========================
-   GRID DE ALUNOS
-========================= */
-
 .alunos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   gap: 16px;
 }
 
 .sem-registros {
   grid-column: 1 / -1;
-  background: var(--cor-branco);
+  padding: 24px;
   border-radius: 8px;
-  color: #666;
-  padding: 22px;
+  background: var(--cor-branco);
+  color: var(--cor-texto-secundario);
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
-/* =========================
-   CARD DO ALUNO
-========================= */
-
 .card-aluno {
-  background: var(--cor-branco);
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 18px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-aluno-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .avatar {
   display: grid;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 12px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   place-items: center;
   background: var(--cor-secundaria);
@@ -151,77 +193,74 @@
   font-weight: 700;
 }
 
+.card-aluno-topo span {
+  padding: 5px 8px;
+  border-radius: var(--radius-full);
+  background: var(--cor-aviso-bg);
+  color: #9a5b00;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .card-aluno h3 {
-  margin: 0 0 10px;
+  margin: 0;
   color: var(--cor-secundaria);
   font-size: 18px;
 }
 
-.card-aluno p {
-  margin: 7px 0;
-  color: #444;
-  font-size: 14px;
+.card-aluno dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
 }
 
-/* =========================
-   AÇÕES DO CARD
-========================= */
+.card-aluno dt {
+  color: var(--cor-texto-secundario);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-aluno dd {
+  margin: 2px 0 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ultimo-registro {
+  margin: 0;
+  color: #444;
+  font-size: 13px;
+}
 
 .acoes-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: auto;
 }
-
-.acoes-card button {
-  min-height: 38px;
-  padding: 8px 10px;
-}
-
-/* botão histórico */
-.acoes-card button:first-child {
-  background: #e5e7eb;
-  color: var(--cor-secundaria);
-}
-
-.acoes-card button:first-child:hover {
-  background: #d1d5db;
-}
-
-/* botão nova ocorrência */
-.acoes-card button:last-child {
-  background: var(--cor-laranja);
-  color: var(--cor-branco);
-}
-
-.acoes-card button:last-child:hover {
-  background: var(--cor-destaque-hover);
-}
-
-/* =========================
-   HISTÓRICO
-========================= */
 
 .historico-aluno {
-  background: var(--cor-branco);
-  border-radius: 8px;
   margin-top: 22px;
   padding: 18px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
 }
 
 .historico-topo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 14px;
 }
 
-.historico-topo h3 {
+.historico-topo h2 {
   margin: 0 0 4px;
   color: var(--cor-secundaria);
+  font-size: 20px;
 }
 
 .historico-topo p {
@@ -229,24 +268,18 @@
   color: var(--cor-texto-secundario);
 }
 
-.historico-topo button {
-  background: #e5e7eb;
-  color: var(--cor-secundaria);
-  padding: 9px 12px;
-}
-
-/* lista histórico */
 .historico-lista {
   display: grid;
   gap: 10px;
 }
 
 .historico-item {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
   display: grid;
-  gap: 4px;
+  gap: 8px;
   padding: 12px;
+  border: 1px solid var(--cor-borda-light);
+  border-radius: 8px;
+  background: var(--cor-fundo-alt);
 }
 
 .historico-item strong {
@@ -260,9 +293,19 @@
   font-size: 14px;
 }
 
-/* =========================
-   RESPONSIVO
-========================= */
+@media (max-width: 1100px) {
+  .alunos-resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .btn-limpar {
+    width: 100%;
+  }
+}
 
 @media (max-width: 768px) {
   .alunos-container {
@@ -275,30 +318,41 @@
     align-items: stretch;
   }
 
-  .filtros {
-    grid-template-columns: 1fr;
+  .alunos-acoes-topo {
+    justify-content: stretch;
   }
 
+  .alunos-acoes-topo button,
+  .historico-topo button {
+    width: 100%;
+  }
+
+  .alunos-resumo,
+  .filtros,
+  .card-aluno dl,
   .acoes-card {
     grid-template-columns: 1fr;
   }
 }
 
-/* =========================
-   IMPRESSÃO
-========================= */
-
 @media print {
   .sidebar,
   .header,
-  .btn-imprimir,
+  .alunos-acoes-topo,
+  .filtros,
   .acoes-card,
   .historico-topo button {
-    display: none;
+    display: none !important;
   }
 
   .alunos-container {
     background: #fff;
     padding: 0;
+  }
+
+  .card-aluno,
+  .historico-aluno,
+  .alunos-resumo div {
+    box-shadow: none;
   }
 }

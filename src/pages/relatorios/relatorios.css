@@ -5,7 +5,7 @@
 .relatorios-layout {
   display: flex;
   min-height: 100vh;
-  background: #f5f6fa;
+  background: var(--cor-fundo);
 }
 
 .relatorios-main {
@@ -29,12 +29,12 @@
 .relatorios-header h1 {
   margin: 0;
   font-size: 22px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 .relatorios-header p {
   margin: 4px 0 0;
-  color: #6b7280;
+  color: var(--cor-texto-secundario);
 }
 
 /* ==================================================
@@ -48,8 +48,8 @@
 }
 
 .relatorios-cards .card {
-  background: #1f2937;
-  color: #ffffff;
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
 
   padding: 20px;
   border-radius: 10px;
@@ -71,7 +71,7 @@
 .relatorios-cards .card h3 {
   margin: 0;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--cor-texto-claro-suave);
 }
 
 .relatorios-cards .card span {
@@ -79,7 +79,7 @@
   margin-top: 4px;
   font-size: 1.8rem;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--cor-branco);
 }
 
 /* ==================================================
@@ -93,19 +93,19 @@
 }
 
 .grafico-box {
-  background: #ffffff;
+  background: var(--cor-branco);
   border-radius: 8px;
   padding: 16px;
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-  border-top: 3px solid #ff7a00;
+  border-top: 3px solid var(--cor-laranja);
 }
 
 .grafico-box h3 {
   margin: 0 0 12px;
   font-size: 16px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 .grafico-placeholder {
@@ -116,7 +116,7 @@
   display: grid;
   place-items: center;
 
-  color: #6b7280;
+  color: var(--cor-texto-secundario);
 }
 
 /* ==================================================
@@ -124,18 +124,18 @@
 ================================================== */
 
 .relatorios-ranking {
-  background: #ffffff;
+  background: var(--cor-branco);
   border-radius: 8px;
   padding: 16px;
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-  border-left: 4px solid #ff7a00;
+  border-left: 4px solid var(--cor-laranja);
 }
 
 .relatorios-ranking h3 {
   margin: 0 0 10px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 .ranking-item {
@@ -147,7 +147,7 @@
 }
 
 .ranking-item strong {
-  color: #ff7a00;
+  color: var(--cor-laranja);
 }
 
 /* ==================================================
@@ -180,7 +180,7 @@
     border: 1px solid #ddd;
   }
 
-  .card {
+  .relatorios-cards .card {
     box-shadow: none;
   }
 }
@@ -197,7 +197,7 @@
 }
 
 .filtro-bloco {
-  background: #ffffff;
+  background: var(--cor-branco);
   border-radius: 8px;
   padding: 12px;
 
@@ -206,7 +206,7 @@
 
 .filtro-bloco h4 {
   margin: 0 0 10px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 .filtro-bloco label {
@@ -222,7 +222,7 @@
 }
 
 .filtro-bloco input {
-  accent-color: #ff7a00;
+  accent-color: var(--cor-laranja);
 }
 /* =========================
    IMPRESSÃO PROFISSIONAL
@@ -250,7 +250,7 @@
   }
 
   /* Cards mais simples na impressão */
-  .card {
+  .relatorios-cards .card {
     box-shadow: none !important;
     border: 1px solid #ddd;
   }

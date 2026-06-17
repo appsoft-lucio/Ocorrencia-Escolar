@@ -7,15 +7,22 @@ function ProfessorCard({
   turno,
   turmas,
   ocorrencias,
+  status,
+  desativadoEm,
   onEditar,
-  onExcluir,
+  onAlternarStatus,
   onDetalhes,
 }) {
+  const estaInativo = status === "inativo";
+
   return (
-    <div className="professor-card">
+    <div className={`professor-card ${estaInativo ? "professor-card-inativo" : ""}`}>
       {/* HEADER */}
       <div className="professor-header">
         <h3>{nome}</h3>
+        <span className={`professor-status ${estaInativo ? "inativo" : "ativo"}`}>
+          {estaInativo ? "Desativado" : "Ativo"}
+        </span>
       </div>
 
       {/* BODY */}
@@ -36,6 +43,12 @@ function ProfessorCard({
         <p>
           <strong>Ocorrências:</strong> {ocorrencias}
         </p>
+        {estaInativo && desativadoEm && (
+          <p>
+            <strong>Desativado em:</strong>{" "}
+            {new Date(desativadoEm).toLocaleDateString("pt-BR")}
+          </p>
+        )}
       </div>
 
       {/* ACTIONS */}
@@ -60,11 +73,11 @@ function ProfessorCard({
 
         <button
           type="button"
-          className="btn-excluir"
-          onClick={onExcluir}
-          title="Excluir professor"
+          className={estaInativo ? "btn-reativar" : "btn-desativar"}
+          onClick={onAlternarStatus}
+          title={estaInativo ? "Reativar professor" : "Desativar professor"}
         >
-          Excluir
+          {estaInativo ? "Reativar" : "Desativar"}
         </button>
       </div>
     </div>
@@ -77,14 +90,18 @@ ProfessorCard.propTypes = {
   turno: PropTypes.string.isRequired,
   turmas: PropTypes.arrayOf(PropTypes.string).isRequired,
   ocorrencias: PropTypes.number.isRequired,
+  status: PropTypes.string,
+  desativadoEm: PropTypes.string,
   onEditar: PropTypes.func,
-  onExcluir: PropTypes.func,
+  onAlternarStatus: PropTypes.func,
   onDetalhes: PropTypes.func,
 };
 
 ProfessorCard.defaultProps = {
+  status: "ativo",
+  desativadoEm: null,
   onEditar: null,
-  onExcluir: null,
+  onAlternarStatus: null,
   onDetalhes: null,
 };
 

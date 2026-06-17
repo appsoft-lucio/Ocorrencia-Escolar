@@ -1,124 +1,71 @@
 /* =====================================
-   VARIÁVEIS DE CORES APPSOFT
-===================================== */
-
-:root {
-  /* Azul principal */
-  --cor-primaria: #2563eb;
-
-  /* Laranja destaque */
-  --cor-destaque: #ff7a00;
-
-  /* Fundo escuro (Sidebar) */
-  --cor-secundaria: #1f2937;
-
-  /* Branco */
-  --cor-branco: #ffffff;
-
-  /* Hover do menu */
-  --cor-hover: rgba(255, 255, 255, 0.1);
-
-  /* Borda sutil */
-  --cor-borda: rgba(255, 255, 255, 0.1);
-}
-
-/* =====================================
-   SIDEBAR
+   Sidebar
 ===================================== */
 
 .sidebar {
   width: 250px;
-
   min-height: 100vh;
-
   background: var(--cor-secundaria);
-
   color: var(--cor-branco);
-
   display: flex;
-
   flex-direction: column;
 }
 
-/* =====================================
-   LOGO
-===================================== */
-
+/* Logo */
 .sidebar-logo-img {
-  width: 180px;
-
-  max-width: 100%;
-
-  height: auto;
-
   display: block;
-
+  width: 180px;
+  max-width: 100%;
+  height: auto;
   margin: 0 auto;
 }
 
 .sidebar-logo h2 {
   font-size: 1.8rem;
-
-  font-weight: bold;
+  font-weight: var(--font-bold);
 }
 
 .sidebar-logo span {
   color: var(--cor-destaque);
 }
 
-/* =====================================
-   MENU
-===================================== */
-
+/* Menu */
 nav {
   flex: 1;
 }
 
 nav ul {
-  list-style: none;
-
   padding: 20px 0;
+  list-style: none;
 }
 
 nav li {
   padding: 16px 25px;
-
   cursor: pointer;
-
-  transition: 0.3s;
+  transition: var(--transition-slow);
 }
 
 nav li:hover {
-  background: var(--cor-hover);
-
+  background: var(--cor-hover-escuro);
   border-left: 4px solid var(--cor-destaque);
 }
 
 .sidebar a {
-  color: var(--cor-branco);
-
-  text-decoration: none;
-
   display: block;
-
   padding: 8px;
+  color: var(--cor-branco);
+  text-decoration: none;
 }
 
 .sidebar a:hover {
   color: var(--cor-destaque);
 }
 
-/* =====================================
-   FOOTER
-===================================== */
-
+/* Footer */
 .sidebar-footer {
   padding: 20px;
-
+  border-top: 1px solid var(--cor-borda-escura);
   text-align: center;
-
-  border-top: 1px solid var(--cor-borda);
-
   cursor: pointer;
 }
 

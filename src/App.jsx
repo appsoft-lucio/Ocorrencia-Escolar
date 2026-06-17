@@ -13,6 +13,7 @@ import Alunos from "./pages/Alunos/Alunos.jsx";
 import Professor from "./pages/professor/professor.jsx";
 import Relatorios from "./pages/relatorios/relatorios.jsx";
 import Configuracao from "./pages/configuracao/configuracao.jsx";
+import Coordenador from "./pages/coordenador/Coordenador";
 
 // Importa provider de autenticação (controle global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -102,6 +103,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Configuracao />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/coordenador"
+              element={
+                <PrivateRoute>
+                  <Coordenador />
                 </PrivateRoute>
               }
             />

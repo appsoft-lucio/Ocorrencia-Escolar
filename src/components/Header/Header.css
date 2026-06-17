@@ -1,248 +1,92 @@
 /* ==========================================================
-   HEADER.CSS
-   ----------------------------------------------------------
-   Componente: Header
-   Sistema: Ocorrência Escolar - AppSoft
-
-   Paleta Oficial
-
-   Azul Principal  : #2563eb
-   Laranja         : #ff7a00
-   Cinza Escuro    : #1f2937
-========================================================== */
-
-/* ==========================================================
-   VARIÁVEIS DE CORES
-========================================================== */
-
-:root {
-  /* Azul principal da AppSoft */
-  --cor-primaria: #2563eb;
-
-  /* Azul mais escuro */
-  --cor-primaria-hover: #1d4ed8;
-
-  /* Laranja da marca */
-  --cor-destaque: #ff7a00;
-
-  /* Hover do laranja */
-  --cor-destaque-hover: #e66d00;
-
-  /* Fundo do Header e Sidebar */
-  --cor-secundaria: #1f2937;
-
-  /* Fundo geral do sistema */
-  --cor-fundo: #f5f6fa;
-
-  /* Branco */
-  --cor-branco: #ffffff;
-
-  /* Texto principal */
-  --cor-texto: #1f2937;
-
-  /* Texto secundário */
-  --cor-texto-secundario: #9ca3af;
-
-  /* Sombra padrão */
-  --sombra-padrao: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-  /* Borda arredondada */
-  --radius: 0px;
-}
-
-/* ==========================================================
-   HEADER PRINCIPAL
+   Header
 ========================================================== */
 
 .header {
-  /* Organiza os elementos horizontalmente */
   display: flex;
-
-  /* Espaço entre esquerda e direita */
-  justify-content: space-between;
-
-  /* Centraliza verticalmente */
   align-items: center;
-
-  /* Espaçamento interno */
-  padding: 18px 30px;
-
-  /* Fundo escuro */
-  background: var(--cor-secundaria);
-
-  /* Texto branco */
-  color: var(--cor-branco);
-
-  /* Cantos arredondados */
-  border-radius: var(--radius);
-
-  /* Sombra */
-  box-shadow: var(--sombra-padrao);
-
-  /* Espaço abaixo */
+  justify-content: space-between;
   margin-bottom: 25px;
+  padding: 18px 30px;
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  border-radius: 0;
+  box-shadow: var(--sombra-padrao);
 }
-
-/* ==========================================================
-   LADO ESQUERDO
-========================================================== */
 
 .header-left {
   display: flex;
-
   align-items: center;
-
   gap: 18px;
 }
 
-.header-left h1 {
+.header-left h1,
+.header-info h1 {
   margin: 0;
-
-  font-size: 1.8rem;
-
-  font-weight: 700;
-
   color: var(--cor-branco);
+  font-size: 1.8rem;
+  font-weight: var(--font-bold);
 }
 
-.header-left p {
-  margin: 5px 0 0 0;
-
-  font-size: 0.95rem;
-
+.header-left p,
+.header-info p {
+  margin: 5px 0 0;
   color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
 }
-
-/* ==========================================================
-   LOGO
-========================================================== */
 
 .header-logo {
   width: 60px;
-
   height: auto;
-
   object-fit: contain;
 }
 
-/* ==========================================================
-   ÁREA DAS INFORMAÇÕES
-========================================================== */
+.header-logo:hover {
+  transform: scale(1.03);
+  transition: var(--transition-slow);
+}
 
 .header-info {
   display: flex;
-
   flex-direction: column;
 }
 
-/* ==========================================================
-   TÍTULO
-========================================================== */
-
-.header-info h1 {
-  margin: 0;
-
-  font-size: 1.8rem;
-
-  font-weight: 700;
-
-  color: var(--cor-branco);
-}
-
-/* ==========================================================
-   SUBTÍTULO
-========================================================== */
-
-.header-info p {
-  margin-top: 5px;
-
-  font-size: 0.95rem;
-
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* ==========================================================
-   ÁREA DO USUÁRIO
-========================================================== */
-
 .header-user {
   display: flex;
-
   align-items: center;
-
   gap: 18px;
 }
 
-/* ==========================================================
-   NOME DO USUÁRIO
-========================================================== */
-
 .header-user span {
-  font-size: 15px;
-
-  font-weight: 500;
-
   color: var(--cor-branco);
+  font-size: 15px;
+  font-weight: var(--font-medium);
 }
 
-/* ==========================================================
-   BOTÃO SAIR
-========================================================== */
-
 .header-user button {
-  background: var(--cor-destaque);
-
-  color: var(--cor-branco);
-
-  border: none;
-
   padding: 10px 18px;
-
-  border-radius: 8px;
-
+  background: var(--cor-destaque);
+  color: var(--cor-branco);
+  border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-
   font-size: 14px;
-
-  font-weight: 600;
-
+  font-weight: var(--font-semi-bold);
   transition:
     transform 0.3s ease,
     background-color 0.3s ease;
 }
 
-/* ==========================================================
-   HOVER DO BOTÃO
-========================================================== */
-
 .header-user button:hover {
   background: var(--cor-destaque-hover);
-
   transform: translateY(-2px) scale(1.03);
 }
-
-/* ==========================================================
-   CLIQUE DO BOTÃO
-========================================================== */
 
 .header-user button:active {
   transform: scale(0.98);
 }
 
-/* ==========================================================
-   EFEITO DA LOGO
-========================================================== */
-
-.header-logo:hover {
-  transform: scale(1.03);
-
-  transition: 0.3s;
-}
-
-/* ==========================================================
-   RESPONSIVIDADE - TABLET
-========================================================== */
-
+/* Responsividade */
 @media (max-width: 900px) {
   .header {
     padding: 16px 20px;
@@ -257,27 +101,19 @@
   }
 }
 
-/* ==========================================================
-   RESPONSIVIDADE - CELULAR
-========================================================== */
-
 @media (max-width: 768px) {
   .header {
-    /* Empilha os elementos */
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 20px;
   }
 
-  .header-left {
+  .header-left,
+  .header-user {
     width: 100%;
   }
 
   .header-user {
-    width: 100%;
-
     justify-content: space-between;
   }
 
@@ -294,17 +130,10 @@
   }
 }
 
-/* ==========================================================
-   RESPONSIVIDADE - CELULARES PEQUENOS
-========================================================== */
-
 @media (max-width: 480px) {
   .header-user {
-    /* Coloca usuário e botão um abaixo do outro */
     flex-direction: column;
-
     align-items: stretch;
-
     gap: 10px;
   }
 

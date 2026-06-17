@@ -1,26 +1,12 @@
 /* ================================
-   VARIÁVEIS (SEM MUDAR SEU DESIGN)
-================================ */
-
-:root {
-  --cor-fundo: #ffffff;
-  --cor-texto: #111827;
-  --cor-texto-suave: rgba(17, 24, 39, 0.7);
-}
-
-/* ================================
-   LAYOUT PRINCIPAL
+   Dashboard
 ================================ */
 
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--cor-fundo);
+  background: var(--cor-branco);
 }
-
-/* ================================
-   ÁREA PRINCIPAL
-================================ */
 
 .dashboard-main {
   flex: 1;
@@ -28,18 +14,10 @@
   flex-direction: column;
 }
 
-/* ================================
-   CONTEÚDO
-================================ */
-
 .dashboard-content {
   padding: 20px;
-  color: var(--cor-texto);
+  color: #111827;
 }
-
-/* ================================
-   BOAS-VINDAS
-================================ */
 
 .welcome-box {
   margin-bottom: 20px;
@@ -47,44 +25,30 @@
 
 .welcome-box h2 {
   margin: 0;
+  color: #111827;
   font-size: 1.5rem;
-  color: var(--cor-texto);
 }
 
 .welcome-box p {
-  margin: 5px 0 0 0;
+  margin: 5px 0 0;
   color: var(--cor-texto-suave);
 }
 
-/* ================================
-   LOADING
-================================ */
-
 .loading-screen {
   display: flex;
-  justify-content: center;
   align-items: center;
-
+  justify-content: center;
   height: 100vh;
-  background: var(--cor-fundo);
-  color: var(--cor-texto);
-
+  background: var(--cor-branco);
+  color: #111827;
   font-size: 1.2rem;
 }
-
-/* ================================
-   CARDS
-================================ */
 
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
 }
-
-/* ================================
-   RESPONSIVO
-================================ */
 
 @media (max-width: 1024px) {
   .cards-grid {

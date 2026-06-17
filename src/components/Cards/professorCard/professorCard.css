@@ -3,7 +3,7 @@
 =================================== */
 
 .professor-card {
-  background: #1f2937;
+  background: var(--cor-card-escuro);
   color: var(--cor-texto-light);
 
   border-radius: var(--radius-md);
@@ -23,20 +23,47 @@
   box-shadow: var(--shadow-lg);
 }
 
+.professor-card-inativo {
+  opacity: 0.78;
+}
+
 /* ===================================
    HEADER - NOME
 =================================== */
 
 .professor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
   padding-bottom: var(--spacing-md);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .professor-header h3 {
+  flex: 1;
   margin: 0;
   color: var(--cor-laranja);
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
+}
+
+.professor-status {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semi-bold);
+}
+
+.professor-status.ativo {
+  background: rgba(46, 125, 50, 0.18);
+  color: #81c784;
+}
+
+.professor-status.inativo {
+  background: rgba(158, 158, 158, 0.2);
+  color: #e0e0e0;
 }
 
 /* ===================================
@@ -121,13 +148,22 @@
 }
 
 /* Botão Excluir */
-.btn-excluir {
+.btn-desativar {
   background: var(--cor-erro);
   color: var(--cor-texto-light);
 }
 
-.btn-excluir:hover {
+.btn-desativar:hover {
   box-shadow: 0 4px 12px rgba(211, 47, 47, 0.35);
+}
+
+.btn-reativar {
+  background: #2e7d32;
+  color: var(--cor-texto-light);
+}
+
+.btn-reativar:hover {
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.35);
 }
 
 /* ===================================

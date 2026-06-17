@@ -1,238 +1,125 @@
 /* =====================================
-   CORES DA APPSOFT
-===================================== */
-
-:root {
-  /* Azul principal */
-  --cor-primaria: #2563eb;
-
-  /* Azul escuro */
-  --cor-secundaria: #1f2937;
-
-  /* Laranja da marca */
-  --cor-destaque: #ff7a00;
-
-  /* Laranja hover */
-  --cor-destaque-hover: #e66d00;
-
-  /* Fundo */
-  --cor-fundo: #f5f6fa;
-
-  /* Branco */
-  --cor-card: #ffffff;
-
-  /* Texto principal */
-  --cor-texto: #1f2937;
-
-  /* Texto secundário */
-  --cor-texto-secundario: #6b7280;
-
-  /* Bordas */
-  --cor-borda: #d1d5db;
-}
-
-/* =====================================
-   TELA INTEIRA
+   Login
 ===================================== */
 
 .login-container {
-  /* Altura total da tela */
-  min-height: 100vh;
-
-  /* Divide em duas colunas */
   display: flex;
+  min-height: 100vh;
 }
-
-/* =====================================
-   ÁREA ESQUERDA
-===================================== */
 
 .login-banner {
-  /* Ocupa todo espaço disponível */
   flex: 1;
-
-  /* Centralização */
   display: flex;
-  justify-content: center;
   align-items: center;
-
-  /* Espaçamento interno */
+  justify-content: center;
   padding: 50px;
-
-  /* Fundo escuro */
-  background: linear-gradient(135deg, #111827, #1f2937);
-
-  color: white;
+  background: linear-gradient(135deg, #111827, var(--cor-secundaria));
+  color: var(--cor-branco);
 }
 
-/* Conteúdo da área esquerda */
 .banner-content {
   max-width: 650px;
-
   text-align: center;
 }
-
-/* =====================================
-   LOGO
-===================================== */
 
 .logo-container {
   margin-bottom: 30px;
 }
 
-/* Imagem da logo */
 .logo-img {
-  width: 450px;
-
-  max-width: 100%;
-
-  height: auto;
-
   display: block;
-
+  width: 450px;
+  max-width: 100%;
+  height: auto;
   margin: 0 auto;
 }
 
-/* =====================================
-   TÍTULO
-===================================== */
-
 .banner-content h2 {
-  font-size: 2rem;
-
   margin-bottom: 20px;
+  font-size: 2rem;
 }
-
-/* =====================================
-   DESCRIÇÃO
-===================================== */
 
 .banner-content p {
   font-size: 1.1rem;
-
   line-height: 1.8;
 }
 
-/* =====================================
-   CARD LOGIN
-===================================== */
-
 .login-card {
   width: 500px;
-
-  background: white;
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: center;
-
   padding: 50px;
+  background: var(--cor-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-
-/* =====================================
-   TÍTULO LOGIN
-===================================== */
 
 .login-card h2 {
-  font-size: 2rem;
-
   margin-bottom: 10px;
-
   color: var(--cor-texto);
+  font-size: 2rem;
 }
 
-/* Subtítulo */
 .subtitle {
   margin-bottom: 30px;
-
   color: var(--cor-texto-secundario);
 }
 
-/* =====================================
-   FORMULÁRIO
-===================================== */
-
-form {
+.login-card form {
   display: flex;
-
   flex-direction: column;
-
   gap: 20px;
 }
 
-/* Grupo label + input */
 .input-group {
   display: flex;
-
   flex-direction: column;
 }
 
-/* Texto acima do campo */
 .input-group label {
   margin-bottom: 8px;
-
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
-/* Campos */
 .input-group input {
   padding: 14px;
-
-  border: 1px solid var(--cor-borda);
-
-  border-radius: 8px;
-
-  font-size: 1rem;
-
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius-sm);
   outline: none;
-
-  transition: 0.3s;
+  font-size: 1rem;
+  transition: var(--transition-slow);
 }
 
-/* Campo selecionado */
 .input-group input:focus {
   border-color: var(--cor-primaria);
-
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
 }
 
-/* =====================================
-   BOTÃO
-===================================== */
-
-button {
+.login-card button {
   margin-top: 10px;
-
   padding: 14px;
-
-  border: none;
-
-  border-radius: 8px;
-
   background: var(--cor-destaque);
-
-  color: white;
-
-  font-size: 1rem;
-
-  font-weight: bold;
-
+  color: var(--cor-branco);
+  border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: var(--font-bold);
+  transition: var(--transition-slow);
+}
 
-  transition: 0.3s;
+.login-card button:hover {
+  background: var(--cor-destaque-hover);
 }
 
 .login-recover {
   display: block;
   margin-top: 10px;
-  text-align: center;
-  font-size: 13px;
   color: var(--cor-destaque);
   cursor: pointer;
+  font-size: 13px;
+  text-align: center;
   text-decoration: none;
-  transition: 0.2s;
+  transition: var(--transition-normal);
 }
 
 .login-recover:hover {
@@ -240,46 +127,29 @@ button {
   text-decoration: underline;
 }
 
-/* Hover do botão */
-button:hover {
-  background: var(--cor-destaque-hover);
-}
-
-/* =====================================
-   RESPONSIVIDADE
-===================================== */
-
 @media (max-width: 900px) {
-  /* Empilha os blocos */
   .login-container {
     flex-direction: column;
   }
 
-  /* Área da logo */
   .login-banner {
     min-height: 280px;
-
     padding: 30px;
   }
 
-  /* Logo menor */
   .logo-img {
     width: 250px;
   }
 
-  /* Card ocupa tela toda */
   .login-card {
     width: 100%;
-
     padding: 30px;
   }
 
-  /* Título menor */
   .banner-content h2 {
     font-size: 1.5rem;
   }
 
-  /* Texto menor */
   .banner-content p {
     font-size: 1rem;
   }

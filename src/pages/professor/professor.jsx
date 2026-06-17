@@ -5,11 +5,33 @@ import ProfessorCard from "../../components/Cards/professorCard/professorCard";
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
+const CINCO_ANOS_EM_MS = 5 * 365 * 24 * 60 * 60 * 1000;
+
+function professorDentroDoPrazoDeRetencao(professor) {
+  if (professor.status !== "inativo" || !professor.desativadoEm) return true;
+
+  const dataDesativacao = new Date(professor.desativadoEm).getTime();
+
+  if (Number.isNaN(dataDesativacao)) return true;
+
+  return Date.now() - dataDesativacao < CINCO_ANOS_EM_MS;
+}
+
 function Professor() {
   const { user } = useContext(AuthContext);
 
-  // Estados do modal e formulário
+  // Estados do modal de criar
   const [abrirModal, setAbrirModal] = useState(false);
+
+  // Estados do modal de detalhes
+  const [abrirModalDetalhes, setAbrirModalDetalhes] = useState(false);
+  const [professorSelecionado, setProfessorSelecionado] = useState(null);
+
+  // Estados do modal de edição
+  const [abrirModalEdicao, setAbrirModalEdicao] = useState(false);
+  const [professorEmEdicao, setProfessorEmEdicao] = useState(null);
+
+  // Estados do formulário
   const [formData, setFormData] = useState({
     nome: "",
     disciplina: "",
@@ -22,7 +44,8 @@ function Professor() {
   // Estados dos dados
   const [professores, setProfessores] = useState(() => {
     const stored = localStorage.getItem("professores");
-    return stored
+
+    const professoresIniciais = stored
       ? JSON.parse(stored)
       : [
           {
@@ -58,6 +81,14 @@ function Professor() {
             ocorrencias: 12,
           },
         ];
+
+    return professoresIniciais
+      .map((professor) => ({
+        ...professor,
+        status: professor.status || "ativo",
+        desativadoEm: professor.desativadoEm || null,
+      }))
+      .filter(professorDentroDoPrazoDeRetencao);
   });
 
   // Salvar no localStorage sempre que professores mudam
@@ -132,6 +163,8 @@ function Professor() {
       turno: formData.turno,
       turmas: formData.turmas,
       ocorrencias: 0,
+      status: "ativo",
+      desativadoEm: null,
     };
 
     setProfessores((prev) => [...prev, novoProfessor]);
@@ -141,7 +174,6 @@ function Professor() {
       fecharModal();
     }, 1000);
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -152,11 +184,87 @@ function Professor() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      adicionarTurma();
+    if (e.key === "Enter") adicionarTurma();
+  };
+
+  // Ações dos botões dos cards
+  const verDetalhes = (professor) => {
+    setProfessorSelecionado(professor);
+    setAbrirModalDetalhes(true);
+  };
+
+  const editarProfessor = (professor) => {
+    setProfessorEmEdicao(professor);
+    setFormData({
+      nome: professor.nome,
+      disciplina: professor.disciplina,
+      turno: professor.turno,
+      novaTurma: "",
+      turmas: [...professor.turmas],
+    });
+    setAbrirModalEdicao(true);
+  };
+
+  const salvarEdicao = () => {
+    if (!formData.nome.trim()) {
+      setMensagem("Informe o nome do professor.");
+      return;
+    }
+
+    if (!formData.disciplina.trim()) {
+      setMensagem("Informe a disciplina.");
+      return;
+    }
+
+    if (formData.turmas.length === 0) {
+      setMensagem("Adicione pelo menos uma turma.");
+      return;
+    }
+
+    setProfessores((prev) =>
+      prev.map((prof) =>
+        prof.id === professorEmEdicao.id
+          ? {
+              ...prof,
+              nome: formData.nome,
+              disciplina: formData.disciplina,
+              turno: formData.turno,
+              turmas: formData.turmas,
+            }
+          : prof,
+      ),
+    );
+    setMensagem("Professor atualizado com sucesso!");
+    setTimeout(() => {
+      fecharModalEdicao();
+    }, 1000);
+  };
+
+  const alternarStatusProfessor = (professorId) => {
+    const professor = professores.find((prof) => prof.id === professorId);
+    const estaInativo = professor?.status === "inativo";
+    const acao = estaInativo ? "reativar" : "desativar";
+
+    if (window.confirm(`Tem certeza que deseja ${acao} este professor?`)) {
+      setProfessores((prev) =>
+        prev.map((prof) =>
+          prof.id === professorId
+            ? {
+                ...prof,
+                status: estaInativo ? "ativo" : "inativo",
+                desativadoEm: estaInativo ? null : new Date().toISOString(),
+              }
+            : prof,
+        ),
+      );
     }
   };
 
+  const fecharModalEdicao = () => {
+    setProfessorEmEdicao(null);
+    setAbrirModalEdicao(false);
+    limparFormulario();
+  };
   return (
     <div className="professores-layout">
       <Sidebar />
@@ -164,6 +272,197 @@ function Professor() {
       <div className="professores-main">
         <Header />
 
+        {/* Modal de detalhes */}
+        {abrirModalDetalhes && professorSelecionado && (
+          <div className="modal-overlay">
+            <div className="modal-detalhes">
+              <button
+                className="btn-fechar-modal"
+                onClick={() => setAbrirModalDetalhes(false)}
+                title="Fechar"
+              >
+                ×
+              </button>
+
+              <h2>{professorSelecionado.nome}</h2>
+
+              <div className="detalhes-conteudo">
+                <div className="detalhe-item">
+                  <strong>Status:</strong>
+                  <p>
+                    {professorSelecionado.status === "inativo"
+                      ? "Desativado"
+                      : "Ativo"}
+                  </p>
+                </div>
+
+                {professorSelecionado.status === "inativo" &&
+                  professorSelecionado.desativadoEm && (
+                    <div className="detalhe-item">
+                      <strong>Desativado em:</strong>
+                      <p>
+                        {new Date(
+                          professorSelecionado.desativadoEm,
+                        ).toLocaleDateString("pt-BR")}
+                      </p>
+                    </div>
+                  )}
+
+                <div className="detalhe-item">
+                  <strong>Disciplina:</strong>
+                  <p>{professorSelecionado.disciplina}</p>
+                </div>
+
+                <div className="detalhe-item">
+                  <strong>Turno:</strong>
+                  <p>{professorSelecionado.turno}</p>
+                </div>
+
+                <div className="detalhe-item">
+                  <strong>
+                    Turmas ({professorSelecionado.turmas.length}):
+                  </strong>
+                  <div className="turmas-detalhes">
+                    {professorSelecionado.turmas.map((turma, idx) => (
+                      <span key={idx} className="turma-badge">
+                        {turma}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="detalhe-item">
+                  <strong>Total de Ocorrências:</strong>
+                  <p className="ocorrencias-total">
+                    {professorSelecionado.ocorrencias}
+                  </p>
+                </div>
+              </div>
+
+              <div className="modal-botoes">
+                <button
+                  type="button"
+                  onClick={() => setAbrirModalDetalhes(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de edição */}
+        {abrirModalEdicao && professorEmEdicao && (
+          <div className="modal-overlay">
+            <div className="modal-professor">
+              <h2>Editar Professor</h2>
+
+              {mensagem && (
+                <div
+                  className={`mensagem ${mensagem.includes("sucesso") ? "sucesso" : "erro"}`}
+                >
+                  {mensagem}
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="nome-edicao">Nome do Professor</label>
+                <input
+                  id="nome-edicao"
+                  type="text"
+                  name="nome"
+                  placeholder="Ex: João Silva"
+                  value={formData.nome}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="disciplina-edicao">Disciplina</label>
+                <input
+                  id="disciplina-edicao"
+                  type="text"
+                  name="disciplina"
+                  placeholder="Ex: Matemática"
+                  value={formData.disciplina}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="turno-edicao">Turno</label>
+                <select
+                  id="turno-edicao"
+                  name="turno"
+                  value={formData.turno}
+                  onChange={handleInputChange}
+                >
+                  <option value="Manhã">Manhã</option>
+                  <option value="Tarde">Tarde</option>
+                  <option value="Noite">Noite</option>
+                  <option value="Integral">Integral</option>
+                </select>
+              </div>
+
+              <div className="turmas-section">
+                <h3>Turmas</h3>
+
+                <div className="turma-adicionar">
+                  <input
+                    type="text"
+                    name="novaTurma"
+                    placeholder="Ex: 101"
+                    value={formData.novaTurma}
+                    onChange={handleInputChange}
+                    onKeyPress={handleKeyPress}
+                    aria-label="Código da turma"
+                  />
+
+                  <button
+                    type="button"
+                    className="btn-add-turma"
+                    onClick={adicionarTurma}
+                    title="Adicionar turma"
+                  >
+                    Adicinar
+                  </button>
+                </div>
+
+                <div className="lista-turmas">
+                  {formData.turmas.length > 0 ? (
+                    formData.turmas.map((turma) => (
+                      <div key={turma} className="turma-item">
+                        <span>{turma}</span>
+                        <button
+                          type="button"
+                          onClick={() => removerTurma(turma)}
+                          title="Remover turma"
+                          aria-label={`Remover turma ${turma}`}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="vazio">Nenhuma turma adicionada</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-botoes">
+                <button type="button" onClick={fecharModalEdicao}>
+                  Cancelar
+                </button>
+
+                <button type="button" onClick={salvarEdicao}>
+                  Salvar Alterações
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de criar */}
         {abrirModal && (
           <div className="modal-overlay">
             <div className="modal-professor">
@@ -171,9 +470,7 @@ function Professor() {
 
               {mensagem && (
                 <div
-                  className={`mensagem ${
-                    mensagem.includes("sucesso") ? "sucesso" : "erro"
-                  }`}
+                  className={`mensagem ${mensagem.includes("sucesso") ? "sucesso" : "erro"}`}
                 >
                   {mensagem}
                 </div>
@@ -231,14 +528,13 @@ function Professor() {
                     onKeyPress={handleKeyPress}
                     aria-label="Código da turma"
                   />
-
                   <button
                     type="button"
                     className="btn-add-turma"
                     onClick={adicionarTurma}
                     title="Adicionar turma"
                   >
-                    +
+                    Adicinar
                   </button>
                 </div>
 
@@ -253,7 +549,7 @@ function Professor() {
                           title="Remover turma"
                           aria-label={`Remover turma ${turma}`}
                         >
-                          ×
+                          Remover
                         </button>
                       </div>
                     ))
@@ -267,7 +563,6 @@ function Professor() {
                 <button type="button" onClick={fecharModal}>
                   Cancelar
                 </button>
-
                 <button type="button" onClick={salvarProfessor}>
                   Salvar
                 </button>
@@ -287,14 +582,15 @@ function Professor() {
               className="btn-novo-professor"
               onClick={() => setAbrirModal(true)}
             >
-              + Novo Professor
+              Novo Professor
             </button>
           </div>
 
           <p className="professores-descricao">
-            Bem-vindo, <strong>{user.nome}</strong>. Nesta página é possível
+            Bem-vindo, <strong>{user?.nome}</strong>. Nesta página é possível
             visualizar os professores cadastrados, as turmas em que lecionam, o
-            turno de atuação e a quantidade de ocorrências registradas.
+            turno de atuação, a quantidade de ocorrências registradas e o status
+            do vínculo com a escola.
           </p>
 
           <section className="professores-cards">
@@ -307,6 +603,11 @@ function Professor() {
                   turno={professor.turno}
                   turmas={professor.turmas}
                   ocorrencias={professor.ocorrencias}
+                  status={professor.status}
+                  desativadoEm={professor.desativadoEm}
+                  onDetalhes={() => verDetalhes(professor)}
+                  onEditar={() => editarProfessor(professor)}
+                  onAlternarStatus={() => alternarStatusProfessor(professor.id)}
                 />
               ))
             ) : (

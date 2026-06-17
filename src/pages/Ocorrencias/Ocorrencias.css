@@ -7,13 +7,13 @@
   gap: 20px;
   padding: 20px;
   flex-wrap: wrap;
-  background: #f5f6fa;
+  background: var(--cor-fundo);
   min-height: 100vh;
 }
 
 .ocorrencias-feedback {
   padding: 20px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 .notificacao {
@@ -24,7 +24,7 @@
   max-width: min(360px, calc(100vw - 40px));
   padding: 12px 16px;
   border-radius: 6px;
-  color: #fff;
+  color: var(--cor-branco);
   font-weight: 600;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
@@ -38,7 +38,7 @@
 }
 
 .notificacao-info {
-  background: #1f2937;
+  background: var(--cor-secundaria);
 }
 
 /* =========================
@@ -47,7 +47,7 @@
 .ocorrencias-form {
   flex: 1;
   min-width: 320px;
-  background: #fff;
+  background: var(--cor-branco);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -56,7 +56,7 @@
 .ocorrencias-form h2 {
   margin-bottom: 15px;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 .campo-form {
@@ -98,7 +98,7 @@
 .ocorrencias-form input:focus,
 .ocorrencias-form select:focus,
 .ocorrencias-form textarea:focus {
-  border-color: #ff7a00;
+  border-color: var(--cor-laranja);
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
 }
 
@@ -149,7 +149,7 @@
   width: 18px;
   height: 18px;
 
-  accent-color: #ff7a00;
+  accent-color: var(--cor-laranja);
   cursor: pointer;
 }
 
@@ -160,7 +160,7 @@
 
 /* marcado */
 .checkbox-item input:checked + span {
-  color: #ff7a00;
+  color: var(--cor-laranja);
   font-weight: 600;
 }
 
@@ -171,8 +171,8 @@
   width: 50%;
   padding: 12px;
 
-  background: #ff7a00;
-  color: white;
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
 
   border: none;
   border-radius: 6px;
@@ -189,7 +189,7 @@
 }
 
 .ocorrencias-form button:hover {
-  background: #e66f00;
+  background: var(--cor-destaque-hover);
 }
 
 /* =========================
@@ -201,7 +201,7 @@
 }
 
 .ocorrencias-vazia {
-  background: #fff;
+  background: var(--cor-branco);
   border-radius: 10px;
   color: #666;
   padding: 20px;
@@ -211,12 +211,12 @@
 
 .ocorrencias-lista h2 {
   margin-bottom: 15px;
-  color: #1f2937;
+  color: var(--cor-secundaria);
 }
 
 /* card */
 .card-ocorrencia {
-  background: white;
+  background: var(--cor-branco);
   padding: 15px;
   margin-bottom: 10px;
 
@@ -245,7 +245,7 @@
   margin-top: 10px;
 
   background: #e74c3c;
-  color: white;
+  color: var(--cor-branco);
 
   border: none;
   padding: 6px 10px;

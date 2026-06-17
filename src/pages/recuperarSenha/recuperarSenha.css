@@ -3,16 +3,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f5f6fa;
+  background: var(--cor-fundo);
 }
 
 .recuperar-card {
-  background: #1f2937;
+  background: var(--cor-secundaria);
   padding: 24px;
   border-radius: 10px;
   width: 100%;
   max-width: 400px;
-  color: #fff;
+  color: var(--cor-branco);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -34,8 +34,8 @@
   padding: 10px;
   border-radius: 8px;
   border: none;
-  background: #ff7a00;
-  color: #fff;
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
   cursor: pointer;
 }
 

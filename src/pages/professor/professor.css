@@ -168,383 +168,108 @@
   font-size: var(--text-3xl);
 }
 
-/* Mensagens de feedback */
-.mensagem {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-sm);
-  font-weight: var(--font-medium);
-  margin-bottom: var(--spacing-md);
-  animation: slideIn var(--transition-slow);
-}
+/* Modal de Detalhes */
+.modal-detalhes {
+  width: 100%;
+  max-width: 600px;
 
-.mensagem.sucesso {
-  background: var(--cor-sucesso-bg);
-  color: var(--cor-sucesso-text);
-  border-left: 4px solid var(--cor-sucesso);
-}
+  padding: var(--spacing-xl);
 
-.mensagem.erro {
-  background: var(--cor-erro-bg);
-  color: var(--cor-erro-text);
-  border-left: 4px solid var(--cor-erro);
-}
+  background: var(--cor-branco);
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+  border-radius: var(--radius-md);
 
-/* Grupos de formulário */
-.form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-lg);
+
+  box-shadow: var(--shadow-modal);
+
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
 }
 
-.form-group label {
-  font-weight: var(--font-semi-bold);
-  color: var(--cor-texto);
-  font-size: var(--text-sm);
-}
-
-.modal-professor input,
-.modal-professor select {
-  width: 100%;
-
-  padding: var(--spacing-md);
-
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--radius-sm);
-
-  font-size: var(--text-base);
-
-  outline: none;
-
-  transition: all var(--transition-normal);
-  font-family: inherit;
-}
-
-.modal-professor input:focus,
-.modal-professor select:focus {
-  border-color: var(--cor-laranja);
-  box-shadow: 0 0 5px rgba(255, 122, 0, 0.3);
-}
-
-.modal-professor input:disabled,
-.modal-professor select:disabled {
-  background: var(--cor-cinza-claro);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* ===================================
-   TURMAS
-=================================== */
-
-.turmas-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.turmas-section h3 {
+.modal-detalhes h2 {
   margin: 0;
-  color: var(--cor-texto);
-  font-size: var(--text-xl);
+  color: var(--cor-laranja);
+  font-size: var(--text-3xl);
+  padding-right: var(--spacing-xl);
 }
 
-.turma-adicionar {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
-.turma-adicionar input {
-  flex: 1;
-}
-
-.btn-add-turma {
-  min-width: 50px;
-
-  background: var(--cor-laranja);
-  color: var(--cor-texto-light);
-
-  border: none;
-  border-radius: var(--radius-sm);
-
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-
-  cursor: pointer;
-
-  transition: all var(--transition-normal);
-}
-
-.btn-add-turma:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-laranja);
-}
-
-.btn-add-turma:active {
-  transform: scale(0.95);
-}
-
-.btn-add-turma:focus-visible {
-  outline: 2px solid var(--cor-laranja);
-  outline-offset: 2px;
-}
-
-.lista-turmas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  min-height: 40px;
-  align-items: center;
-}
-
-.lista-turmas .vazio {
-  width: 100%;
-  text-align: center;
-  color: var(--cor-texto-secondary);
-  font-size: var(--text-sm);
-  margin: 0;
-  padding: var(--spacing-md);
-  background: var(--cor-cinza-claro);
-  border-radius: var(--radius-sm);
-}
-
-.turma-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-
-  padding: var(--spacing-xs) var(--spacing-md);
-
-  background: var(--cor-cinza-claro);
-
-  border-radius: var(--radius-full);
-}
-
-.turma-item span {
-  font-weight: var(--font-medium);
-}
-
-.turma-item button {
-  border: none;
+.btn-fechar-modal {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
   background: transparent;
-
-  color: var(--cor-erro);
-
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-
+  border: none;
+  font-size: var(--text-3xl);
+  color: var(--cor-texto-secondary);
   cursor: pointer;
-
-  transition: color var(--transition-normal);
   padding: 0;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color var(--transition-normal);
 }
 
-.turma-item button:hover {
-  color: var(--cor-erro-hover);
+.btn-fechar-modal:hover {
+  color: var(--cor-erro);
 }
 
-.turma-item button:focus-visible {
-  outline: 2px solid var(--cor-erro);
-  outline-offset: 2px;
-  border-radius: 50%;
-}
-
-/* ===================================
-   BOTÕES DO MODAL
-=================================== */
-
-.modal-botoes {
+/* Conteúdo dos Detalhes */
+.detalhes-conteudo {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-
-  margin-top: 10px;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
-.modal-botoes button {
-  border: none;
+.detalhe-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.detalhe-item strong {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+  color: var(--cor-texto-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detalhe-item p {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--cor-texto);
+  font-weight: var(--font-medium);
+}
+
+.turmas-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.turma-badge {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--cor-cinza-claro);
+  color: var(--cor-texto);
   border-radius: var(--radius-sm);
-
-  padding: 12px 18px;
-
-  font-weight: 600;
-  font-size: 15px;
-
-  cursor: pointer;
-
-  transition: all var(--transicao);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
 }
 
-.modal-botoes button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Cancelar */
-
-.modal-botoes button:first-child {
-  background: transparent;
-  color: var(--cor-laranja);
-  border: 2px solid var(--cor-laranja);
-}
-
-.modal-botoes button:first-child:hover:not(:disabled) {
-  background: var(--cor-laranja);
-  color: var(--cor-texto-light);
-  transform: scale(1.02);
-}
-
-.modal-botoes button:first-child:focus-visible {
-  outline: 2px solid var(--cor-laranja);
-  outline-offset: 2px;
-}
-
-/* Salvar */
-
-.modal-botoes button:last-child {
-  background: var(--cor-laranja);
-  color: var(--cor-texto-light);
-}
-
-.modal-botoes button:last-child:hover:not(:disabled) {
-  transform: scale(1.02);
-  box-shadow: var(--shadow-laranja);
-}
-
-.modal-botoes button:last-child:focus-visible {
-  outline: 2px solid var(--cor-texto-light);
-  outline-offset: 2px;
-}
-
-/* ===================================
-   RESPONSIVIDADE
-=================================== */
-
-@media (max-width: 768px) {
-  .professores-content {
-    padding: var(--spacing-lg);
-  }
-
-  .professores-topo {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-md);
-  }
-
-  .professores-content h1 {
-    font-size: var(--text-3xl);
-  }
-
-  .btn-novo-professor {
-    width: 100%;
-    padding: var(--spacing-lg);
-  }
-
-  .modal-overlay {
-    padding: var(--spacing-md);
-  }
-
-  .modal-professor {
-    max-width: 100%;
-    padding: var(--spacing-lg);
-    gap: var(--spacing-md);
-    max-height: 95vh;
-  }
-
-  .modal-professor h2 {
-    font-size: var(--text-2xl);
-  }
-
-  .form-group label {
-    font-size: var(--text-xs);
-  }
-
-  .modal-professor input,
-  .modal-professor select {
-    font-size: var(--text-lg);
-    padding: var(--spacing-lg);
-  }
-
-  .turma-adicionar {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .turma-adicionar input {
-    padding: var(--spacing-lg);
-  }
-
-  .btn-add-turma {
-    width: 100%;
-    min-height: 45px;
-    font-size: var(--text-3xl);
-  }
-
-  .modal-botoes {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-lg);
-  }
-
-  .modal-botoes button {
-    width: 100%;
-    padding: var(--spacing-lg);
-    font-size: var(--text-sm);
-  }
-
-  .lista-turmas {
-    gap: var(--spacing-xs);
-  }
-
-  .turma-item {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--text-sm);
-  }
-
-  .professores-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .professores-content {
-    padding: var(--spacing-md);
-  }
-
-  .professores-content h1 {
-    font-size: var(--text-2xl);
-  }
-
-  .professores-content h2 {
-    font-size: var(--text-sm);
-  }
-
-  .modal-professor {
-    padding: var(--spacing-lg);
-    gap: var(--spacing-md);
-  }
-
-  .modal-professor h2 {
-    font-size: var(--text-xl);
-  }
-
-  .turma-item {
-    font-size: var(--text-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
+.ocorrencias-total {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--cor-erro-bg);
+  color: var(--cor-erro-text);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-bold);
+  font-size: var(--text-lg);
 }

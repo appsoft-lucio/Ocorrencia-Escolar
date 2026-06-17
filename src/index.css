@@ -6,21 +6,35 @@
 
 :root {
   /* CORES */
+  --cor-primaria: #2563eb;
+  --cor-primaria-hover: #1d4ed8;
+
   --cor-laranja: #ff7a00;
   --cor-laranja-hover: #e67000;
   --cor-laranja-light: #ffe4cc;
+
+  --cor-destaque: var(--cor-laranja);
+  --cor-destaque-hover: #e66d00;
 
   --cor-fundo: #f5f6fa;
   --cor-fundo-alt: #f9f9f9;
 
   --cor-branco: #ffffff;
+  --cor-card: #ffffff;
+  --cor-card-escuro: #1f2937;
+  --cor-secundaria: #1f2937;
+  --cor-hover-escuro: rgba(255, 255, 255, 0.1);
 
   --cor-texto: #222222;
   --cor-texto-secondary: #666666;
+  --cor-texto-secundario: #6b7280;
+  --cor-texto-suave: rgba(17, 24, 39, 0.7);
   --cor-texto-light: #ffffff;
+  --cor-texto-claro-suave: rgba(255, 255, 255, 0.7);
 
   --cor-borda: #d6d6d6;
   --cor-borda-light: #e8e8e8;
+  --cor-borda-escura: rgba(255, 255, 255, 0.1);
 
   --cor-overlay: rgba(0, 0, 0, 0.5);
 
@@ -84,6 +98,9 @@
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.15);
+  --sombra-card: var(--shadow-card);
+  --sombra-padrao: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-modal: 0 8px 30px rgba(0, 0, 0, 0.15);
   --shadow-laranja: 0 4px 12px rgba(255, 122, 0, 0.35);
 

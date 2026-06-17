@@ -1,34 +1,17 @@
 /* ==================================================
-   VARIÁVEIS
-================================================== */
-
-:root {
-  --cor-primaria: #2563eb;
-  --cor-destaque: #ff7a00;
-  --cor-secundaria: #1f2937;
-  --cor-branco: #ffffff;
-  --cor-texto-secundario: rgba(255, 255, 255, 0.7);
-  --sombra-card: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-/* ==================================================
-   CARD
+   Stats Card
 ================================================== */
 
 .card {
   background: var(--cor-secundaria);
   color: var(--cor-branco);
-
   padding: 20px;
   border-radius: 10px;
-
   display: flex;
   gap: 15px;
   align-items: center;
-
   min-width: 200px;
-
   box-shadow: var(--sombra-card);
-
   transition:
     transform 0.3s ease,
     background-color 0.3s ease;
@@ -39,8 +22,8 @@
 }
 
 .card-icon {
-  font-size: 32px;
   color: var(--cor-destaque);
+  font-size: 32px;
 }
 
 .card-info {
@@ -50,12 +33,13 @@
 
 .card-info h3 {
   margin: 0;
+  color: var(--cor-branco);
   font-size: 1.8rem;
-  font-weight: bold;
+  font-weight: var(--font-bold);
 }
 
 .card-info p {
   margin: 4px 0 0;
-  color: var(--cor-texto-secundario);
+  color: var(--cor-texto-claro-suave);
   font-size: 0.95rem;
 }

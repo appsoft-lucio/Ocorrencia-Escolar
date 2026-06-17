@@ -1,32 +1,11 @@
 /* ==================================================
-   VARIÁVEIS (CLARO PROFISSIONAL)
-================================================== */
-
-:root {
-  --cor-primaria: #2563eb;
-  --cor-destaque: #ff7a00;
-
-  --cor-fundo: #ffffff;
-
-  /* texto principal (escuro) */
-  --cor-texto: #0f172a;
-
-  /* texto secundário (cinza suave) */
-  --cor-texto-secundario: #6b7280;
-
-  --cor-card: #1f2937; /* cards escuros continuam */
-
-  --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-/* ==================================================
-   LAYOUT
+   Configuracao
 ================================================== */
 
 .configuracao-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--cor-fundo);
+  background: var(--cor-branco);
 }
 
 .configuracao-main {
@@ -35,20 +14,15 @@
   flex-direction: column;
 }
 
-/* ==================================================
-   CONTAINER
-================================================== */
-
 .configuracao-container {
   padding: 24px;
-  color: var(--cor-texto);
+  color: #0f172a;
 }
 
-/* título */
 .configuracao-container h1 {
   margin: 0;
+  color: #0f172a;
   font-size: 24px;
-  color: var(--cor-texto);
 }
 
 .configuracao-container p {
@@ -56,46 +30,33 @@
   color: var(--cor-texto-secundario);
 }
 
-/* ==================================================
-   SEÇÕES
-================================================== */
-
 .card-section {
   margin-bottom: 20px;
 }
 
 .card-section h2 {
-  font-size: 18px;
   margin-bottom: 10px;
-  color: var(--cor-texto);
+  color: #0f172a;
+  font-size: 18px;
 }
 
-/* ==================================================
-   CARD (escuro como você quer manter)
-================================================== */
-
-.card {
-  background: var(--cor-card);
+.configuracao-container .card {
   padding: 18px;
+  background: var(--cor-card-escuro);
+  color: var(--cor-branco);
   border-radius: 10px;
-  box-shadow: var(--sombra-card);
-  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-/* texto dentro do card */
-.card p {
+.configuracao-container .card p {
   margin: 6px 0;
-  font-size: 14px;
   color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
 }
 
-.card strong {
-  color: #ffffff;
+.configuracao-container .card strong {
+  color: var(--cor-branco);
 }
-
-/* ==================================================
-   FORMULÁRIOS
-================================================== */
 
 .form-card {
   display: flex;
@@ -103,59 +64,50 @@
   gap: 10px;
 }
 
-/* inputs agora claros (importante no fundo branco) */
-input,
-textarea {
+.configuracao-container input,
+.configuracao-container textarea {
   width: 100%;
   padding: 12px;
-  border-radius: 8px;
+  background: var(--cor-branco);
+  color: #0f172a;
   border: 1px solid #d1d5db;
+  border-radius: var(--radius-sm);
   outline: none;
-  background: #ffffff;
-  color: var(--cor-texto);
   font-size: 14px;
 }
 
-input:focus,
-textarea:focus {
+.configuracao-container input:focus,
+.configuracao-container textarea:focus {
   border-color: var(--cor-destaque);
   box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.25);
 }
 
-/* ==================================================
-   BOTÕES
-================================================== */
-
-button {
-  border: none;
-  border-radius: 8px;
+.configuracao-container button {
   padding: 10px 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
   background: var(--cor-destaque);
-  color: #fff;
+  color: var(--cor-branco);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: var(--font-semi-bold);
+  transition: var(--transition-normal);
 }
 
-button:hover {
+.configuracao-container button:hover {
   transform: translateY(-1px);
   opacity: 0.95;
 }
 
-.upgrade {
+.configuracao-container .upgrade {
   background: var(--cor-primaria);
 }
-
-/* ==================================================
-   RESPONSIVO
-================================================== */
 
 @media (max-width: 768px) {
   .configuracao-container {
     padding: 16px;
   }
 
-  .card {
+  .configuracao-container .card {
     padding: 14px;
   }
 }

@@ -54,6 +54,10 @@ function Sidebar() {
           </li>
 
           <li>
+            <Link to="/coordenador">🎯 Coordenador</Link>
+          </li>
+
+          <li>
             <Link to="/relatorios">📈 Relatórios</Link>
           </li>
 

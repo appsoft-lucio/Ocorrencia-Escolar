@@ -103,7 +103,7 @@ function carregarTiposOcorrencia() {
   try {
     return JSON.parse(stored).map(normalizarTipoOcorrencia);
   } catch (error) {
-    console.error("Erro ao carregar tipos de ocorrencia:", error);
+    console.error("Erro ao carregar tipos de ocorrência:", error);
     return TIPOS_OCORRENCIA_PADRAO.map(criarTipoOcorrencia);
   }
 }
@@ -237,7 +237,7 @@ function Coordenador() {
     const nomeTipo = novoTipo.trim();
 
     if (!nomeTipo) {
-      setMensagemTipo("Informe o nome do tipo de ocorrencia.");
+      setMensagemTipo("Informe o nome do tipo de ocorrência.");
       return;
     }
 
@@ -246,7 +246,7 @@ function Coordenador() {
     );
 
     if (tipoExistente?.status === "ativo") {
-      setMensagemTipo("Este tipo de ocorrencia ja esta ativo.");
+      setMensagemTipo("Este tipo de ocorrência já está ativo.");
       return;
     }
 
@@ -258,10 +258,10 @@ function Coordenador() {
             : tipo,
         ),
       );
-      setMensagemTipo("Tipo de ocorrencia reativado com sucesso.");
+      setMensagemTipo("Tipo de ocorrência reativado com sucesso.");
     } else {
       setTiposOcorrencia((prev) => prev.concat(criarTipoOcorrencia(nomeTipo)));
-      setMensagemTipo("Tipo de ocorrencia adicionado com sucesso.");
+      setMensagemTipo("Tipo de ocorrência adicionado com sucesso.");
     }
 
     setNovoTipo("");
@@ -297,7 +297,7 @@ function Coordenador() {
     );
 
     if (turmaExistente?.status === "ativo") {
-      setMensagemTurma("Esta turma ja esta ativa.");
+      setMensagemTurma("Esta turma já está ativa.");
       return;
     }
 
@@ -345,8 +345,8 @@ function Coordenador() {
         <main className="coordenador-content">
           <div className="coordenador-topo">
             <div>
-              <h1>Coordenacao</h1>
-              <p>Gerencie coordenadores e os tipos usados nas ocorrencias.</p>
+              <h1>Coordenação</h1>
+              <p>Gerencie coordenadores e os tipos usados nas ocorrências.</p>
             </div>
 
             <div className="coordenador-acoes-topo">
@@ -355,7 +355,7 @@ function Coordenador() {
                 className="btn-gerenciar-tipos"
                 onClick={() => setAbrirModalTipos(true)}
               >
-                Tipos de ocorrencia
+                Tipos de ocorrência
               </button>
               <button
                 type="button"
@@ -427,7 +427,7 @@ function Coordenador() {
 
             <section className="coordenador-card tipos-card">
               <div className="secao-titulo">
-                <h2>Tipos de ocorrencia</h2>
+                <h2>Tipos de ocorrência</h2>
                 <p>Controle quais tipos aparecem no registro.</p>
               </div>
 
@@ -520,7 +520,7 @@ function Coordenador() {
               x
             </button>
 
-            <h2>Tipos de ocorrencia</h2>
+            <h2>Tipos de ocorrência</h2>
 
             {mensagemTipo && <div className="mensagem">{mensagemTipo}</div>}
 
@@ -595,7 +595,7 @@ function Coordenador() {
                   onKeyDown={(event) => {
                     if (event.key === "Enter") adicionarTurmaEscolar();
                   }}
-                  placeholder="Ex: Informatica"
+                  placeholder="Ex: Informática"
                 />
                 <button type="button" onClick={adicionarTurmaEscolar}>
                   Adicionar

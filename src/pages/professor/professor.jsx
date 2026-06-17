@@ -153,7 +153,7 @@ function Professor() {
     const codigoTurma = formData.novaTurma.trim();
 
     if (!codigoTurma) {
-      setMensagem("Digite o codigo da turma.");
+      setMensagem("Digite o código da turma.");
       return;
     }
 
@@ -164,7 +164,7 @@ function Professor() {
     );
 
     if (turmaExistente && turmaEstaAtiva(turmaExistente)) {
-      setMensagem("Esta turma ja esta ativa.");
+      setMensagem("Esta turma já está ativa.");
       return;
     }
 

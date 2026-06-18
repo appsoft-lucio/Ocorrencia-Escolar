@@ -44,9 +44,11 @@ function Sidebar() {
             </li>
           )}
 
-          <li>
-            <Link to="/coordenador">Coordenador</Link>
-          </li>
+          {isGestao && (
+            <li>
+              <Link to="/coordenador">Coordenador</Link>
+            </li>
+          )}
 
           {isGestao && (
             <li>

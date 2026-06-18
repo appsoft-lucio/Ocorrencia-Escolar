@@ -117,7 +117,9 @@ function App() {
             <Route
               path="/coordenador"
               element={
-                <PrivateRoute>
+                <PrivateRoute
+                  allowedRoles={["direcao", "coordenacao", "coordenador"]}
+                >
                   <Coordenador />
                 </PrivateRoute>
               }

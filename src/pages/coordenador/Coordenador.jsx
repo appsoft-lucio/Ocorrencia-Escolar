@@ -1,7 +1,8 @@
 import "./coordenador.css";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 const TIPOS_OCORRENCIA_PADRAO = [
   "Indisciplina",
@@ -144,17 +145,36 @@ function carregarTurmasEscolares() {
   }
 }
 
+function criarChaveEscola(chave, escolaId) {
+  return escolaId ? `${chave}:${escolaId}` : chave;
+}
+
 function Coordenador() {
+  const { user } = useContext(AuthContext);
+  const coordenadoresStorageKey = criarChaveEscola("coordenadores", user?.escolaId);
+  const tiposStorageKey = criarChaveEscola("tiposOcorrencia", user?.escolaId);
+  const turmasStorageKey = criarChaveEscola("turmasEscolares", user?.escolaId);
+
   const [coordenadores, setCoordenadores] = useState(() => {
-    const stored = localStorage.getItem("coordenadores");
+    const stored = localStorage.getItem(coordenadoresStorageKey);
     return stored ? JSON.parse(stored) : [];
   });
 
   const [nome, setNome] = useState("");
   const [principal, setPrincipal] = useState(coordenadores.length === 0);
   const [mensagem, setMensagem] = useState("");
-  const [tiposOcorrencia, setTiposOcorrencia] = useState(carregarTiposOcorrencia);
-  const [turmasEscolares, setTurmasEscolares] = useState(carregarTurmasEscolares);
+  const [tiposOcorrencia, setTiposOcorrencia] = useState(() => {
+    const stored = localStorage.getItem(tiposStorageKey);
+    return stored
+      ? JSON.parse(stored).map(normalizarTipoOcorrencia)
+      : TIPOS_OCORRENCIA_PADRAO.map(criarTipoOcorrencia);
+  });
+  const [turmasEscolares, setTurmasEscolares] = useState(() => {
+    const stored = localStorage.getItem(turmasStorageKey);
+    return stored
+      ? JSON.parse(stored).map(normalizarTurmaEscolar)
+      : TURMAS_PADRAO.map(criarTurmaEscolar);
+  });
   const [abrirModalTipos, setAbrirModalTipos] = useState(false);
   const [abrirModalTurmas, setAbrirModalTurmas] = useState(false);
   const [novoTipo, setNovoTipo] = useState("");
@@ -182,16 +202,16 @@ function Coordenador() {
   const turmasInativas = turmasEscolares.length - turmasAtivas.length;
 
   useEffect(() => {
-    localStorage.setItem("coordenadores", JSON.stringify(coordenadores));
-  }, [coordenadores]);
+    localStorage.setItem(coordenadoresStorageKey, JSON.stringify(coordenadores));
+  }, [coordenadores, coordenadoresStorageKey]);
 
   useEffect(() => {
-    localStorage.setItem("tiposOcorrencia", JSON.stringify(tiposOcorrencia));
-  }, [tiposOcorrencia]);
+    localStorage.setItem(tiposStorageKey, JSON.stringify(tiposOcorrencia));
+  }, [tiposOcorrencia, tiposStorageKey]);
 
   useEffect(() => {
-    localStorage.setItem("turmasEscolares", JSON.stringify(turmasEscolares));
-  }, [turmasEscolares]);
+    localStorage.setItem(turmasStorageKey, JSON.stringify(turmasEscolares));
+  }, [turmasEscolares, turmasStorageKey]);
 
   const adicionar = () => {
     if (!nome.trim()) {

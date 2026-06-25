@@ -12,6 +12,7 @@ function Sidebar() {
   const { logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const isGestao = GESTAO_ROLES.includes(user?.role);
+  const isDesenvolvedor = user?.role === "desenvolvedor";
 
   function handleLogout() {
     logout();
@@ -22,43 +23,63 @@ function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-logo">
         <img src={logo} alt="AppSoft" className="sidebar-logo-img" />
+        {user?.escolaNome && (
+          <div className="sidebar-escola">
+            <strong>{user.escolaNome}</strong>
+            {user.escolaCidade && <span>{user.escolaCidade}</span>}
+          </div>
+        )}
+        {isDesenvolvedor && (
+          <div className="sidebar-escola">
+            <strong>Painel do desenvolvedor</strong>
+            <span>Cadastro de escolas</span>
+          </div>
+        )}
       </div>
 
       <nav>
         <ul>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-
-          <li>
-            <Link to="/ocorrencias">Ocorrências</Link>
-          </li>
-
-          <li>
-            <Link to="/alunos">Alunos</Link>
-          </li>
-
-          {isGestao && (
+          {isDesenvolvedor ? (
             <li>
-              <Link to="/professores">Professores</Link>
+              <Link to="/escolas">Escolas</Link>
             </li>
-          )}
+          ) : (
+            <>
+              <li>
+                <Link to="/dashboard">Dashboard</Link>
+              </li>
 
-          {isGestao && (
-            <li>
-              <Link to="/coordenador">Coordenador</Link>
-            </li>
-          )}
+              <li>
+                <Link to="/ocorrencias">Ocorrencias</Link>
+              </li>
 
-          {isGestao && (
-            <li>
-              <Link to="/relatorios">Relatórios</Link>
-            </li>
-          )}
+              <li>
+                <Link to="/alunos">Alunos</Link>
+              </li>
 
-          <li>
-            <Link to="/configuracao">Configurações</Link>
-          </li>
+              {isGestao && (
+                <li>
+                  <Link to="/professores">Professores</Link>
+                </li>
+              )}
+
+              {isGestao && (
+                <li>
+                  <Link to="/coordenador">Coordenador</Link>
+                </li>
+              )}
+
+              {isGestao && (
+                <li>
+                  <Link to="/relatorios">Relatorios</Link>
+                </li>
+              )}
+
+              <li>
+                <Link to="/configuracao">Configuracoes</Link>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
 

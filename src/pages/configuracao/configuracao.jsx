@@ -35,6 +35,10 @@ function criarChaveAcesso(tipo, id, nome) {
   return `${tipo}-${id || normalizarTexto(nome)}`;
 }
 
+function criarChaveEscola(chave, escolaId) {
+  return escolaId ? `${chave}:${escolaId}` : chave;
+}
+
 function Configuracao() {
   const { user } = useContext(AuthContext);
 
@@ -49,8 +53,14 @@ function Configuracao() {
   const isCoordenacao = GESTAO_ROLES.includes(user?.role) && !isDirecao;
   const isGestao = GESTAO_ROLES.includes(user?.role);
 
-  const professores = useMemo(() => lerStorage("professores"), []);
-  const coordenadores = useMemo(() => lerStorage("coordenadores"), []);
+  const professores = useMemo(
+    () => lerStorage(criarChaveEscola("professores", user?.escolaId)),
+    [user?.escolaId],
+  );
+  const coordenadores = useMemo(
+    () => lerStorage(criarChaveEscola("coordenadores", user?.escolaId)),
+    [user?.escolaId],
+  );
 
   const acessosGerenciaveis = useMemo(() => {
     if (!user) return [];
@@ -62,9 +72,13 @@ function Configuracao() {
       return {
         chave,
         email: acessoSalvo.email || professor.email || "",
+        id: professor.id,
         nome: professor.nome,
         role: "professor",
         senha: acessoSalvo.senha || "",
+        escolaId: user.escolaId,
+        escolaNome: user.escolaNome,
+        escolaCidade: user.escolaCidade,
         tipo: "Professor",
       };
     });
@@ -78,9 +92,13 @@ function Configuracao() {
       return {
         chave,
         email: acessoSalvo.email || coordenador.email || "",
+        id: coordenador.id,
         nome: coordenador.nome,
         role: "coordenacao",
         senha: acessoSalvo.senha || "",
+        escolaId: user.escolaId,
+        escolaNome: user.escolaNome,
+        escolaCidade: user.escolaCidade,
         tipo: "Coordenação",
       };
     });
@@ -132,6 +150,9 @@ function Configuracao() {
         nome: user.nome,
         role: user.role,
         senha: novaSenha,
+        escolaId: user.escolaId,
+        escolaNome: user.escolaNome,
+        escolaCidade: user.escolaCidade,
       },
     }));
     setSenhaAtual("");
@@ -166,9 +187,13 @@ function Configuracao() {
       [acesso.chave]: {
         ...atuais[acesso.chave],
         email: acesso.email.trim(),
+        id: acesso.id,
         nome: acesso.nome,
         role: acesso.role,
         senha: acesso.senha,
+        escolaId: acesso.escolaId || user.escolaId,
+        escolaNome: acesso.escolaNome || user.escolaNome,
+        escolaCidade: acesso.escolaCidade || user.escolaCidade,
       },
     }));
     setMensagemAcesso(`Acesso de ${acesso.nome} atualizado.`);

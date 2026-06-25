@@ -19,12 +19,12 @@ function Header() {
       <div className="header-left">
         <div>
           <h1>Dashboard</h1>
-          <p>EduRegistro</p>
+          <p>{user?.escolaNome || "EduRegistro"}</p>
         </div>
       </div>
 
       <div className="header-user">
-        <span>👤 {user?.nome || "Usuário"}</span>
+        <span>{user?.nome || "Usuario"}</span>
         <button type="button" onClick={handleLogout}>
           Sair
         </button>

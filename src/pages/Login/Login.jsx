@@ -5,20 +5,18 @@ import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext.jsx";
-import { DEMO_USERS, encontrarUsuarioDemo } from "../../data/demoUsers";
-
-const USUARIOS_VISIVEIS = DEMO_USERS.filter((usuario) => usuario.role === "professor");
+import { encontrarUsuarioDemo } from "../../data/demoUsers";
 
 function Login() {
-  const [userName, setUserName] = useState("professor");
-  const [password, setPassword] = useState("123");
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
 
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      navigate(user.role === "desenvolvedor" ? "/escolas" : "/dashboard");
     }
   }, [user, navigate]);
 
@@ -28,7 +26,7 @@ function Login() {
     const usuarioDemo = encontrarUsuarioDemo(userName, password);
 
     if (!usuarioDemo) {
-      alert("Usuário ou senha inválidos para a demonstração.");
+      alert("Usuario ou senha invalidos.");
       return;
     }
 
@@ -37,12 +35,10 @@ function Login() {
       nome: usuarioDemo.nome,
       role: usuarioDemo.role,
       login: usuarioDemo.login,
+      escolaId: usuarioDemo.escolaId,
+      escolaNome: usuarioDemo.escolaNome,
+      escolaCidade: usuarioDemo.escolaCidade,
     });
-  }
-
-  function preencherUsuarioDemo(usuario) {
-    setUserName(usuario.login);
-    setPassword(usuario.senha);
   }
 
   return (
@@ -54,10 +50,10 @@ function Login() {
           </div>
 
           <h2>EduRegistro</h2>
-          <strong>Acompanhamento e Gestão Escolar</strong>
+          <strong>Acompanhamento e Gestao Escolar</strong>
 
           <p>
-            Registre ocorrências, acompanhe cada caso e apoie decisões para uma
+            Registre ocorrencias, acompanhe cada caso e apoie decisoes para uma
             escola mais organizada.
           </p>
         </div>
@@ -66,30 +62,18 @@ function Login() {
       <div className="login-card">
         <h2>Bem-vindo</h2>
 
-        <p className="subtitle">Faça login para acessar o sistema</p>
-
-        <div className="login-demo-users" aria-label="Contas para apresentação">
-          {USUARIOS_VISIVEIS.map((usuario) => (
-            <button
-              type="button"
-              key={usuario.id}
-              onClick={() => preencherUsuarioDemo(usuario)}
-            >
-              Usar Professor
-            </button>
-          ))}
-        </div>
+        <p className="subtitle">Faca login para acessar o sistema</p>
 
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label htmlFor="login-usuario">Usuário</label>
+            <label htmlFor="login-usuario">Usuario</label>
 
             <input
               id="login-usuario"
               type="text"
               value={userName}
               onChange={(event) => setUserName(event.target.value)}
-              placeholder="Digite seu usuário"
+              placeholder="Digite seu usuario"
             />
           </div>
 

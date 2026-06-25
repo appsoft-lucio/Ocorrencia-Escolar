@@ -11,7 +11,7 @@ function PrivateRoute({ children, allowedRoles }) {
   }
 
   if (allowedRoles?.length && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={user.role === "desenvolvedor" ? "/escolas" : "/dashboard"} replace />;
   }
 
   return children;

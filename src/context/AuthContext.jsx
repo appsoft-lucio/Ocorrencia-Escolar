@@ -46,7 +46,11 @@ export function AuthProvider({ children }) {
         const parsedUser = JSON.parse(saved);
 
         // validação simples para evitar crash
-        if (parsedUser && parsedUser.nome && usuarioDemoValido(parsedUser)) {
+        if (
+          parsedUser &&
+          parsedUser.nome &&
+          usuarioDemoValido(parsedUser)
+        ) {
           setUser(parsedUser);
         } else {
           localStorage.removeItem("user");

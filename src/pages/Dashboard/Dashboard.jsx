@@ -51,6 +51,10 @@ function nomePerfil(role) {
   return "Professor";
 }
 
+function criarChaveEscola(chave, escolaId) {
+  return escolaId ? `${chave}:${escolaId}` : chave;
+}
+
 function dataParaOrdenacao(data) {
   if (!data) return 0;
 
@@ -72,9 +76,13 @@ function Dashboard() {
   const dadosDashboard = useMemo(() => {
     if (!user) return null;
 
-    const professores = lerStorage("professores");
-    const turmasEscolares = lerStorage("turmasEscolares");
-    const tiposOcorrencia = lerStorage("tiposOcorrencia");
+    const professores = lerStorage(criarChaveEscola("professores", user.escolaId));
+    const turmasEscolares = lerStorage(
+      criarChaveEscola("turmasEscolares", user.escolaId),
+    );
+    const tiposOcorrencia = lerStorage(
+      criarChaveEscola("tiposOcorrencia", user.escolaId),
+    );
     const isGestao = perfilGestao(user.role);
     const nomeUsuario = normalizarTexto(user.nome);
 
@@ -209,7 +217,8 @@ function Dashboard() {
               <h1>Dashboard</h1>
               <p>
                 Bem-vindo, <strong>{user.nome}</strong>. Perfil:{" "}
-                {nomePerfil(user.role)}.
+                {nomePerfil(user.role)}. Escola:{" "}
+                <strong>{user.escolaNome || "Nao informada"}</strong>.
               </p>
             </div>
 

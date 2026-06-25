@@ -16,6 +16,7 @@ import Professor from "./pages/professor/professor.jsx";
 import Relatorios from "./pages/relatorios/relatorios.jsx";
 import Configuracao from "./pages/configuracao/configuracao.jsx";
 import Coordenador from "./pages/coordenador/Coordenador";
+import Escolas from "./pages/escolas/Escolas.jsx";
 
 // Importa provider de autenticação (controle global do usuário)
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -52,6 +53,14 @@ function App() {
               ====================================== */}
             <Route path="/" element={<Login />} />
             <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+            <Route
+              path="/escolas"
+              element={
+                <PrivateRoute allowedRoles={["desenvolvedor"]}>
+                  <Escolas />
+                </PrivateRoute>
+              }
+            />
             {/* ======================================
                   📊 DASHBOARD (PROTEGIDO)
                   Só acessa se estiver logado
@@ -59,7 +68,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
                   <Dashboard />
                 </PrivateRoute>
               }
@@ -72,7 +81,7 @@ function App() {
             <Route
               path="/ocorrencias"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
                   <Ocorrencias />
                 </PrivateRoute>
               }
@@ -81,7 +90,7 @@ function App() {
             <Route
               path="/alunos"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
                   <Alunos />
                 </PrivateRoute>
               }
@@ -109,7 +118,7 @@ function App() {
             <Route
               path="/configuracao"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
                   <Configuracao />
                 </PrivateRoute>
               }

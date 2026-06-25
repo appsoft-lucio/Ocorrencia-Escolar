@@ -20,6 +20,28 @@
   margin: 0 auto;
 }
 
+.sidebar-escola {
+  padding: 0 18px 18px;
+  text-align: center;
+}
+
+.sidebar-escola strong,
+.sidebar-escola span {
+  display: block;
+}
+
+.sidebar-escola strong {
+  color: var(--cor-branco);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.sidebar-escola span {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.78rem;
+}
+
 .sidebar-logo h2 {
   font-size: 1.8rem;
   font-weight: var(--font-bold);

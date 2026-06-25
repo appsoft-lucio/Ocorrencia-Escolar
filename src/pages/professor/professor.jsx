@@ -53,8 +53,13 @@ function turmaEstaAtiva(turma) {
   return normalizarTurma(turma).status !== "inativo";
 }
 
+function criarChaveEscola(chave, escolaId) {
+  return escolaId ? `${chave}:${escolaId}` : chave;
+}
+
 function Professor() {
   const { user } = useContext(AuthContext);
+  const professoresStorageKey = criarChaveEscola("professores", user?.escolaId);
 
   // Estados do modal de criar
   const [abrirModal, setAbrirModal] = useState(false);
@@ -84,11 +89,10 @@ function Professor() {
 
   // Estados dos dados
   const [professores, setProfessores] = useState(() => {
-    const stored = localStorage.getItem("professores");
+    const stored = localStorage.getItem(professoresStorageKey);
 
-    const professoresIniciais = stored
-      ? JSON.parse(stored)
-      : [
+    const professoresIniciais = stored ? JSON.parse(stored) : [];
+    /*
           {
             id: 1,
             nome: "João Silva",
@@ -122,6 +126,7 @@ function Professor() {
             ocorrencias: 12,
           },
         ];
+    */
 
     return professoresIniciais
       .map((professor) => ({
@@ -135,8 +140,8 @@ function Professor() {
 
   // Salvar no localStorage sempre que professores mudam
   useEffect(() => {
-    localStorage.setItem("professores", JSON.stringify(professores));
-  }, [professores]);
+    localStorage.setItem(professoresStorageKey, JSON.stringify(professores));
+  }, [professores, professoresStorageKey]);
 
   const professoresResumo = useMemo(() => {
     const ativos = professores.filter((professor) => professor.status !== "inativo");

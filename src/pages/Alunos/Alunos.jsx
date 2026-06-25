@@ -29,6 +29,10 @@ function normalizarTexto(valor = "") {
     .trim();
 }
 
+function criarChaveEscola(chave, escolaId) {
+  return escolaId ? `${chave}:${escolaId}` : chave;
+}
+
 function normalizarTurmasProfessor(turmas = []) {
   return turmas
     .map((turma) => {
@@ -69,7 +73,7 @@ function Alunos() {
     if (!user) return [];
     if (isGestao) return ocorrencias;
 
-    const professores = lerStorage("professores");
+    const professores = lerStorage(criarChaveEscola("professores", user.escolaId));
     const professorAtual = professores.find(
       (professor) =>
         professor.id === user.id ||

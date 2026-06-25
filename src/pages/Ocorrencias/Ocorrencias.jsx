@@ -18,8 +18,12 @@ const TIPOS_OCORRENCIA_PADRAO = [
   "Outro",
 ];
 
-function carregarTiposOcorrencia() {
-  const stored = localStorage.getItem("tiposOcorrencia");
+function criarChaveEscola(chave, escolaId) {
+  return escolaId ? `${chave}:${escolaId}` : chave;
+}
+
+function carregarTiposOcorrencia(escolaId) {
+  const stored = localStorage.getItem(criarChaveEscola("tiposOcorrencia", escolaId));
 
   if (!stored) {
     return TIPOS_OCORRENCIA_PADRAO.map((nome) => ({
@@ -109,8 +113,8 @@ const TURMAS_PADRAO = [
   "3003",
 ];
 
-function carregarTurmasEscolares() {
-  const stored = localStorage.getItem("turmasEscolares");
+function carregarTurmasEscolares(escolaId) {
+  const stored = localStorage.getItem(criarChaveEscola("turmasEscolares", escolaId));
 
   if (!stored) {
     return TURMAS_PADRAO.map((nome) => ({
@@ -229,8 +233,12 @@ function Ocorrencias() {
   const [notificacao, setNotificacao] = useState(null);
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
   const [visaoOcorrencias, setVisaoOcorrencias] = useState(VISAO_INICIAL);
-  const [tiposOcorrencia, setTiposOcorrencia] = useState(carregarTiposOcorrencia);
-  const [turmasEscolares, setTurmasEscolares] = useState(carregarTurmasEscolares);
+  const [tiposOcorrencia, setTiposOcorrencia] = useState(() =>
+    carregarTiposOcorrencia(user?.escolaId),
+  );
+  const [turmasEscolares, setTurmasEscolares] = useState(() =>
+    carregarTurmasEscolares(user?.escolaId),
+  );
   const notificacaoTimerRef = useRef(null);
   const isGestao = GESTAO_ROLES.includes(user?.role);
 
@@ -256,8 +264,8 @@ function Ocorrencias() {
 
   useEffect(() => {
     const atualizarCadastros = () => {
-      setTiposOcorrencia(carregarTiposOcorrencia());
-      setTurmasEscolares(carregarTurmasEscolares());
+      setTiposOcorrencia(carregarTiposOcorrencia(user?.escolaId));
+      setTurmasEscolares(carregarTurmasEscolares(user?.escolaId));
     };
 
     window.addEventListener("storage", atualizarCadastros);
@@ -267,7 +275,7 @@ function Ocorrencias() {
       window.removeEventListener("storage", atualizarCadastros);
       window.removeEventListener("focus", atualizarCadastros);
     };
-  }, []);
+  }, [user?.escolaId]);
 
   const tiposOcorrenciaAtivos = useMemo(
     () =>
@@ -488,6 +496,8 @@ function Ocorrencias() {
           id: Date.now(),
           professorId: user.id,
           professorNome: user.nome,
+          escolaId: user.escolaId,
+          escolaNome: user.escolaNome,
           turno,
           horario,
           disciplina,

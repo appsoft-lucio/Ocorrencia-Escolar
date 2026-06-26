@@ -15,13 +15,18 @@ function FormularioOcorrencia({
   turmas,
   turno,
   tiposOcorrencia,
+  gravandoObservacao,
+  gravandoOutro,
+  vozDisponivel,
   onAdicionarAluno,
   onAlunoInputChange,
   onCheckboxChange,
   onDisciplinaChange,
   onHorarioChange,
   onObservacaoChange,
+  onObservacaoVoz,
   onOutroChange,
+  onOutroVoz,
   onRemoverAluno,
   onSubmit,
   onTurmaChange,
@@ -32,7 +37,7 @@ function FormularioOcorrencia({
     <section className="ocorrencias-form" aria-labelledby="titulo-form-ocorrencia">
       <div className="formulario-cabecalho">
         <div>
-          <h2 id="titulo-form-ocorrencia">Nova ocorrência</h2>
+          <h2 id="titulo-form-ocorrencia">Nova ocorrencia</h2>
           <p>Preencha os dados da aula e selecione os alunos envolvidos.</p>
         </div>
       </div>
@@ -51,7 +56,7 @@ function FormularioOcorrencia({
                 required
               >
                 <option value="">Selecione</option>
-                <option value="manha">Manhã</option>
+                <option value="manha">Manha</option>
                 <option value="tarde">Tarde</option>
                 <option value="noite">Noite</option>
               </select>
@@ -75,7 +80,7 @@ function FormularioOcorrencia({
             </label>
 
             <label className="campo-form" htmlFor="horario">
-              <span>Horário</span>
+              <span>Horario</span>
               <select
                 id="horario"
                 value={horario}
@@ -84,7 +89,7 @@ function FormularioOcorrencia({
                 <option value="">Selecione</option>
                 {horarios.map((item) => (
                   <option key={item} value={item}>
-                    {item}º aula
+                    {item}a aula
                   </option>
                 ))}
               </select>
@@ -129,7 +134,7 @@ function FormularioOcorrencia({
           </label>
 
           <small id="aluno-ajuda" className="texto-ajuda">
-            Informe nome e sobrenome, com no mínimo 2 letras em cada palavra.
+            Informe nome e sobrenome, com no minimo 2 letras em cada palavra.
           </small>
 
           <div className="lista-alunos" aria-live="polite">
@@ -153,7 +158,7 @@ function FormularioOcorrencia({
         </fieldset>
 
         <fieldset className="formulario-grupo checkbox-area">
-          <legend>Tipos de ocorrência</legend>
+          <legend>Tipos de ocorrencia</legend>
 
           <div className="checkbox-grid">
             {tiposOcorrencia.map((tipo) => (
@@ -172,20 +177,62 @@ function FormularioOcorrencia({
         {ocorrenciasTipo.includes("Outro") && (
           <label className="campo-form campo-outro-tipo" htmlFor="outro-tipo">
             <span>Outro tipo</span>
-            <input
-              id="outro-tipo"
-              value={outro}
-              onChange={(event) => onOutroChange(event.target.value)}
-              placeholder="Descreva o tipo"
-            />
+            <div className="campo-com-voz">
+              <input
+                id="outro-tipo"
+                value={outro}
+                onChange={(event) => onOutroChange(event.target.value)}
+                placeholder="Descreva o tipo"
+              />
+              <button
+                type="button"
+                className={`btn-campo-voz ${gravandoOutro ? "gravando" : ""}`}
+                onClick={onOutroVoz}
+                disabled={!vozDisponivel}
+                title={
+                  vozDisponivel
+                    ? "Registrar outro tipo por voz"
+                    : "Reconhecimento de voz indisponivel neste navegador"
+                }
+                aria-label={
+                  gravandoOutro
+                    ? "Parar gravacao do outro tipo"
+                    : "Registrar outro tipo por voz"
+                }
+              >
+                {gravandoOutro ? "Gravando..." : "Microfone"}
+              </button>
+            </div>
           </label>
         )}
 
         <fieldset className="formulario-grupo">
-          <legend>Observação</legend>
+          <legend>Observacao</legend>
 
           <label className="campo-form" htmlFor="observacao">
-            <span>Detalhes da ocorrência</span>
+            <span className="observacao-label-linha">
+              Detalhes da ocorrencia
+              <button
+                type="button"
+                className={`btn-observacao-voz ${
+                  gravandoObservacao ? "gravando" : ""
+                }`}
+                onClick={onObservacaoVoz}
+                disabled={!vozDisponivel}
+                title={
+                  vozDisponivel
+                    ? "Registrar observacao por voz"
+                    : "Reconhecimento de voz indisponivel neste navegador"
+                }
+                aria-label={
+                  gravandoObservacao
+                    ? "Parar gravacao da observacao"
+                    : "Registrar observacao por voz"
+                }
+              >
+                {gravandoObservacao ? "Gravando..." : "Microfone"}
+              </button>
+            </span>
             <textarea
               id="observacao"
               value={observacao}
@@ -200,7 +247,7 @@ function FormularioOcorrencia({
             Voltar
           </button>
           <button type="submit" className="btn-salvar">
-            Salvar ocorrência
+            Salvar ocorrencia
           </button>
         </div>
       </form>
@@ -227,13 +274,18 @@ FormularioOcorrencia.propTypes = {
   turmas: PropTypes.arrayOf(PropTypes.string).isRequired,
   turno: PropTypes.string.isRequired,
   tiposOcorrencia: PropTypes.arrayOf(PropTypes.string).isRequired,
+  gravandoObservacao: PropTypes.bool.isRequired,
+  gravandoOutro: PropTypes.bool.isRequired,
+  vozDisponivel: PropTypes.bool.isRequired,
   onAdicionarAluno: PropTypes.func.isRequired,
   onAlunoInputChange: PropTypes.func.isRequired,
   onCheckboxChange: PropTypes.func.isRequired,
   onDisciplinaChange: PropTypes.func.isRequired,
   onHorarioChange: PropTypes.func.isRequired,
   onObservacaoChange: PropTypes.func.isRequired,
+  onObservacaoVoz: PropTypes.func.isRequired,
   onOutroChange: PropTypes.func.isRequired,
+  onOutroVoz: PropTypes.func.isRequired,
   onRemoverAluno: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onTurmaChange: PropTypes.func.isRequired,

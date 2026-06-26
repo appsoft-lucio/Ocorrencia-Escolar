@@ -215,6 +215,29 @@ function nomeAlunoValido(nome) {
   );
 }
 
+function obterReconhecimentoVoz() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition;
+}
+
+function formatarFraseObservacao(texto) {
+  const textoLimpo = texto.trim().replace(/\s+/g, " ");
+
+  if (!textoLimpo) return "";
+
+  return textoLimpo.replace(/^([^\p{L}]*)(\p{L})/u, (_, prefixo, letra) => (
+    `${prefixo}${letra.toLocaleUpperCase("pt-BR")}`
+  ));
+}
+
+function juntarObservacaoTexto(observacaoAtual, novoTexto) {
+  const textoFormatado = formatarFraseObservacao(novoTexto);
+
+  if (!textoFormatado) return observacaoAtual;
+  if (!observacaoAtual.trim()) return textoFormatado;
+
+  return `${observacaoAtual.trimEnd()} ${textoFormatado}`;
+}
+
 function Ocorrencias() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -231,6 +254,7 @@ function Ocorrencias() {
   const [outro, setOutro] = useState("");
   const [observacao, setObservacao] = useState("");
   const [notificacao, setNotificacao] = useState(null);
+  const [campoVozAtivo, setCampoVozAtivo] = useState(null);
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
   const [visaoOcorrencias, setVisaoOcorrencias] = useState(VISAO_INICIAL);
   const [tiposOcorrencia, setTiposOcorrencia] = useState(() =>
@@ -240,7 +264,9 @@ function Ocorrencias() {
     carregarTurmasEscolares(user?.escolaId),
   );
   const notificacaoTimerRef = useRef(null);
+  const reconhecimentoVozRef = useRef(null);
   const isGestao = GESTAO_ROLES.includes(user?.role);
+  const vozDisponivel = typeof window !== "undefined" && Boolean(obterReconhecimentoVoz());
 
   const mostrarNotificacao = useCallback((mensagem, tipo = "info") => {
     if (notificacaoTimerRef.current) {
@@ -259,8 +285,66 @@ function Ocorrencias() {
       if (notificacaoTimerRef.current) {
         window.clearTimeout(notificacaoTimerRef.current);
       }
+
+      reconhecimentoVozRef.current?.abort();
     };
   }, []);
+
+  const alternarDitadoVoz = useCallback((campo) => {
+    const SpeechRecognition = obterReconhecimentoVoz();
+
+    if (!SpeechRecognition) {
+      mostrarNotificacao(
+        "Reconhecimento de voz indisponivel neste navegador.",
+        "erro",
+      );
+      return;
+    }
+
+    if (reconhecimentoVozRef.current) {
+      reconhecimentoVozRef.current.stop();
+      return;
+    }
+
+    const reconhecimento = new SpeechRecognition();
+    reconhecimento.lang = "pt-BR";
+    reconhecimento.continuous = false;
+    reconhecimento.interimResults = false;
+    reconhecimento.maxAlternatives = 1;
+
+    reconhecimento.onstart = () => {
+      setCampoVozAtivo(campo);
+    };
+
+    reconhecimento.onresult = (event) => {
+      const transcricao = Array.from(event.results)
+        .map((resultado) => resultado[0]?.transcript || "")
+        .join(" ");
+
+      if (campo === "outro") {
+        setOutro(formatarFraseObservacao(transcricao));
+        mostrarNotificacao("Texto por voz adicionado ao outro tipo.", "sucesso");
+        return;
+      }
+
+      setObservacao((observacaoAtual) =>
+        juntarObservacaoTexto(observacaoAtual, transcricao),
+      );
+      mostrarNotificacao("Texto por voz adicionado na observacao.", "sucesso");
+    };
+
+    reconhecimento.onerror = () => {
+      mostrarNotificacao("Nao foi possivel captar a voz. Tente novamente.", "erro");
+    };
+
+    reconhecimento.onend = () => {
+      setCampoVozAtivo(null);
+      reconhecimentoVozRef.current = null;
+    };
+
+    reconhecimentoVozRef.current = reconhecimento;
+    reconhecimento.start();
+  }, [mostrarNotificacao]);
 
   useEffect(() => {
     const atualizarCadastros = () => {
@@ -307,6 +391,22 @@ function Ocorrencias() {
 
   const handleAlunoInputChange = useCallback((event) => {
     setAlunoInput(event.target.value.replace(/\s+/g, " "));
+  }, []);
+
+  const handleObservacaoChange = useCallback((valor) => {
+    setObservacao((observacaoAtual) => {
+      if (observacaoAtual.trim()) return valor;
+
+      return formatarFraseObservacao(valor);
+    });
+  }, []);
+
+  const handleOutroChange = useCallback((valor) => {
+    setOutro((outroAtual) => {
+      if (outroAtual.trim()) return valor;
+
+      return formatarFraseObservacao(valor);
+    });
   }, []);
 
   const adicionarAluno = useCallback(() => {
@@ -504,7 +604,7 @@ function Ocorrencias() {
           turma,
           alunos: alunos.map((aluno) => aluno.nome),
           tipos: tiposSelecionados,
-          observacao,
+          observacao: formatarFraseObservacao(observacao),
           data: new Date().toLocaleString(),
           status: STATUS_INICIAL,
           statusAtualizadoPor: null,
@@ -599,13 +699,18 @@ function Ocorrencias() {
         onCheckboxChange={handleCheckbox}
         onDisciplinaChange={setDisciplina}
         onHorarioChange={setHorario}
-        onObservacaoChange={setObservacao}
-        onOutroChange={setOutro}
+        onObservacaoChange={handleObservacaoChange}
+        onObservacaoVoz={() => alternarDitadoVoz("observacao")}
+        onOutroChange={handleOutroChange}
+        onOutroVoz={() => alternarDitadoVoz("outro")}
         onRemoverAluno={removerAluno}
         onSubmit={handleSubmit}
         onTurmaChange={setTurma}
         onTurnoChange={setTurno}
         onVoltar={handleBack}
+        gravandoObservacao={campoVozAtivo === "observacao"}
+        gravandoOutro={campoVozAtivo === "outro"}
+        vozDisponivel={vozDisponivel}
       />
 
       <section className="ocorrencias-consulta" aria-label="Consulta de ocorrências">

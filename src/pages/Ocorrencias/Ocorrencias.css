@@ -305,6 +305,51 @@
   margin-top: -4px;
 }
 
+.observacao-label-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.campo-com-voz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.ocorrencias-form .btn-observacao-voz,
+.ocorrencias-form .btn-campo-voz {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 110px;
+  min-height: 34px;
+  padding: 8px 10px;
+  margin: 0;
+  border-radius: var(--radius-sm);
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  font-size: 13px;
+}
+
+.ocorrencias-form .btn-observacao-voz:hover,
+.ocorrencias-form .btn-campo-voz:hover {
+  background: #111827;
+}
+
+.ocorrencias-form .btn-observacao-voz.gravando,
+.ocorrencias-form .btn-campo-voz.gravando {
+  background: var(--cor-erro);
+}
+
+.ocorrencias-form .btn-observacao-voz:disabled,
+.ocorrencias-form .btn-campo-voz:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 .formulario-acoes {
   display: flex;
   justify-content: flex-end;

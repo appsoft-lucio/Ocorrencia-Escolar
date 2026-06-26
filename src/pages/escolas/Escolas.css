@@ -138,6 +138,11 @@
   opacity: 0.72;
 }
 
+.escola-em-edicao {
+  border-color: var(--cor-destaque);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
 .escola-item-topo {
   display: flex;
   justify-content: space-between;

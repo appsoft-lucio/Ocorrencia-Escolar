@@ -1,6 +1,6 @@
 import "./Escolas.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -34,6 +34,8 @@ function Escolas() {
   const [escolas, setEscolas] = useState(carregarEscolasSistema);
   const [form, setForm] = useState(FORM_INICIAL);
   const [mensagem, setMensagem] = useState("");
+  const nomeInputRef = useRef(null);
+  const formRef = useRef(null);
 
   useEffect(() => {
     salvarEscolasSistema(escolas);
@@ -59,6 +61,7 @@ function Escolas() {
   function limparFormulario() {
     setForm(FORM_INICIAL);
     setMensagem("");
+    nomeInputRef.current?.focus();
   }
 
   function editarEscola(escola) {
@@ -71,7 +74,9 @@ function Escolas() {
       diretorSenha: escola.diretorSenha || "",
       status: escola.status || "ativo",
     });
-    setMensagem("");
+    setMensagem(`Editando ${escola.nome}.`);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => nomeInputRef.current?.focus(), 100);
   }
 
   function salvarEscola(event) {
@@ -127,7 +132,7 @@ function Escolas() {
       return [...atuais, escolaAtualizada];
     });
 
-    setMensagem("Escola salva com sucesso.");
+    setMensagem(form.id ? "Escola atualizada com sucesso." : "Escola salva com sucesso.");
     setForm(FORM_INICIAL);
   }
 
@@ -175,7 +180,7 @@ function Escolas() {
           </section>
 
           <section className="escolas-grid">
-            <form className="escola-form" onSubmit={salvarEscola}>
+            <form className="escola-form" onSubmit={salvarEscola} ref={formRef}>
               <h2>{form.id ? "Editar escola" : "Nova escola"}</h2>
 
               {mensagem && <div className="escola-mensagem">{mensagem}</div>}
@@ -183,6 +188,7 @@ function Escolas() {
               <label>
                 Nome da escola
                 <input
+                  ref={nomeInputRef}
                   value={form.nome}
                   onChange={(event) => atualizarCampo("nome", event.target.value)}
                   placeholder="Ex: Escola Municipal Filinha Gama"
@@ -247,9 +253,11 @@ function Escolas() {
 
               <div className="escola-form-acoes">
                 <button type="button" onClick={limparFormulario}>
-                  Limpar
+                  {form.id ? "Cancelar edicao" : "Limpar"}
                 </button>
-                <button type="submit">Salvar escola</button>
+                <button type="submit">
+                  {form.id ? "Atualizar escola" : "Salvar escola"}
+                </button>
               </div>
             </form>
 
@@ -261,7 +269,7 @@ function Escolas() {
                   <article
                     className={`escola-item ${
                       escola.status === "inativo" ? "escola-inativa" : ""
-                    }`}
+                    } ${form.id === escola.id ? "escola-em-edicao" : ""}`}
                     key={escola.id}
                   >
                     <div className="escola-item-topo">

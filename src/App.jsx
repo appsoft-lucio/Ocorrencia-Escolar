@@ -2,7 +2,7 @@
 import "./App.css";
 
 // Importa sistema de rotas do React Router
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import AnalyticsTracker from "./components/AnalyticsTracker";
 
@@ -42,9 +42,7 @@ function App() {
         {/* ======================================
               🌐 SISTEMA DE ROTAS DA APLICAÇÃO
           ====================================== */}
-        <BrowserRouter
-          basename={import.meta.env.PROD ? "/Ocorrencia-Escolar" : ""}
-        >
+        <HashRouter>
           <AnalyticsTracker />
 
           <Routes>
@@ -134,7 +132,7 @@ function App() {
               }
             />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </OcorrenciaProvider>
     </AuthProvider>
   );

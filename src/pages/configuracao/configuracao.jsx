@@ -6,7 +6,7 @@ import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext.jsx";
 
-const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
+const GESTAO_ROLES = ["direcao", "coordenacao"];
 
 function lerStorage(chave, fallback = []) {
   try {
@@ -49,7 +49,7 @@ function Configuracao() {
   const [mensagemAcesso, setMensagemAcesso] = useState("");
   const [acessos, setAcessos] = useState(() => lerStorage("acessosUsuarios", {}));
 
-  const isDirecao = user?.role === "direcao";
+  const isDirecao = ["diretor", "direcao"].includes(user?.role);
   const isCoordenacao = GESTAO_ROLES.includes(user?.role) && !isDirecao;
   const isGestao = GESTAO_ROLES.includes(user?.role);
 

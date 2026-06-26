@@ -1,12 +1,8 @@
-// Importa estilos globais da aplicação
 import "./App.css";
 
-// Importa sistema de rotas do React Router
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 import AnalyticsTracker from "./components/AnalyticsTracker";
-
-// Importa páginas do sistema
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import RecuperarSenha from "./pages/recuperarSenha/recuperarSenha.jsx";
@@ -17,38 +13,44 @@ import Relatorios from "./pages/relatorios/relatorios.jsx";
 import Configuracao from "./pages/configuracao/configuracao.jsx";
 import Coordenador from "./pages/coordenador/Coordenador";
 import Escolas from "./pages/escolas/Escolas.jsx";
-
-// Importa provider de autenticação (controle global do usuário)
+import Usuarios from "./pages/usuarios/Usuarios.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
-
-// Importa provider de ocorrências (controle global do CRUD)
 import { OcorrenciaProvider } from "./context/OcorrenciaContext.jsx";
-
-// Importa proteção de rotas (bloqueia acesso sem login)
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 
-// Componente principal da aplicação
+const PERFIS_ESCOLA = [
+  "diretor",
+  "direcao",
+  "vice_diretor",
+  "coordenador",
+  "coordenacao",
+  "professor",
+];
+
+const PERFIS_GESTAO = [
+  "diretor",
+  "direcao",
+  "vice_diretor",
+  "coordenador",
+  "coordenacao",
+];
+
+const PERFIS_USUARIOS = [
+  "diretor",
+  "direcao",
+  "vice_diretor",
+  "coordenador",
+  "coordenacao",
+];
+
 function App() {
   return (
-    // ==========================================
-    // 🔐 CONTEXTO GLOBAL DE AUTENTICAÇÃO
-    // ==========================================
     <AuthProvider>
-      {/* ==========================================
-            🗂 CONTEXTO GLOBAL DE OCORRÊNCIAS
-            (necessário para Dashboard e CRUD funcionar)
-        ========================================== */}
       <OcorrenciaProvider>
-        {/* ======================================
-              🌐 SISTEMA DE ROTAS DA APLICAÇÃO
-          ====================================== */}
         <HashRouter>
           <AnalyticsTracker />
 
           <Routes>
-            {/* ======================================
-                  🔑 ROTA PÚBLICA - LOGIN
-              ====================================== */}
             <Route path="/" element={<Login />} />
             <Route path="/recuperar-senha" element={<RecuperarSenha />} />
             <Route
@@ -59,36 +61,26 @@ function App() {
                 </PrivateRoute>
               }
             />
-            {/* ======================================
-                  📊 DASHBOARD (PROTEGIDO)
-                  Só acessa se estiver logado
-              ====================================== */}
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
+                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
                   <Dashboard />
                 </PrivateRoute>
               }
             />
-
-            {/* ======================================
-                  📝 OCORRÊNCIAS (PROTEGIDA)
-                  Módulo principal do sistema
-              ====================================== */}
             <Route
               path="/ocorrencias"
               element={
-                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
+                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
                   <Ocorrencias />
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/alunos"
               element={
-                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
+                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
                   <Alunos />
                 </PrivateRoute>
               }
@@ -96,9 +88,7 @@ function App() {
             <Route
               path="/professores"
               element={
-                <PrivateRoute
-                  allowedRoles={["direcao", "coordenacao", "coordenador"]}
-                >
+                <PrivateRoute allowedRoles={PERFIS_GESTAO}>
                   <Professor />
                 </PrivateRoute>
               }
@@ -106,9 +96,7 @@ function App() {
             <Route
               path="/relatorios"
               element={
-                <PrivateRoute
-                  allowedRoles={["direcao", "coordenacao", "coordenador"]}
-                >
+                <PrivateRoute allowedRoles={PERFIS_GESTAO}>
                   <Relatorios />
                 </PrivateRoute>
               }
@@ -116,17 +104,23 @@ function App() {
             <Route
               path="/configuracao"
               element={
-                <PrivateRoute allowedRoles={["direcao", "coordenacao", "coordenador", "professor"]}>
+                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
                   <Configuracao />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/usuarios"
+              element={
+                <PrivateRoute allowedRoles={PERFIS_USUARIOS}>
+                  <Usuarios />
                 </PrivateRoute>
               }
             />
             <Route
               path="/coordenador"
               element={
-                <PrivateRoute
-                  allowedRoles={["direcao", "coordenacao", "coordenador"]}
-                >
+                <PrivateRoute allowedRoles={PERFIS_GESTAO}>
                   <Coordenador />
                 </PrivateRoute>
               }
@@ -138,5 +132,4 @@ function App() {
   );
 }
 
-// Exporta componente principal da aplicação
 export default App;

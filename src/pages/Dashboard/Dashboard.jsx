@@ -8,7 +8,7 @@ import StatsCard from "../../components/Cards/Card";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext.jsx";
 
-const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
+const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
 
 function lerStorage(chave, fallback = []) {
   try {
@@ -46,7 +46,8 @@ function perfilGestao(role) {
 }
 
 function nomePerfil(role) {
-  if (normalizarTexto(role) === "direcao") return "Direção";
+  if (["diretor", "direcao"].includes(normalizarTexto(role))) return "Diretor";
+  if (normalizarTexto(role) === "vice_diretor") return "Vice-diretor";
   if (perfilGestao(role)) return "Coordenação";
   return "Professor";
 }

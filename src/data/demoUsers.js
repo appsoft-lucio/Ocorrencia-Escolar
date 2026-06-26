@@ -31,8 +31,64 @@ export const DEMO_USERS = [
   },
 ];
 
+export const PERFIS_ESCOLA = [
+  "diretor",
+  "vice_diretor",
+  "coordenador",
+  "professor",
+];
+
+export const PERFIS_GESTAO = [
+  "diretor",
+  "vice_diretor",
+  "coordenador",
+  "direcao",
+  "coordenacao",
+];
+
+export const PERFIS_USUARIOS = ["diretor", "vice_diretor", "coordenador"];
+
+export const PERFIL_LABELS = {
+  desenvolvedor: "Desenvolvedor",
+  diretor: "Diretor",
+  direcao: "Diretor",
+  vice_diretor: "Vice-diretor",
+  coordenador: "Coordenador",
+  coordenacao: "Coordenador",
+  professor: "Professor",
+};
+
+export const PERFIS_GERENCIAVEIS = {
+  diretor: ["vice_diretor", "coordenador", "professor"],
+  direcao: ["vice_diretor", "coordenador", "professor"],
+  vice_diretor: ["coordenador", "professor"],
+  coordenador: ["professor"],
+  coordenacao: ["professor"],
+};
+
 function normalizarLogin(login = "") {
   return login.trim().toLowerCase();
+}
+
+export function normalizarPerfil(role = "") {
+  const perfil = role.trim().toLowerCase();
+
+  if (perfil === "direcao") return "diretor";
+  if (perfil === "coordenacao") return "coordenador";
+
+  return perfil;
+}
+
+export function obterNomePerfil(role = "") {
+  return PERFIL_LABELS[role] || PERFIL_LABELS[normalizarPerfil(role)] || role;
+}
+
+export function obterPerfisGerenciaveis(role = "") {
+  return PERFIS_GERENCIAVEIS[role] || PERFIS_GERENCIAVEIS[normalizarPerfil(role)] || [];
+}
+
+export function podeGerenciarUsuarios(role = "") {
+  return obterPerfisGerenciaveis(role).length > 0;
 }
 
 function normalizarEscola(escola) {
@@ -98,7 +154,7 @@ function encontrarDiretorDaEscola(login, senha) {
     id: `direcao-${escola.id}`,
     login: escola.diretorLogin,
     nome: escola.diretorNome,
-    role: "direcao",
+    role: "diretor",
     escolaId: escola.id,
     escolaNome: escola.nome,
     escolaCidade: escola.cidade,
@@ -126,13 +182,15 @@ function encontrarAcessoCadastrado(login, senha) {
     const [chave, acesso] = entrada;
     const escola = escolas.find((item) => item.id === acesso.escolaId);
 
-    if (!escola || escola.status === "inativo") return null;
+    if (!escola || escola.status === "inativo" || acesso.status === "inativo") {
+      return null;
+    }
 
     return {
       id: acesso.id || chave,
       login: acesso.email || chave,
       nome: acesso.nome,
-      role: acesso.role,
+      role: normalizarPerfil(acesso.role),
       escolaId: escola.id,
       escolaNome: escola.nome,
       escolaCidade: escola.cidade,

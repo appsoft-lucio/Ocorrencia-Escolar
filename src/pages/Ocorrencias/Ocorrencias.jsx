@@ -164,7 +164,7 @@ const FILTROS_INICIAIS = {
   turno: "",
 };
 
-const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
+const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
 
 const STATUS_INICIAL = "Pendente";
 const STATUS_FINAIS = ["Confirmada", "Não confirmada", "Cancelada"];

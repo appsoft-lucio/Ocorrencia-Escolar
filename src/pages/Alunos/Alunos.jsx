@@ -8,7 +8,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
-const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
+const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
 
 function lerStorage(chave, fallback = []) {
   try {

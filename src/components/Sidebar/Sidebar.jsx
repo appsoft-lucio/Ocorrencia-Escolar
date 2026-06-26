@@ -5,14 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext";
+import { podeGerenciarUsuarios } from "../../data/demoUsers";
 
-const GESTAO_ROLES = ["direcao", "coordenacao", "coordenador"];
+const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
 
 function Sidebar() {
   const { logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const isGestao = GESTAO_ROLES.includes(user?.role);
   const isDesenvolvedor = user?.role === "desenvolvedor";
+  const podeVerUsuarios = podeGerenciarUsuarios(user?.role || "");
 
   function handleLogout() {
     logout();
@@ -60,6 +62,12 @@ function Sidebar() {
               {isGestao && (
                 <li>
                   <Link to="/professores">Professores</Link>
+                </li>
+              )}
+
+              {podeVerUsuarios && (
+                <li>
+                  <Link to="/usuarios">Usuarios</Link>
                 </li>
               )}
 

@@ -36,16 +36,28 @@ function normalizarLogin(login = "") {
 }
 
 function normalizarEscola(escola) {
+  const escolaInicial = ESCOLAS_INICIAIS.find((item) => item.id === escola.id);
+
   return {
     ...escola,
     id: escola.id || `escola-${Date.now()}`,
-    nome: escola.nome || "",
-    cidade: escola.cidade || "",
-    status: escola.status || "ativo",
-    diretorNome: escola.diretorNome || "Direcao",
-    diretorLogin: escola.diretorLogin || "",
-    diretorSenha: escola.diretorSenha || "",
+    nome: escola.nome || escolaInicial?.nome || "",
+    cidade: escola.cidade || escolaInicial?.cidade || "",
+    status: escola.status || escolaInicial?.status || "ativo",
+    diretorNome: escola.diretorNome || escolaInicial?.diretorNome || "Direcao",
+    diretorLogin: escola.diretorLogin || escolaInicial?.diretorLogin || "",
+    diretorSenha: escola.diretorSenha || escolaInicial?.diretorSenha || "",
   };
+}
+
+function mesclarEscolasIniciais(escolas) {
+  const escolasNormalizadas = escolas.map(normalizarEscola);
+  const idsExistentes = new Set(escolasNormalizadas.map((escola) => escola.id));
+  const escolasFaltantes = ESCOLAS_INICIAIS.filter(
+    (escola) => !idsExistentes.has(escola.id),
+  ).map(normalizarEscola);
+
+  return [...escolasNormalizadas, ...escolasFaltantes];
 }
 
 export function carregarEscolasSistema() {
@@ -55,7 +67,7 @@ export function carregarEscolasSistema() {
 
     const parsed = JSON.parse(saved);
     return Array.isArray(parsed)
-      ? parsed.map(normalizarEscola)
+      ? mesclarEscolasIniciais(parsed)
       : ESCOLAS_INICIAIS.map(normalizarEscola);
   } catch (error) {
     console.error("Erro ao carregar escolas:", error);

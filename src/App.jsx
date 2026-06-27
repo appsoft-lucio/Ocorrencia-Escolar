@@ -3,7 +3,7 @@ import "./App.css";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 import AnalyticsTracker from "./components/AnalyticsTracker";
-import Dashboard from "./pages/Dashboard/Dashboard.jsx";
+import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import RecuperarSenha from "./pages/recuperarSenha/recuperarSenha.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";

@@ -10,8 +10,9 @@ import { encontrarUsuarioDemo } from "../../data/demoUsers";
 function Login() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
-  const { login, user } = useContext(AuthContext);
+  const { login, loginSupabase, supabaseConfigurado, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,25 +21,41 @@ function Login() {
     }
   }, [user, navigate]);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setEnviando(true);
 
-    const usuarioDemo = encontrarUsuarioDemo(userName, password);
+    try {
+      const loginInformado = userName.trim();
+      const podeTentarSupabase =
+        supabaseConfigurado && loginInformado.includes("@");
 
-    if (!usuarioDemo) {
-      alert("Usuario ou senha invalidos.");
-      return;
+      if (podeTentarSupabase) {
+        await loginSupabase(loginInformado, password);
+        return;
+      }
+
+      const usuarioDemo = encontrarUsuarioDemo(userName, password);
+
+      if (!usuarioDemo) {
+        alert("Usuario ou senha invalidos.");
+        return;
+      }
+
+      login({
+        id: usuarioDemo.id,
+        nome: usuarioDemo.nome,
+        role: usuarioDemo.role,
+        login: usuarioDemo.login,
+        escolaId: usuarioDemo.escolaId,
+        escolaNome: usuarioDemo.escolaNome,
+        escolaCidade: usuarioDemo.escolaCidade,
+      });
+    } catch (error) {
+      alert(error.message || "Nao foi possivel entrar.");
+    } finally {
+      setEnviando(false);
     }
-
-    login({
-      id: usuarioDemo.id,
-      nome: usuarioDemo.nome,
-      role: usuarioDemo.role,
-      login: usuarioDemo.login,
-      escolaId: usuarioDemo.escolaId,
-      escolaNome: usuarioDemo.escolaNome,
-      escolaCidade: usuarioDemo.escolaCidade,
-    });
   }
 
   return (
@@ -89,7 +106,9 @@ function Login() {
             />
           </div>
 
-          <button type="submit">Entrar</button>
+          <button type="submit" disabled={enviando}>
+            {enviando ? "Entrando..." : "Entrar"}
+          </button>
           <Link to="/recuperar-senha" className="login-recover">
             Esqueci minha senha
           </Link>

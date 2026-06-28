@@ -4,7 +4,11 @@ import { Navigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 function PrivateRoute({ children, allowedRoles }) {
-  const { user } = useContext(AuthContext);
+  const { loading, user } = useContext(AuthContext);
+
+  if (loading) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/" replace />;

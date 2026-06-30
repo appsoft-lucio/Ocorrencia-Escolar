@@ -3,6 +3,14 @@ import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import {
+  atualizarStatusTipoOcorrenciaSupabase,
+  atualizarStatusTurmaSupabase,
+  criarTipoOcorrenciaSupabase,
+  criarTurmaSupabase,
+  listarTiposOcorrenciaSupabase,
+  listarTurmasSupabase,
+} from "../../services/cadastrosEscolaresService";
 
 const TIPOS_OCORRENCIA_PADRAO = [
   "Indisciplina",
@@ -151,6 +159,7 @@ function criarChaveEscola(chave, escolaId) {
 
 function Coordenador() {
   const { user } = useContext(AuthContext);
+  const usarSupabase = user?.origem === "supabase";
   const coordenadoresStorageKey = criarChaveEscola("coordenadores", user?.escolaId);
   const tiposStorageKey = criarChaveEscola("tiposOcorrencia", user?.escolaId);
   const turmasStorageKey = criarChaveEscola("turmasEscolares", user?.escolaId);
@@ -182,6 +191,33 @@ function Coordenador() {
   const [mensagemTipo, setMensagemTipo] = useState("");
   const [mensagemTurma, setMensagemTurma] = useState("");
 
+  useEffect(() => {
+    let ativo = true;
+
+    if (!usarSupabase || !user?.escolaId) return undefined;
+
+    Promise.all([
+      listarTiposOcorrenciaSupabase(user.escolaId),
+      listarTurmasSupabase(user.escolaId),
+    ])
+      .then(([tipos, turmas]) => {
+        if (!ativo) return;
+        setTiposOcorrencia(tipos);
+        setTurmasEscolares(turmas);
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar cadastros no Supabase:", error);
+        if (ativo) {
+          setMensagemTipo("Nao foi possivel carregar tipos do Supabase.");
+          setMensagemTurma("Nao foi possivel carregar turmas do Supabase.");
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [usarSupabase, user?.escolaId]);
+
   const coordenadorPrincipal = useMemo(
     () => coordenadores.find((coordenador) => coordenador.principal),
     [coordenadores],
@@ -206,12 +242,14 @@ function Coordenador() {
   }, [coordenadores, coordenadoresStorageKey]);
 
   useEffect(() => {
+    if (usarSupabase) return;
     localStorage.setItem(tiposStorageKey, JSON.stringify(tiposOcorrencia));
-  }, [tiposOcorrencia, tiposStorageKey]);
+  }, [tiposOcorrencia, tiposStorageKey, usarSupabase]);
 
   useEffect(() => {
+    if (usarSupabase) return;
     localStorage.setItem(turmasStorageKey, JSON.stringify(turmasEscolares));
-  }, [turmasEscolares, turmasStorageKey]);
+  }, [turmasEscolares, turmasStorageKey, usarSupabase]);
 
   const adicionar = () => {
     if (!nome.trim()) {
@@ -253,7 +291,7 @@ function Coordenador() {
     );
   };
 
-  const adicionarTipoOcorrencia = () => {
+  const adicionarTipoOcorrencia = async () => {
     const nomeTipo = novoTipo.trim();
 
     if (!nomeTipo) {
@@ -267,6 +305,31 @@ function Coordenador() {
 
     if (tipoExistente?.status === "ativo") {
       setMensagemTipo("Este tipo de ocorrência já está ativo.");
+      return;
+    }
+    if (usarSupabase) {
+      if (tipoExistente) {
+        const tipoAtualizado = await atualizarStatusTipoOcorrenciaSupabase(
+          tipoExistente.id,
+          "ativo",
+        );
+        setTiposOcorrencia((prev) =>
+          prev.map((tipo) =>
+            tipo.id === tipoExistente.id ? tipoAtualizado : tipo,
+          ),
+        );
+        setMensagemTipo("Tipo de ocorrência reativado com sucesso.");
+      } else {
+        const tipoCriado = await criarTipoOcorrenciaSupabase(
+          user.escolaId,
+          nomeTipo,
+        );
+        setTiposOcorrencia((prev) => prev.concat(tipoCriado));
+        setMensagemTipo("Tipo de ocorrência adicionado com sucesso.");
+      }
+
+      setNovoTipo("");
+      setTimeout(() => setMensagemTipo(""), 2000);
       return;
     }
 
@@ -288,7 +351,23 @@ function Coordenador() {
     setTimeout(() => setMensagemTipo(""), 2000);
   };
 
-  const alternarStatusTipo = (id) => {
+  const alternarStatusTipo = async (id) => {
+    const tipoAtual = tiposOcorrencia.find((tipo) => tipo.id === id);
+    if (!tipoAtual) return;
+
+    const tipoEstaInativo = tipoAtual.status === "inativo";
+    const novoStatusTipo = tipoEstaInativo ? "ativo" : "inativo";
+
+    if (usarSupabase) {
+      const tipoAtualizado = await atualizarStatusTipoOcorrenciaSupabase(
+        id,
+        novoStatusTipo,
+      );
+      setTiposOcorrencia((prev) =>
+        prev.map((tipo) => (tipo.id === id ? tipoAtualizado : tipo)),
+      );
+      return;
+    }
     setTiposOcorrencia((prev) =>
       prev.map((tipo) => {
         if (tipo.id !== id) return tipo;
@@ -304,7 +383,7 @@ function Coordenador() {
     );
   };
 
-  const adicionarTurmaEscolar = () => {
+  const adicionarTurmaEscolar = async () => {
     const nomeTurma = novaTurma.trim();
 
     if (!nomeTurma) {
@@ -318,6 +397,28 @@ function Coordenador() {
 
     if (turmaExistente?.status === "ativo") {
       setMensagemTurma("Esta turma já está ativa.");
+      return;
+    }
+    if (usarSupabase) {
+      if (turmaExistente) {
+        const turmaAtualizada = await atualizarStatusTurmaSupabase(
+          turmaExistente.id,
+          "ativo",
+        );
+        setTurmasEscolares((prev) =>
+          prev.map((turma) =>
+            turma.id === turmaExistente.id ? turmaAtualizada : turma,
+          ),
+        );
+        setMensagemTurma("Turma reativada com sucesso.");
+      } else {
+        const turmaCriada = await criarTurmaSupabase(user.escolaId, nomeTurma);
+        setTurmasEscolares((prev) => prev.concat(turmaCriada));
+        setMensagemTurma("Turma adicionada com sucesso.");
+      }
+
+      setNovaTurma("");
+      setTimeout(() => setMensagemTurma(""), 2000);
       return;
     }
 
@@ -339,7 +440,23 @@ function Coordenador() {
     setTimeout(() => setMensagemTurma(""), 2000);
   };
 
-  const alternarStatusTurma = (id) => {
+  const alternarStatusTurma = async (id) => {
+    const turmaAtual = turmasEscolares.find((turma) => turma.id === id);
+    if (!turmaAtual) return;
+
+    const turmaEstaInativa = turmaAtual.status === "inativo";
+    const novoStatusTurma = turmaEstaInativa ? "ativo" : "inativo";
+
+    if (usarSupabase) {
+      const turmaAtualizada = await atualizarStatusTurmaSupabase(
+        id,
+        novoStatusTurma,
+      );
+      setTurmasEscolares((prev) =>
+        prev.map((turma) => (turma.id === id ? turmaAtualizada : turma)),
+      );
+      return;
+    }
     setTurmasEscolares((prev) =>
       prev.map((turma) => {
         if (turma.id !== id) return turma;
@@ -654,3 +771,6 @@ function Coordenador() {
 }
 
 export default Coordenador;
+
+
+

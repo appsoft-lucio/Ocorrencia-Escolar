@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import {
+  listarTiposOcorrenciaSupabase,
+  listarTurmasSupabase,
+} from "../../services/cadastrosEscolaresService";
 import FormularioOcorrencia from "./components/FormularioOcorrencia";
 import ListaOcorrencias from "./components/ListaOcorrencias";
 
@@ -266,6 +270,7 @@ function Ocorrencias() {
   const notificacaoTimerRef = useRef(null);
   const reconhecimentoVozRef = useRef(null);
   const isGestao = GESTAO_ROLES.includes(user?.role);
+  const usarSupabase = user?.origem === "supabase";
   const vozDisponivel = typeof window !== "undefined" && Boolean(obterReconhecimentoVoz());
 
   const mostrarNotificacao = useCallback((mensagem, tipo = "info") => {
@@ -347,6 +352,26 @@ function Ocorrencias() {
   }, [mostrarNotificacao]);
 
   useEffect(() => {
+    if (usarSupabase && user?.escolaId) {
+      Promise.all([
+        listarTiposOcorrenciaSupabase(user.escolaId),
+        listarTurmasSupabase(user.escolaId),
+      ])
+        .then(([tipos, turmas]) => {
+          setTiposOcorrencia(tipos);
+          setTurmasEscolares(turmas);
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar cadastros no Supabase:", error);
+          mostrarNotificacao(
+            "Nao foi possivel carregar turmas e tipos de ocorrencia.",
+            "erro",
+          );
+        });
+
+      return undefined;
+    }
+
     const atualizarCadastros = () => {
       setTiposOcorrencia(carregarTiposOcorrencia(user?.escolaId));
       setTurmasEscolares(carregarTurmasEscolares(user?.escolaId));
@@ -359,7 +384,7 @@ function Ocorrencias() {
       window.removeEventListener("storage", atualizarCadastros);
       window.removeEventListener("focus", atualizarCadastros);
     };
-  }, [user?.escolaId]);
+  }, [mostrarNotificacao, usarSupabase, user?.escolaId]);
 
   const tiposOcorrenciaAtivos = useMemo(
     () =>

@@ -257,6 +257,10 @@
   margin-bottom: 14px;
 }
 
+.historico-topo button + button {
+  margin-left: 8px;
+}
+
 .historico-topo h2 {
   margin: 0 0 4px;
   color: var(--cor-secundaria);
@@ -293,6 +297,232 @@
   font-size: 14px;
 }
 
+.relatorio-preview-container,
+.relatorio-pdf-preview {
+  margin-top: 22px;
+  border-radius: 8px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.relatorio-preview-container {
+  padding: 18px;
+}
+
+.relatorio-preview-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.relatorio-preview-topo h2 {
+  margin: 0 0 4px;
+  color: var(--cor-secundaria);
+  font-size: 20px;
+}
+
+.relatorio-preview-topo p {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.relatorio-preview-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.relatorio-preview-acoes button {
+  min-height: 38px;
+  padding: 8px 11px;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.relatorio-preview-acoes button:hover {
+  background: #d1d5db;
+}
+
+.relatorio-preview-acoes button:nth-child(2) {
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
+}
+
+.relatorio-preview-acoes button:nth-child(2):hover {
+  background: var(--cor-destaque-hover);
+}
+
+.relatorio-preview-acoes .btn-fechar-preview {
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+}
+
+.relatorio-preview-campos {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cor-borda-light);
+}
+
+.relatorio-preview-campos label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.relatorio-preview-campos textarea,
+.relatorio-preview-campos input {
+  width: 100%;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  background: var(--cor-branco);
+  color: var(--cor-texto);
+  font-size: 14px;
+  outline: none;
+}
+
+.relatorio-preview-campos textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.relatorio-preview-campos textarea:focus,
+.relatorio-preview-campos input:focus {
+  border-color: var(--cor-laranja);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
+.relatorio-preview-assinantes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.relatorio-pdf-preview {
+  overflow-x: auto;
+}
+
+.oculto-pdf {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 760px;
+  background: #fff;
+}
+
+.relatorio-pdf {
+  padding: 22px;
+  color: #111827;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.relatorio-pdf-cabecalho {
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--cor-laranja);
+}
+
+.relatorio-pdf-cabecalho h1 {
+  margin: 0 0 6px;
+  color: var(--cor-secundaria);
+  font-size: 22px;
+}
+
+.relatorio-pdf-cabecalho p,
+.relatorio-pdf-cabecalho span {
+  display: block;
+  margin: 0;
+  color: #374151;
+}
+
+.relatorio-pdf-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.relatorio-pdf-resumo div,
+.relatorio-pdf-bloco,
+.relatorio-pdf-grid > div {
+  padding: 10px;
+  border: 1px solid #d9dee7;
+  border-radius: 6px;
+}
+
+.relatorio-pdf-resumo strong {
+  display: block;
+  color: var(--cor-secundaria);
+  font-size: 20px;
+}
+
+.relatorio-pdf-resumo span {
+  color: #4b5563;
+}
+
+.relatorio-pdf-bloco,
+.relatorio-pdf-grid {
+  margin-bottom: 14px;
+}
+
+.relatorio-pdf h2 {
+  margin: 0 0 8px;
+  color: var(--cor-secundaria);
+  font-size: 15px;
+}
+
+.relatorio-pdf p {
+  margin: 0 0 5px;
+}
+
+.relatorio-pdf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.relatorio-pdf table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.relatorio-pdf th,
+.relatorio-pdf td {
+  padding: 7px;
+  border: 1px solid #d9dee7;
+  text-align: left;
+  vertical-align: top;
+}
+
+.relatorio-pdf th {
+  background: #f3f4f6;
+  color: var(--cor-secundaria);
+}
+
+.relatorio-assinaturas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 38px;
+}
+
+.relatorio-assinaturas span {
+  padding-top: 8px;
+  border-top: 1px solid #111827;
+  text-align: center;
+}
+
 @media (max-width: 1100px) {
   .alunos-resumo {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -327,11 +557,25 @@
     width: 100%;
   }
 
+  .historico-topo button + button {
+    margin-left: 0;
+  }
+
   .alunos-resumo,
   .filtros,
   .card-aluno dl,
-  .acoes-card {
+  .acoes-card,
+  .relatorio-preview-assinantes {
     grid-template-columns: 1fr;
+  }
+
+  .relatorio-preview-topo {
+    flex-direction: column;
+  }
+
+  .relatorio-preview-acoes,
+  .relatorio-preview-acoes button {
+    width: 100%;
   }
 }
 

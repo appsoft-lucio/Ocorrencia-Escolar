@@ -578,7 +578,7 @@ function Ocorrencias() {
   }, []);
 
   const handleSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       if (!user) {
@@ -592,7 +592,7 @@ function Ocorrencias() {
       }
 
       try {
-        addOcorrencia({
+        await addOcorrencia({
           id: Date.now(),
           professorId: user.id,
           professorNome: user.nome,
@@ -644,7 +644,7 @@ function Ocorrencias() {
   }, [navigate]);
 
   const handleAtualizarStatusOcorrencia = useCallback(
-    (id, status) => {
+    async (id, status) => {
       if (!isGestao || !user) {
         mostrarNotificacao(
           "Somente coordenação ou direção pode alterar o status.",
@@ -654,7 +654,7 @@ function Ocorrencias() {
       }
 
       try {
-        updateOcorrenciaStatus(id, {
+        await updateOcorrenciaStatus(id, {
           status,
           statusAtualizadoPor: user.nome,
           statusAtualizadoEm: new Date().toLocaleString(),

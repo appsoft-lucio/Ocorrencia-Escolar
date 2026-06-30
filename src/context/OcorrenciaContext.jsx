@@ -9,6 +9,11 @@ import {
 import PropTypes from "prop-types";
 
 import { AuthContext } from "./AuthContext";
+import {
+  atualizarStatusOcorrenciaSupabase,
+  criarOcorrenciaSupabase,
+  listarOcorrenciasSupabase,
+} from "../services/ocorrenciasService";
 
 export const OcorrenciaContext = createContext();
 
@@ -20,12 +25,43 @@ export function OcorrenciaProvider({ children }) {
   const { user } = useContext(AuthContext);
   const [ocorrencias, setOcorrencias] = useState([]);
   const [storagePronto, setStoragePronto] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const usarSupabase = user?.origem === "supabase";
   const storageKey = useMemo(
     () => criarChaveOcorrencias(user?.escolaId),
     [user?.escolaId],
   );
 
   useEffect(() => {
+    let ativo = true;
+
+    if (usarSupabase) {
+      setLoading(true);
+      setStoragePronto(false);
+
+      listarOcorrenciasSupabase()
+        .then((dados) => {
+          if (ativo) {
+            setOcorrencias(dados);
+          }
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar ocorrencias no Supabase:", error);
+          if (ativo) {
+            setOcorrencias([]);
+          }
+        })
+        .finally(() => {
+          if (ativo) {
+            setLoading(false);
+          }
+        });
+
+      return () => {
+        ativo = false;
+      };
+    }
+
     setStoragePronto(false);
 
     if (!storageKey) {
@@ -51,40 +87,73 @@ export function OcorrenciaProvider({ children }) {
     }
 
     setStoragePronto(true);
-  }, [storageKey]);
+    return () => {
+      ativo = false;
+    };
+  }, [storageKey, usarSupabase]);
 
   useEffect(() => {
-    if (!storageKey || !storagePronto) return;
+    if (usarSupabase || !storageKey || !storagePronto) return;
 
     localStorage.setItem(storageKey, JSON.stringify(ocorrencias));
-  }, [ocorrencias, storageKey, storagePronto]);
+  }, [ocorrencias, storageKey, storagePronto, usarSupabase]);
 
   const addOcorrencia = useCallback(
-    (data) => {
+    async (data) => {
+      const novaOcorrencia = {
+        ...data,
+        escolaId: data.escolaId || user?.escolaId,
+        escolaNome: data.escolaNome || user?.escolaNome,
+      };
+
+      if (usarSupabase) {
+        const ocorrenciaSalva = await criarOcorrenciaSupabase(novaOcorrencia);
+        setOcorrencias((ocorrenciasAtuais) => [
+          ocorrenciaSalva,
+          ...ocorrenciasAtuais,
+        ]);
+        return ocorrenciaSalva;
+      }
+
       setOcorrencias((ocorrenciasAtuais) => [
         ...ocorrenciasAtuais,
-        {
-          ...data,
-          escolaId: data.escolaId || user?.escolaId,
-          escolaNome: data.escolaNome || user?.escolaNome,
-        },
+        novaOcorrencia,
       ]);
+      return novaOcorrencia;
     },
-    [user?.escolaId, user?.escolaNome],
+    [usarSupabase, user?.escolaId, user?.escolaNome],
   );
 
-  const updateOcorrenciaStatus = useCallback((id, statusData) => {
-    setOcorrencias((ocorrenciasAtuais) =>
-      ocorrenciasAtuais.map((ocorrencia) =>
-        ocorrencia.id === id ? { ...ocorrencia, ...statusData } : ocorrencia,
-      ),
-    );
-  }, []);
+  const updateOcorrenciaStatus = useCallback(
+    async (id, statusData) => {
+      if (usarSupabase) {
+        const ocorrenciaAtualizada = await atualizarStatusOcorrenciaSupabase(
+          id,
+          statusData,
+        );
+        setOcorrencias((ocorrenciasAtuais) =>
+          ocorrenciasAtuais.map((ocorrencia) =>
+            ocorrencia.id === id ? ocorrenciaAtualizada : ocorrencia,
+          ),
+        );
+        return ocorrenciaAtualizada;
+      }
+
+      setOcorrencias((ocorrenciasAtuais) =>
+        ocorrenciasAtuais.map((ocorrencia) =>
+          ocorrencia.id === id ? { ...ocorrencia, ...statusData } : ocorrencia,
+        ),
+      );
+      return statusData;
+    },
+    [usarSupabase],
+  );
 
   return (
     <OcorrenciaContext.Provider
       value={{
         ocorrencias,
+        loading,
         addOcorrencia,
         updateOcorrenciaStatus,
       }}

@@ -1,12 +1,16 @@
 import "./Dashboard.css";
 
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import StatsCard from "../../components/Cards/Card";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext.jsx";
+import {
+  listarTiposOcorrenciaSupabase,
+  listarTurmasSupabase,
+} from "../../services/cadastrosEscolaresService";
 
 const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
 
@@ -73,17 +77,52 @@ function dataParaOrdenacao(data) {
 function Dashboard() {
   const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
+  const [cadastrosSupabase, setCadastrosSupabase] = useState({
+    tipos: [],
+    turmas: [],
+  });
+
+  useEffect(() => {
+    let ativo = true;
+
+    if (user?.origem !== "supabase" || !user?.escolaId) {
+      setCadastrosSupabase({ tipos: [], turmas: [] });
+      return undefined;
+    }
+
+    Promise.all([
+      listarTiposOcorrenciaSupabase(user.escolaId),
+      listarTurmasSupabase(user.escolaId),
+    ])
+      .then(([tipos, turmas]) => {
+        if (ativo) {
+          setCadastrosSupabase({ tipos, turmas });
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar cadastros da dashboard:", error);
+        if (ativo) {
+          setCadastrosSupabase({ tipos: [], turmas: [] });
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [user?.escolaId, user?.origem]);
 
   const dadosDashboard = useMemo(() => {
     if (!user) return null;
 
     const professores = lerStorage(criarChaveEscola("professores", user.escolaId));
-    const turmasEscolares = lerStorage(
-      criarChaveEscola("turmasEscolares", user.escolaId),
-    );
-    const tiposOcorrencia = lerStorage(
-      criarChaveEscola("tiposOcorrencia", user.escolaId),
-    );
+    const turmasEscolares =
+      user.origem === "supabase"
+        ? cadastrosSupabase.turmas
+        : lerStorage(criarChaveEscola("turmasEscolares", user.escolaId));
+    const tiposOcorrencia =
+      user.origem === "supabase"
+        ? cadastrosSupabase.tipos
+        : lerStorage(criarChaveEscola("tiposOcorrencia", user.escolaId));
     const isGestao = perfilGestao(user.role);
     const nomeUsuario = normalizarTexto(user.nome);
 
@@ -199,7 +238,7 @@ function Dashboard() {
       recentes,
       totalVisivel: ocorrenciasVisiveis.length,
     };
-  }, [ocorrencias, user]);
+  }, [cadastrosSupabase, ocorrencias, user]);
 
   if (!user || !dadosDashboard) {
     return <div className="loading-screen">Carregando sistema...</div>;

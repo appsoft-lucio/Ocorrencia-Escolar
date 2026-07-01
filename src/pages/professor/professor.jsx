@@ -6,7 +6,7 @@ import { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import {
-  atualizarStatusPerfilSupabase,
+  atualizarStatusProfessorSupabase,
   listarProfessoresSupabase,
 } from "../../services/perfisService";
 
@@ -165,7 +165,7 @@ function Professor() {
 
     if (!usarSupabase || !user?.escolaId) return undefined;
 
-    listarProfessoresSupabase(user.escolaId)
+    listarProfessoresSupabase(user)
       .then((perfis) => {
         if (!ativo) return;
 
@@ -212,7 +212,7 @@ function Professor() {
     return () => {
       ativo = false;
     };
-  }, [ocorrencias, usarSupabase, user?.escolaId]);
+  }, [ocorrencias, usarSupabase, user]);
 
   const professoresResumo = useMemo(() => {
     const ativos = professores.filter((professor) => professor.status !== "inativo");
@@ -463,9 +463,10 @@ function Professor() {
     if (window.confirm(`Tem certeza que deseja ${acao} este professor?`)) {
       if (usarSupabase) {
         try {
-          const perfilAtualizado = await atualizarStatusPerfilSupabase(
+          const perfilAtualizado = await atualizarStatusProfessorSupabase(
             professorId,
             estaInativo ? "ativo" : "inativo",
+            user,
           );
           setProfessores((prev) =>
             prev.map((prof) =>

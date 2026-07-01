@@ -58,7 +58,7 @@ export function useProfessores(user) {
 
     setLoadingProfessores(true);
 
-    listarProfessoresSupabase(user.escolaId)
+    listarProfessoresSupabase(user)
       .then((perfis) => {
         if (ativo) {
           setProfessores(perfis.map(mapearProfessorSupabase));
@@ -79,7 +79,7 @@ export function useProfessores(user) {
     return () => {
       ativo = false;
     };
-  }, [user?.escolaId, user?.origem]);
+  }, [user]);
 
   return {
     professores,

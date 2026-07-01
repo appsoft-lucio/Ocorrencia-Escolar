@@ -1,4 +1,8 @@
 import { supabase } from "./supabaseClient";
+import { perfilGestao } from "../utils/permissoes";
+
+const CAMPOS_PERFIL_PROFESSOR =
+  "id, escola_id, nome, perfil, whatsapp, status, created_at, updated_at";
 
 export function mapearPerfilProfessor(row) {
   return {
@@ -13,15 +17,24 @@ export function mapearPerfilProfessor(row) {
   };
 }
 
-export async function listarProfessoresSupabase(escolaId) {
+function validarUsuarioEscola(user) {
+  if (!user?.escolaId) {
+    throw new Error("Usuario sem escola vinculada.");
+  }
+}
+
+export async function listarProfessoresSupabase(user) {
+  validarUsuarioEscola(user);
+
   let query = supabase
     .from("perfis")
-    .select("id, escola_id, nome, perfil, whatsapp, status, created_at, updated_at")
+    .select(CAMPOS_PERFIL_PROFESSOR)
+    .eq("escola_id", user.escolaId)
     .eq("perfil", "professor")
     .order("nome", { ascending: true });
 
-  if (escolaId) {
-    query = query.eq("escola_id", escolaId);
+  if (!perfilGestao(user.role)) {
+    query = query.eq("id", user.id);
   }
 
   const { data, error } = await query;
@@ -33,12 +46,20 @@ export async function listarProfessoresSupabase(escolaId) {
   return (data || []).map(mapearPerfilProfessor);
 }
 
-export async function atualizarStatusPerfilSupabase(id, status) {
+export async function atualizarStatusProfessorSupabase(id, status, user) {
+  validarUsuarioEscola(user);
+
+  if (!perfilGestao(user.role)) {
+    throw new Error("Usuario sem permissao para atualizar status.");
+  }
+
   const { data, error } = await supabase
     .from("perfis")
     .update({ status })
     .eq("id", id)
-    .select("id, escola_id, nome, perfil, whatsapp, status, created_at, updated_at")
+    .eq("escola_id", user.escolaId)
+    .eq("perfil", "professor")
+    .select(CAMPOS_PERFIL_PROFESSOR)
     .single();
 
   if (error) {

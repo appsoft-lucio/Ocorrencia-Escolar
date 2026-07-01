@@ -57,3 +57,24 @@ Depois do deploy:
 
 O professor deve entrar no sistema e visualizar somente os dados permitidos
 para o perfil dele.
+
+## Funcao `criar-escola-direcao`
+
+Cria a escola, cria o login da direcao no Supabase Auth e cria o perfil
+`diretor` vinculado a essa escola.
+
+Publique com:
+
+```powershell
+npx.cmd supabase@latest functions deploy criar-escola-direcao
+```
+
+Teste esperado:
+
+1. Entre no app como desenvolvedor Supabase.
+2. Abra `Escolas`.
+3. Cadastre uma escola informando email e senha da direcao.
+4. Saia do app.
+5. Entre com o email e senha da direcao.
+
+A direcao deve entrar vinculada a escola cadastrada.

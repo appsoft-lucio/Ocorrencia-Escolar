@@ -1,13 +1,19 @@
 import "./Escolas.css";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import { AuthContext } from "../../context/AuthContext";
 import {
   carregarEscolasSistema,
   salvarEscolasSistema,
 } from "../../data/demoUsers";
+import {
+  atualizarStatusEscolaSupabase,
+  criarEscolaDirecaoSupabase,
+  listarEscolasSupabase,
+} from "../../services/escolasService";
 
 const FORM_INICIAL = {
   id: null,
@@ -31,15 +37,43 @@ function criarIdEscola(nome) {
 }
 
 function Escolas() {
+  const { user } = useContext(AuthContext);
   const [escolas, setEscolas] = useState(carregarEscolasSistema);
   const [form, setForm] = useState(FORM_INICIAL);
   const [mensagem, setMensagem] = useState("");
+  const [salvando, setSalvando] = useState(false);
   const nomeInputRef = useRef(null);
   const formRef = useRef(null);
+  const usarSupabase = user?.origem === "supabase";
 
   useEffect(() => {
+    if (usarSupabase) return;
     salvarEscolasSistema(escolas);
-  }, [escolas]);
+  }, [escolas, usarSupabase]);
+
+  useEffect(() => {
+    let ativo = true;
+
+    if (!usarSupabase) return undefined;
+
+    listarEscolasSupabase()
+      .then((escolasCarregadas) => {
+        if (ativo) {
+          setEscolas(escolasCarregadas);
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar escolas no Supabase:", error);
+        if (ativo) {
+          setMensagem("Nao foi possivel carregar escolas da rede.");
+          setEscolas([]);
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [usarSupabase]);
 
   const resumo = useMemo(() => {
     const ativas = escolas.filter((escola) => escola.status !== "inativo").length;
@@ -79,64 +113,120 @@ function Escolas() {
     window.setTimeout(() => nomeInputRef.current?.focus(), 100);
   }
 
-  function salvarEscola(event) {
+  async function salvarEscola(event) {
     event.preventDefault();
+    if (salvando) return;
 
     if (!form.nome.trim()) {
       setMensagem("Informe o nome da escola.");
       return;
     }
 
-    if (!form.diretorNome.trim()) {
+    if (!form.id && !form.diretorNome.trim()) {
       setMensagem("Informe o nome do diretor.");
       return;
     }
 
-    if (!form.diretorLogin.trim() || !form.diretorSenha.trim()) {
-      setMensagem("Informe login e senha do diretor.");
+    if (!form.id && (!form.diretorLogin.trim() || !form.diretorSenha.trim())) {
+      setMensagem(
+        usarSupabase
+          ? "Informe email e senha da direcao."
+          : "Informe login e senha do diretor.",
+      );
       return;
     }
 
-    const id = form.id || criarIdEscola(form.nome);
-    const loginEmUso = escolas.some(
-      (escola) =>
-        escola.id !== id &&
-        escola.diretorLogin.trim().toLowerCase() ===
-          form.diretorLogin.trim().toLowerCase(),
-    );
+    setSalvando(true);
 
-    if (loginEmUso) {
-      setMensagem("Este login de diretor ja esta em uso.");
-      return;
-    }
+    try {
+      if (usarSupabase) {
+        if (form.id) {
+          setMensagem("Edicao de escola da rede sera feita no proximo passo.");
+          return;
+        }
 
-    const escolaAtualizada = {
-      id,
-      nome: form.nome.trim(),
-      cidade: form.cidade.trim(),
-      diretorNome: form.diretorNome.trim(),
-      diretorLogin: form.diretorLogin.trim(),
-      diretorSenha: form.diretorSenha,
-      status: form.status,
-    };
+        const escolaCriada = await criarEscolaDirecaoSupabase({
+          nome: form.nome.trim(),
+          cidade: form.cidade.trim(),
+          diretorNome: form.diretorNome.trim(),
+          diretorEmail: form.diretorLogin.trim(),
+          diretorSenha: form.diretorSenha,
+          status: form.status,
+        });
 
-    setEscolas((atuais) => {
-      const existe = atuais.some((escola) => escola.id === id);
-
-      if (existe) {
-        return atuais.map((escola) =>
-          escola.id === id ? escolaAtualizada : escola,
-        );
+        setEscolas((atuais) => atuais.concat(escolaCriada));
+        setMensagem("Escola e direcao da rede cadastradas.");
+        setForm(FORM_INICIAL);
+        return;
       }
 
-      return [...atuais, escolaAtualizada];
-    });
+      const id = form.id || criarIdEscola(form.nome);
+      const loginEmUso = escolas.some(
+        (escola) =>
+          escola.id !== id &&
+          escola.diretorLogin.trim().toLowerCase() ===
+            form.diretorLogin.trim().toLowerCase(),
+      );
 
-    setMensagem(form.id ? "Escola atualizada com sucesso." : "Escola salva com sucesso.");
-    setForm(FORM_INICIAL);
+      if (loginEmUso) {
+        setMensagem("Este login de diretor ja esta em uso.");
+        return;
+      }
+
+      const escolaAtualizada = {
+        id,
+        nome: form.nome.trim(),
+        cidade: form.cidade.trim(),
+        diretorNome: form.diretorNome.trim(),
+        diretorLogin: form.diretorLogin.trim(),
+        diretorSenha: form.diretorSenha,
+        status: form.status,
+      };
+
+      setEscolas((atuais) => {
+        const existe = atuais.some((escola) => escola.id === id);
+
+        if (existe) {
+          return atuais.map((escola) =>
+            escola.id === id ? escolaAtualizada : escola,
+          );
+        }
+
+        return [...atuais, escolaAtualizada];
+      });
+
+      setMensagem(form.id ? "Escola atualizada com sucesso." : "Escola salva com sucesso.");
+      setForm(FORM_INICIAL);
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel salvar a escola.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
-  function alternarStatus(escolaId) {
+  async function alternarStatus(escolaId) {
+    if (usarSupabase) {
+      const escolaAtual = escolas.find((escola) => escola.id === escolaId);
+      if (!escolaAtual) return;
+
+      try {
+        const escolaAtualizada = await atualizarStatusEscolaSupabase(
+          escolaId,
+          escolaAtual.status === "inativo" ? "ativo" : "inativo",
+        );
+        setEscolas((atuais) =>
+          atuais.map((escola) =>
+            escola.id === escolaId
+              ? { ...escola, status: escolaAtualizada.status }
+              : escola,
+          ),
+        );
+      } catch (error) {
+        setMensagem(error.message || "Nao foi possivel atualizar a escola.");
+      }
+      return;
+    }
+
     setEscolas((atuais) =>
       atuais.map((escola) =>
         escola.id === escolaId
@@ -217,13 +307,13 @@ function Escolas() {
 
               <div className="escola-form-duplo">
                 <label>
-                  Login do diretor
+                  {usarSupabase ? "Email da direcao" : "Login do diretor"}
                   <input
                     value={form.diretorLogin}
                     onChange={(event) =>
                       atualizarCampo("diretorLogin", event.target.value)
                     }
-                    placeholder="login-diretor"
+                    placeholder={usarSupabase ? "direcao@escola.com" : "login-diretor"}
                   />
                 </label>
 
@@ -255,8 +345,14 @@ function Escolas() {
                 <button type="button" onClick={limparFormulario}>
                   {form.id ? "Cancelar edicao" : "Limpar"}
                 </button>
-                <button type="submit">
-                  {form.id ? "Atualizar escola" : "Salvar escola"}
+                <button type="submit" disabled={salvando}>
+                  {salvando
+                    ? "Salvando..."
+                    : form.id
+                      ? "Atualizar escola"
+                      : usarSupabase
+                        ? "Criar escola e direcao"
+                        : "Salvar escola"}
                 </button>
               </div>
             </form>
@@ -293,9 +389,11 @@ function Escolas() {
                     </dl>
 
                     <div className="escola-item-acoes">
-                      <button type="button" onClick={() => editarEscola(escola)}>
-                        Editar
-                      </button>
+                      {!usarSupabase && (
+                        <button type="button" onClick={() => editarEscola(escola)}>
+                          Editar
+                        </button>
+                      )}
                       <button type="button" onClick={() => alternarStatus(escola.id)}>
                         {escola.status === "inativo" ? "Ativar" : "Inativar"}
                       </button>

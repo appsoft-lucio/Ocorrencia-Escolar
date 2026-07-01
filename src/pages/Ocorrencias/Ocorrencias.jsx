@@ -353,8 +353,8 @@ function Ocorrencias() {
   useEffect(() => {
     if (usarSupabase && user?.escolaId) {
       Promise.all([
-        listarTiposOcorrenciaSupabase(user.escolaId),
-        listarTurmasSupabase(user.escolaId),
+        listarTiposOcorrenciaSupabase(user),
+        listarTurmasSupabase(user),
       ])
         .then(([tipos, turmas]) => {
           setTiposOcorrencia(tipos);
@@ -383,7 +383,7 @@ function Ocorrencias() {
       window.removeEventListener("storage", atualizarCadastros);
       window.removeEventListener("focus", atualizarCadastros);
     };
-  }, [mostrarNotificacao, usarSupabase, user?.escolaId]);
+  }, [mostrarNotificacao, usarSupabase, user]);
 
   const tiposOcorrenciaAtivos = useMemo(
     () =>

@@ -1,4 +1,8 @@
 import { supabase } from "./supabaseClient";
+import { perfilGestao } from "../utils/permissoes";
+
+const CAMPOS_TIPO = "id, nome, status, created_at, updated_at";
+const CAMPOS_TURMA = "id, codigo, status, created_at, updated_at";
 
 function mapearTipo(row) {
   return {
@@ -20,17 +24,28 @@ function mapearTurma(row) {
   };
 }
 
-export async function listarTiposOcorrenciaSupabase(escolaId) {
-  let query = supabase
-    .from("tipos_ocorrencia")
-    .select("id, nome, status, created_at, updated_at")
-    .order("nome", { ascending: true });
-
-  if (escolaId) {
-    query = query.eq("escola_id", escolaId);
+function validarUsuarioEscola(user) {
+  if (!user?.escolaId) {
+    throw new Error("Usuario sem escola vinculada.");
   }
+}
 
-  const { data, error } = await query;
+function validarGestao(user) {
+  validarUsuarioEscola(user);
+
+  if (!perfilGestao(user.role)) {
+    throw new Error("Usuario sem permissao para alterar cadastros escolares.");
+  }
+}
+
+export async function listarTiposOcorrenciaSupabase(user) {
+  validarUsuarioEscola(user);
+
+  const { data, error } = await supabase
+    .from("tipos_ocorrencia")
+    .select(CAMPOS_TIPO)
+    .eq("escola_id", user.escolaId)
+    .order("nome", { ascending: true });
 
   if (error) {
     throw new Error("Nao foi possivel carregar os tipos de ocorrencia.");
@@ -39,15 +54,17 @@ export async function listarTiposOcorrenciaSupabase(escolaId) {
   return (data || []).map(mapearTipo);
 }
 
-export async function criarTipoOcorrenciaSupabase(escolaId, nome) {
+export async function criarTipoOcorrenciaSupabase(user, nome) {
+  validarGestao(user);
+
   const { data, error } = await supabase
     .from("tipos_ocorrencia")
     .insert({
-      escola_id: escolaId,
+      escola_id: user.escolaId,
       nome,
       status: "ativo",
     })
-    .select("id, nome, status, created_at, updated_at")
+    .select(CAMPOS_TIPO)
     .single();
 
   if (error) {
@@ -57,12 +74,15 @@ export async function criarTipoOcorrenciaSupabase(escolaId, nome) {
   return mapearTipo(data);
 }
 
-export async function atualizarStatusTipoOcorrenciaSupabase(id, status) {
+export async function atualizarStatusTipoOcorrenciaSupabase(id, status, user) {
+  validarGestao(user);
+
   const { data, error } = await supabase
     .from("tipos_ocorrencia")
     .update({ status })
     .eq("id", id)
-    .select("id, nome, status, created_at, updated_at")
+    .eq("escola_id", user.escolaId)
+    .select(CAMPOS_TIPO)
     .single();
 
   if (error) {
@@ -72,17 +92,14 @@ export async function atualizarStatusTipoOcorrenciaSupabase(id, status) {
   return mapearTipo(data);
 }
 
-export async function listarTurmasSupabase(escolaId) {
-  let query = supabase
+export async function listarTurmasSupabase(user) {
+  validarUsuarioEscola(user);
+
+  const { data, error } = await supabase
     .from("turmas")
-    .select("id, codigo, status, created_at, updated_at")
+    .select(CAMPOS_TURMA)
+    .eq("escola_id", user.escolaId)
     .order("codigo", { ascending: true });
-
-  if (escolaId) {
-    query = query.eq("escola_id", escolaId);
-  }
-
-  const { data, error } = await query;
 
   if (error) {
     throw new Error("Nao foi possivel carregar as turmas.");
@@ -91,15 +108,17 @@ export async function listarTurmasSupabase(escolaId) {
   return (data || []).map(mapearTurma);
 }
 
-export async function criarTurmaSupabase(escolaId, codigo) {
+export async function criarTurmaSupabase(user, codigo) {
+  validarGestao(user);
+
   const { data, error } = await supabase
     .from("turmas")
     .insert({
-      escola_id: escolaId,
+      escola_id: user.escolaId,
       codigo,
       status: "ativo",
     })
-    .select("id, codigo, status, created_at, updated_at")
+    .select(CAMPOS_TURMA)
     .single();
 
   if (error) {
@@ -109,12 +128,15 @@ export async function criarTurmaSupabase(escolaId, codigo) {
   return mapearTurma(data);
 }
 
-export async function atualizarStatusTurmaSupabase(id, status) {
+export async function atualizarStatusTurmaSupabase(id, status, user) {
+  validarGestao(user);
+
   const { data, error } = await supabase
     .from("turmas")
     .update({ status })
     .eq("id", id)
-    .select("id, codigo, status, created_at, updated_at")
+    .eq("escola_id", user.escolaId)
+    .select(CAMPOS_TURMA)
     .single();
 
   if (error) {

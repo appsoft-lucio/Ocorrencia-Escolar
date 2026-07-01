@@ -197,8 +197,8 @@ function Coordenador() {
     if (!usarSupabase || !user?.escolaId) return undefined;
 
     Promise.all([
-      listarTiposOcorrenciaSupabase(user.escolaId),
-      listarTurmasSupabase(user.escolaId),
+      listarTiposOcorrenciaSupabase(user),
+      listarTurmasSupabase(user),
     ])
       .then(([tipos, turmas]) => {
         if (!ativo) return;
@@ -216,7 +216,7 @@ function Coordenador() {
     return () => {
       ativo = false;
     };
-  }, [usarSupabase, user?.escolaId]);
+  }, [usarSupabase, user]);
 
   const coordenadorPrincipal = useMemo(
     () => coordenadores.find((coordenador) => coordenador.principal),
@@ -312,6 +312,7 @@ function Coordenador() {
         const tipoAtualizado = await atualizarStatusTipoOcorrenciaSupabase(
           tipoExistente.id,
           "ativo",
+          user,
         );
         setTiposOcorrencia((prev) =>
           prev.map((tipo) =>
@@ -320,10 +321,7 @@ function Coordenador() {
         );
         setMensagemTipo("Tipo de ocorrência reativado com sucesso.");
       } else {
-        const tipoCriado = await criarTipoOcorrenciaSupabase(
-          user.escolaId,
-          nomeTipo,
-        );
+        const tipoCriado = await criarTipoOcorrenciaSupabase(user, nomeTipo);
         setTiposOcorrencia((prev) => prev.concat(tipoCriado));
         setMensagemTipo("Tipo de ocorrência adicionado com sucesso.");
       }
@@ -362,6 +360,7 @@ function Coordenador() {
       const tipoAtualizado = await atualizarStatusTipoOcorrenciaSupabase(
         id,
         novoStatusTipo,
+        user,
       );
       setTiposOcorrencia((prev) =>
         prev.map((tipo) => (tipo.id === id ? tipoAtualizado : tipo)),
@@ -404,6 +403,7 @@ function Coordenador() {
         const turmaAtualizada = await atualizarStatusTurmaSupabase(
           turmaExistente.id,
           "ativo",
+          user,
         );
         setTurmasEscolares((prev) =>
           prev.map((turma) =>
@@ -412,7 +412,7 @@ function Coordenador() {
         );
         setMensagemTurma("Turma reativada com sucesso.");
       } else {
-        const turmaCriada = await criarTurmaSupabase(user.escolaId, nomeTurma);
+        const turmaCriada = await criarTurmaSupabase(user, nomeTurma);
         setTurmasEscolares((prev) => prev.concat(turmaCriada));
         setMensagemTurma("Turma adicionada com sucesso.");
       }
@@ -451,6 +451,7 @@ function Coordenador() {
       const turmaAtualizada = await atualizarStatusTurmaSupabase(
         id,
         novoStatusTurma,
+        user,
       );
       setTurmasEscolares((prev) =>
         prev.map((turma) => (turma.id === id ? turmaAtualizada : turma)),

@@ -88,8 +88,8 @@ function Dashboard() {
     }
 
     Promise.all([
-      listarTiposOcorrenciaSupabase(user.escolaId),
-      listarTurmasSupabase(user.escolaId),
+      listarTiposOcorrenciaSupabase(user),
+      listarTurmasSupabase(user),
     ])
       .then(([tipos, turmas]) => {
         if (ativo) {
@@ -106,7 +106,7 @@ function Dashboard() {
     return () => {
       ativo = false;
     };
-  }, [user?.escolaId, user?.origem]);
+  }, [user]);
 
   const dadosDashboard = useMemo(() => {
     if (!user) return null;

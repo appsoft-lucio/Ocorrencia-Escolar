@@ -31,3 +31,18 @@ separam os dados por escola e perfil:
 `rls_policies.sql` mantem as policies atuais em um arquivo separado e
 idempotente. Ele e o arquivo indicado para aplicar ajustes de seguranca em um
 projeto Supabase que ja esta em uso.
+
+## Edge Functions
+
+A funcao `criar-usuario-escola` cria o login no Supabase Auth e o perfil na
+tabela `perfis`. Ela precisa ser publicada no Supabase antes da tela
+`Usuarios` criar acessos reais pela rede.
+
+Secrets necessarios na funcao:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Nunca coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend ou na Vercel do app.
+Essa chave deve ficar somente nos secrets da Edge Function.

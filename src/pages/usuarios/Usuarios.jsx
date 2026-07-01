@@ -11,6 +11,10 @@ import {
   obterPerfisGerenciaveis,
   normalizarPerfil,
 } from "../../data/demoUsers";
+import {
+  criarUsuarioEscolaSupabase,
+  listarUsuariosEscolaSupabase,
+} from "../../services/usuariosService";
 
 const ACESSOS_STORAGE_KEY = "acessosUsuarios";
 
@@ -71,8 +75,11 @@ function loginJaExiste(acessos, escolas, login, chaveAtual) {
 function Usuarios() {
   const { user } = useContext(AuthContext);
   const [acessos, setAcessos] = useState(lerAcessos);
+  const [usuariosSupabase, setUsuariosSupabase] = useState([]);
   const [form, setForm] = useState(FORM_INICIAL);
   const [mensagem, setMensagem] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const usarSupabase = user?.origem === "supabase";
 
   const perfisPermitidos = useMemo(
     () => obterPerfisGerenciaveis(user?.role || ""),
@@ -80,6 +87,20 @@ function Usuarios() {
   );
 
   const usuarios = useMemo(() => {
+    if (usarSupabase) {
+      return usuariosSupabase
+        .filter((usuario) =>
+          perfisPermitidos.includes(normalizarPerfil(usuario.role)),
+        )
+        .sort((a, b) => {
+          const perfilA = perfisPermitidos.indexOf(normalizarPerfil(a.role));
+          const perfilB = perfisPermitidos.indexOf(normalizarPerfil(b.role));
+
+          if (perfilA !== perfilB) return perfilA - perfilB;
+          return (a.nome || "").localeCompare(b.nome || "", "pt-BR");
+        });
+    }
+
     return Object.entries(acessos)
       .map(([chave, acesso]) => ({
         chave,
@@ -98,7 +119,7 @@ function Usuarios() {
         if (perfilA !== perfilB) return perfilA - perfilB;
         return (a.nome || "").localeCompare(b.nome || "", "pt-BR");
       });
-  }, [acessos, perfisPermitidos, user?.escolaId]);
+  }, [acessos, perfisPermitidos, usarSupabase, user?.escolaId, usuariosSupabase]);
 
   const resumo = useMemo(() => {
     const ativos = usuarios.filter((usuario) => usuario.status !== "inativo").length;
@@ -111,8 +132,36 @@ function Usuarios() {
   }, [usuarios]);
 
   useEffect(() => {
+    if (usarSupabase) return;
     salvarAcessos(acessos);
-  }, [acessos]);
+  }, [acessos, usarSupabase]);
+
+  useEffect(() => {
+    let ativo = true;
+
+    if (!usarSupabase || !user?.escolaId || perfisPermitidos.length === 0) {
+      setUsuariosSupabase([]);
+      return undefined;
+    }
+
+    listarUsuariosEscolaSupabase(user, perfisPermitidos)
+      .then((usuariosCarregados) => {
+        if (ativo) {
+          setUsuariosSupabase(usuariosCarregados);
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar usuarios no Supabase:", error);
+        if (ativo) {
+          setMensagem("Nao foi possivel carregar usuarios da rede.");
+          setUsuariosSupabase([]);
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [perfisPermitidos, usarSupabase, user]);
 
   function atualizarCampo(campo, valor) {
     setForm((atual) => ({
@@ -141,10 +190,11 @@ function Usuarios() {
     setMensagem(`Editando ${usuario.nome}.`);
   }
 
-  function salvarUsuario(event) {
+  async function salvarUsuario(event) {
     event.preventDefault();
 
     if (!user) return;
+    if (salvando) return;
 
     if (!form.nome.trim()) {
       setMensagem("Informe o nome completo.");
@@ -176,39 +226,73 @@ function Usuarios() {
       return;
     }
 
-    const escolas = carregarEscolasSistema();
+    setSalvando(true);
 
-    if (loginJaExiste(acessos, escolas, form.login, form.chave)) {
-      setMensagem("Este login ja esta em uso.");
-      return;
+    try {
+      if (usarSupabase) {
+        if (form.chave) {
+          setMensagem("Edicao de usuario da rede ainda nao esta disponivel.");
+          return;
+        }
+
+        const usuarioCriado = await criarUsuarioEscolaSupabase({
+          nome: form.nome.trim(),
+          email: form.login.trim(),
+          senha: form.senha,
+          perfil: form.role,
+          whatsapp: form.whatsapp.trim(),
+          status: form.status,
+        });
+
+        setUsuariosSupabase((atuais) => atuais.concat(usuarioCriado));
+        setMensagem("Usuario da rede cadastrado.");
+        setForm(FORM_INICIAL);
+        return;
+      }
+
+      const escolas = carregarEscolasSistema();
+
+      if (loginJaExiste(acessos, escolas, form.login, form.chave)) {
+        setMensagem("Este login ja esta em uso.");
+        return;
+      }
+
+      const id = form.id || criarIdUsuario();
+      const chave = form.chave || criarChaveUsuario(form.role, id);
+      const usuarioAtualizado = {
+        id,
+        nome: form.nome.trim(),
+        role: form.role,
+        login: form.login.trim(),
+        email: form.login.trim(),
+        emailContato: form.email.trim(),
+        whatsapp: form.whatsapp.trim(),
+        senha: form.senha,
+        status: form.status,
+        escolaId: user.escolaId,
+        escolaNome: user.escolaNome,
+        escolaCidade: user.escolaCidade,
+      };
+
+      setAcessos((atuais) => ({
+        ...atuais,
+        [chave]: usuarioAtualizado,
+      }));
+      setMensagem(form.chave ? "Usuario atualizado." : "Usuario cadastrado.");
+      setForm(FORM_INICIAL);
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel salvar o usuario.");
+    } finally {
+      setSalvando(false);
     }
-
-    const id = form.id || criarIdUsuario();
-    const chave = form.chave || criarChaveUsuario(form.role, id);
-    const usuarioAtualizado = {
-      id,
-      nome: form.nome.trim(),
-      role: form.role,
-      login: form.login.trim(),
-      email: form.login.trim(),
-      emailContato: form.email.trim(),
-      whatsapp: form.whatsapp.trim(),
-      senha: form.senha,
-      status: form.status,
-      escolaId: user.escolaId,
-      escolaNome: user.escolaNome,
-      escolaCidade: user.escolaCidade,
-    };
-
-    setAcessos((atuais) => ({
-      ...atuais,
-      [chave]: usuarioAtualizado,
-    }));
-    setMensagem(form.chave ? "Usuario atualizado." : "Usuario cadastrado.");
-    setForm(FORM_INICIAL);
   }
 
   function alternarStatus(usuario) {
+    if (usarSupabase) {
+      setMensagem("Alterar status de usuario da rede sera feito no proximo passo.");
+      return;
+    }
+
     setAcessos((atuais) => ({
       ...atuais,
       [usuario.chave]: {
@@ -288,7 +372,7 @@ function Usuarios() {
                   <input
                     value={form.login}
                     onChange={(event) => atualizarCampo("login", event.target.value)}
-                    placeholder="login.usuario"
+                    placeholder={usarSupabase ? "email@escola.com" : "login.usuario"}
                   />
                 </label>
 
@@ -341,8 +425,12 @@ function Usuarios() {
                 <button type="button" onClick={limparFormulario}>
                   {form.chave ? "Cancelar edicao" : "Limpar"}
                 </button>
-                <button type="submit">
-                  {form.chave ? "Atualizar usuario" : "Cadastrar usuario"}
+                <button type="submit" disabled={salvando}>
+                  {salvando
+                    ? "Salvando..."
+                    : form.chave
+                      ? "Atualizar usuario"
+                      : "Cadastrar usuario"}
                 </button>
               </div>
             </form>

@@ -74,23 +74,27 @@ function ProfessorCard({
           Detalhes
         </button>
 
-        <button
-          type="button"
-          className="btn-editar"
-          onClick={onEditar}
-          title="Editar professor"
-        >
-          Editar
-        </button>
+        {onEditar && (
+          <button
+            type="button"
+            className="btn-editar"
+            onClick={onEditar}
+            title="Editar professor"
+          >
+            Editar
+          </button>
+        )}
 
-        <button
-          type="button"
-          className={estaInativo ? "btn-reativar" : "btn-desativar"}
-          onClick={onAlternarStatus}
-          title={estaInativo ? "Reativar professor" : "Desativar professor"}
-        >
-          {estaInativo ? "Reativar" : "Desativar"}
-        </button>
+        {onAlternarStatus && (
+          <button
+            type="button"
+            className={estaInativo ? "btn-reativar" : "btn-desativar"}
+            onClick={onAlternarStatus}
+            title={estaInativo ? "Reativar professor" : "Desativar professor"}
+          >
+            {estaInativo ? "Reativar" : "Desativar"}
+          </button>
+        )}
       </div>
     </div>
   );

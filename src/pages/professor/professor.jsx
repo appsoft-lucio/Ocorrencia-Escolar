@@ -4,6 +4,11 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import ProfessorCard from "../../components/Cards/professorCard/professorCard";
 import { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import {
+  atualizarStatusPerfilSupabase,
+  listarProfessoresSupabase,
+} from "../../services/perfisService";
 
 const CINCO_ANOS_EM_MS = 5 * 365 * 24 * 60 * 60 * 1000;
 
@@ -57,8 +62,19 @@ function criarChaveEscola(chave, escolaId) {
   return escolaId ? `${chave}:${escolaId}` : chave;
 }
 
+function criarTurmaProfessorSupabase(professorId, codigo) {
+  return {
+    id: `${professorId}-${codigo}`,
+    codigo,
+    status: "ativo",
+    desativadaEm: null,
+  };
+}
+
 function Professor() {
   const { user } = useContext(AuthContext);
+  const { ocorrencias } = useContext(OcorrenciaContext);
+  const usarSupabase = user?.origem === "supabase";
   const professoresStorageKey = criarChaveEscola("professores", user?.escolaId);
 
   // Estados do modal de criar
@@ -140,8 +156,63 @@ function Professor() {
 
   // Salvar no localStorage sempre que professores mudam
   useEffect(() => {
+    if (usarSupabase) return;
     localStorage.setItem(professoresStorageKey, JSON.stringify(professores));
-  }, [professores, professoresStorageKey]);
+  }, [professores, professoresStorageKey, usarSupabase]);
+
+  useEffect(() => {
+    let ativo = true;
+
+    if (!usarSupabase || !user?.escolaId) return undefined;
+
+    listarProfessoresSupabase(user.escolaId)
+      .then((perfis) => {
+        if (!ativo) return;
+
+        setProfessores(
+          perfis.map((perfil) => {
+            const ocorrenciasProfessor = ocorrencias.filter((ocorrencia) => {
+              const mesmoId = ocorrencia.professorId === perfil.id;
+              const mesmoNome =
+                ocorrencia.professorNome?.toLowerCase() ===
+                perfil.nome.toLowerCase();
+
+              return mesmoId || mesmoNome;
+            });
+            const turmas = Array.from(
+              new Set(
+                ocorrenciasProfessor
+                  .map((ocorrencia) => ocorrencia.turma)
+                  .filter(Boolean),
+              ),
+            ).map((turma) => criarTurmaProfessorSupabase(perfil.id, turma));
+
+            return {
+              id: perfil.id,
+              nome: perfil.nome,
+              disciplina: "Nao informada",
+              turno: "Nao informado",
+              turmas,
+              ocorrencias: ocorrenciasProfessor.length,
+              status: perfil.status,
+              desativadoEm:
+                perfil.status === "inativo" ? perfil.atualizadoEm : null,
+              origem: "supabase",
+            };
+          }),
+        );
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar professores no Supabase:", error);
+        if (ativo) {
+          setMensagem("Nao foi possivel carregar professores do Supabase.");
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [ocorrencias, usarSupabase, user?.escolaId]);
 
   const professoresResumo = useMemo(() => {
     const ativos = professores.filter((professor) => professor.status !== "inativo");
@@ -384,12 +455,40 @@ function Professor() {
     }, 1000);
   };
 
-  const alternarStatusProfessor = (professorId) => {
+  const alternarStatusProfessor = async (professorId) => {
     const professor = professores.find((prof) => prof.id === professorId);
     const estaInativo = professor?.status === "inativo";
     const acao = estaInativo ? "reativar" : "desativar";
 
     if (window.confirm(`Tem certeza que deseja ${acao} este professor?`)) {
+      if (usarSupabase) {
+        try {
+          const perfilAtualizado = await atualizarStatusPerfilSupabase(
+            professorId,
+            estaInativo ? "ativo" : "inativo",
+          );
+          setProfessores((prev) =>
+            prev.map((prof) =>
+              prof.id === professorId
+                ? {
+                    ...prof,
+                    status: perfilAtualizado.status,
+                    desativadoEm:
+                      perfilAtualizado.status === "inativo"
+                        ? perfilAtualizado.atualizadoEm
+                        : null,
+                  }
+                : prof,
+            ),
+          );
+          return;
+        } catch (error) {
+          console.error("Erro ao atualizar professor:", error);
+          setMensagem("Nao foi possivel atualizar o professor.");
+          return;
+        }
+      }
+
       setProfessores((prev) =>
         prev.map((prof) =>
           prof.id === professorId
@@ -756,12 +855,14 @@ function Professor() {
               <h2>Gerenciamento de professores e turmas</h2>
             </div>
 
-            <button
-              className="btn-novo-professor"
-              onClick={() => setAbrirModal(true)}
-            >
-              Novo Professor
-            </button>
+            {!usarSupabase && (
+              <button
+                className="btn-novo-professor"
+                onClick={() => setAbrirModal(true)}
+              >
+                Novo Professor
+              </button>
+            )}
           </div>
 
           <p className="professores-descricao">
@@ -846,7 +947,9 @@ function Professor() {
                   status={professor.status}
                   desativadoEm={professor.desativadoEm}
                   onDetalhes={() => verDetalhes(professor)}
-                  onEditar={() => editarProfessor(professor)}
+                  onEditar={
+                    usarSupabase ? null : () => editarProfessor(professor)
+                  }
                   onAlternarStatus={() => alternarStatusProfessor(professor.id)}
                 />
               ))

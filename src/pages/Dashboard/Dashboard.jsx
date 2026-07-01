@@ -7,6 +7,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import StatsCard from "../../components/Cards/Card";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext.jsx";
+import { useProfessores } from "../../hooks/useProfessores";
 import {
   listarTiposOcorrenciaSupabase,
   listarTurmasSupabase,
@@ -77,6 +78,7 @@ function dataParaOrdenacao(data) {
 function Dashboard() {
   const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
+  const { professores } = useProfessores(user);
   const [cadastrosSupabase, setCadastrosSupabase] = useState({
     tipos: [],
     turmas: [],
@@ -114,7 +116,6 @@ function Dashboard() {
   const dadosDashboard = useMemo(() => {
     if (!user) return null;
 
-    const professores = lerStorage(criarChaveEscola("professores", user.escolaId));
     const turmasEscolares =
       user.origem === "supabase"
         ? cadastrosSupabase.turmas
@@ -238,7 +239,7 @@ function Dashboard() {
       recentes,
       totalVisivel: ocorrenciasVisiveis.length,
     };
-  }, [cadastrosSupabase, ocorrencias, user]);
+  }, [cadastrosSupabase, ocorrencias, professores, user]);
 
   if (!user || !dadosDashboard) {
     return <div className="loading-screen">Carregando sistema...</div>;

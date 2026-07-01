@@ -8,6 +8,7 @@ import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import { useProfessores } from "../../hooks/useProfessores";
 
 const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
 
@@ -78,6 +79,7 @@ function Alunos() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
+  const { professores: professoresCadastrados } = useProfessores(user);
 
   const [pesquisa, setPesquisa] = useState("");
   const [filtroTurma, setFiltroTurma] = useState("");
@@ -96,8 +98,7 @@ function Alunos() {
     if (!user) return [];
     if (isGestao) return ocorrencias;
 
-    const professores = lerStorage(criarChaveEscola("professores", user.escolaId));
-    const professorAtual = professores.find(
+    const professorAtual = professoresCadastrados.find(
       (professor) =>
         professor.id === user.id ||
         normalizarTexto(professor.nome) === normalizarTexto(user.nome),
@@ -112,7 +113,7 @@ function Alunos() {
         normalizarTexto(item.professorNome) === normalizarTexto(user.nome) ||
         turmasDoProfessor.has(item.turma),
     );
-  }, [isGestao, ocorrencias, user]);
+  }, [isGestao, ocorrencias, professoresCadastrados, user]);
 
   const alunos = useMemo(() => {
     const mapa = new Map();

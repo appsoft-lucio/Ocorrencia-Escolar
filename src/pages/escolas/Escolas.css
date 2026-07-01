@@ -117,6 +117,10 @@
   background: var(--cor-destaque);
 }
 
+.escola-item-acoes button:last-child {
+  background: var(--cor-erro-text);
+}
+
 .escola-mensagem {
   padding: 12px;
   margin-bottom: 14px;
@@ -176,7 +180,7 @@
 
 .escola-item dl {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -200,5 +204,26 @@
   .escolas-grid,
   .escolas-resumo {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .escolas-container {
+    padding: 0 14px 24px;
+  }
+
+  .escola-form-duplo,
+  .escola-item dl {
+    grid-template-columns: 1fr;
+  }
+
+  .escola-form-acoes,
+  .escola-item-acoes {
+    flex-wrap: wrap;
+  }
+
+  .escola-form-acoes button,
+  .escola-item-acoes button {
+    flex: 1 1 120px;
   }
 }

@@ -27,6 +27,7 @@ create table public.perfis (
   escola_id uuid references public.escolas(id) on delete set null,
   nome text not null,
   perfil public.perfil_usuario not null,
+  email text,
   whatsapp text,
   status public.status_registro not null default 'ativo',
   created_at timestamptz not null default now(),

@@ -61,7 +61,13 @@ para o perfil dele.
 ## Funcao `criar-escola-direcao`
 
 Cria a escola, cria o login da direcao no Supabase Auth e cria o perfil
-`diretor` vinculado a essa escola.
+`diretor` vinculado a essa escola, com email e telefone.
+
+Antes de usar em projeto ja existente, execute no SQL Editor:
+
+```sql
+alter table public.perfis add column if not exists email text;
+```
 
 Publique com:
 
@@ -73,8 +79,28 @@ Teste esperado:
 
 1. Entre no app como desenvolvedor Supabase.
 2. Abra `Escolas`.
-3. Cadastre uma escola informando email e senha da direcao.
+3. Cadastre uma escola informando email, telefone e senha da direcao.
 4. Saia do app.
 5. Entre com o email e senha da direcao.
 
 A direcao deve entrar vinculada a escola cadastrada.
+
+## Funcao `excluir-escola`
+
+Exclui uma escola pelo painel do desenvolvedor. Antes de remover a escola, apaga
+os usuarios do Supabase Auth vinculados a ela.
+
+Publique com:
+
+```powershell
+npx.cmd supabase@latest functions deploy excluir-escola
+```
+
+Teste esperado:
+
+1. Entre no app como desenvolvedor Supabase.
+2. Abra `Escolas`.
+3. Clique em `Excluir` no card de uma escola de teste.
+4. Confirme a exclusao.
+
+A escola deve sair da lista e os acessos vinculados a ela devem ser removidos.

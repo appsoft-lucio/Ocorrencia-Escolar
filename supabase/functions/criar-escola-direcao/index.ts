@@ -82,12 +82,13 @@ Deno.serve(async (req) => {
   const cidade = normalizarTexto(body.cidade);
   const diretorNome = normalizarTexto(body.diretorNome);
   const diretorEmail = normalizarTexto(body.diretorEmail).toLowerCase();
+  const diretorTelefone = normalizarTexto(body.diretorTelefone);
   const diretorSenha = normalizarTexto(body.diretorSenha);
   const status = body.status === "inativo" ? "inativo" : "ativo";
 
-  if (!nomeEscola || !diretorNome || !diretorEmail || !diretorSenha) {
+  if (!nomeEscola || !diretorNome || !diretorEmail || !diretorTelefone || !diretorSenha) {
     return jsonResponse(
-      { error: "Informe escola, nome, email e senha da direcao." },
+      { error: "Informe escola, nome, email, telefone e senha da direcao." },
       400,
     );
   }
@@ -116,6 +117,7 @@ Deno.serve(async (req) => {
       email_confirm: true,
       user_metadata: {
         nome: diretorNome,
+        whatsapp: diretorTelefone,
         perfil: "diretor",
         escola_id: escolaCriada.id,
       },
@@ -136,6 +138,8 @@ Deno.serve(async (req) => {
     id: usuarioCriado.user.id,
     escola_id: escolaCriada.id,
     nome: diretorNome,
+    email: diretorEmail,
+    whatsapp: diretorTelefone,
     perfil: "diretor",
     status: "ativo",
   });
@@ -154,6 +158,8 @@ Deno.serve(async (req) => {
       escola: {
         ...escolaCriada,
         diretorNome,
+        diretorEmail,
+        diretorTelefone,
         diretorLogin: diretorEmail,
       },
     },

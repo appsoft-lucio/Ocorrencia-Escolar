@@ -125,11 +125,12 @@ Deno.serve(async (req) => {
       id: usuarioCriado.user.id,
       escola_id: escolaId,
       nome,
+      email,
       perfil,
       whatsapp,
       status,
     })
-    .select("id, escola_id, nome, perfil, whatsapp, status, created_at, updated_at")
+    .select("id, escola_id, nome, perfil, email, whatsapp, status, created_at, updated_at")
     .single();
 
   if (criarPerfilError) {

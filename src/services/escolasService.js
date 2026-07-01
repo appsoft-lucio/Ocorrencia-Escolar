@@ -8,6 +8,8 @@ function mapearEscola(row) {
     status: row.status || "ativo",
     diretorNome: row.diretorNome || row.diretor_nome || "",
     diretorLogin: row.diretorLogin || row.diretor_login || "",
+    diretorEmail: row.diretorEmail || row.diretor_email || row.email || "",
+    diretorTelefone: row.diretorTelefone || row.diretor_telefone || row.whatsapp || "",
     diretorSenha: "",
     criadoEm: row.created_at || null,
     atualizadoEm: row.updated_at || null,
@@ -34,7 +36,7 @@ export async function listarEscolasSupabase() {
 
   const { data: diretores, error: diretoresError } = await supabase
     .from("perfis")
-    .select("escola_id, nome")
+    .select("escola_id, nome, email, whatsapp")
     .eq("perfil", "diretor")
     .in("escola_id", escolaIds);
 
@@ -50,7 +52,8 @@ export async function listarEscolasSupabase() {
     mapearEscola({
       ...escola,
       diretor_nome: diretoresPorEscola.get(escola.id)?.nome || "",
-      diretor_login: "",
+      diretor_email: diretoresPorEscola.get(escola.id)?.email || "",
+      diretor_telefone: diretoresPorEscola.get(escola.id)?.whatsapp || "",
     }),
   );
 }
@@ -71,6 +74,44 @@ export async function criarEscolaDirecaoSupabase(dados) {
   return mapearEscola(data.escola);
 }
 
+export async function atualizarEscolaDirecaoSupabase(id, dados) {
+  const { data: escola, error: escolaError } = await supabase
+    .from("escolas")
+    .update({
+      nome: dados.nome,
+      cidade: dados.cidade,
+      status: dados.status,
+    })
+    .eq("id", id)
+    .select("id, nome, cidade, status, created_at, updated_at")
+    .single();
+
+  if (escolaError) {
+    throw new Error("Nao foi possivel atualizar a escola.");
+  }
+
+  const { error: perfilError } = await supabase
+    .from("perfis")
+    .update({
+      nome: dados.diretorNome,
+      email: dados.diretorEmail,
+      whatsapp: dados.diretorTelefone,
+    })
+    .eq("escola_id", id)
+    .eq("perfil", "diretor");
+
+  if (perfilError) {
+    throw new Error("Escola atualizada, mas nao foi possivel atualizar a direcao.");
+  }
+
+  return mapearEscola({
+    ...escola,
+    diretor_nome: dados.diretorNome,
+    diretor_email: dados.diretorEmail,
+    diretor_telefone: dados.diretorTelefone,
+  });
+}
+
 export async function atualizarStatusEscolaSupabase(id, status) {
   const { data, error } = await supabase
     .from("escolas")
@@ -84,4 +125,20 @@ export async function atualizarStatusEscolaSupabase(id, status) {
   }
 
   return mapearEscola(data);
+}
+
+export async function excluirEscolaSupabase(id) {
+  const { data, error } = await supabase.functions.invoke("excluir-escola", {
+    body: { id },
+  });
+
+  if (error) {
+    throw new Error(error.message || "Nao foi possivel excluir a escola.");
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  return true;
 }

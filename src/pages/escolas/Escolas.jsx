@@ -10,8 +10,10 @@ import {
   salvarEscolasSistema,
 } from "../../data/demoUsers";
 import {
+  atualizarEscolaDirecaoSupabase,
   atualizarStatusEscolaSupabase,
   criarEscolaDirecaoSupabase,
+  excluirEscolaSupabase,
   listarEscolasSupabase,
 } from "../../services/escolasService";
 
@@ -21,6 +23,8 @@ const FORM_INICIAL = {
   cidade: "",
   diretorNome: "",
   diretorLogin: "",
+  diretorEmail: "",
+  diretorTelefone: "",
   diretorSenha: "",
   status: "ativo",
 };
@@ -105,6 +109,8 @@ function Escolas() {
       cidade: escola.cidade || "",
       diretorNome: escola.diretorNome || "",
       diretorLogin: escola.diretorLogin || "",
+      diretorEmail: escola.diretorEmail || escola.diretorLogin || "",
+      diretorTelefone: escola.diretorTelefone || "",
       diretorSenha: escola.diretorSenha || "",
       status: escola.status || "ativo",
     });
@@ -122,17 +128,27 @@ function Escolas() {
       return;
     }
 
-    if (!form.id && !form.diretorNome.trim()) {
+    if (!form.diretorNome.trim()) {
       setMensagem("Informe o nome do diretor.");
       return;
     }
 
-    if (!form.id && (!form.diretorLogin.trim() || !form.diretorSenha.trim())) {
+    if (!form.diretorEmail.trim()) {
       setMensagem(
         usarSupabase
-          ? "Informe email e senha da direcao."
-          : "Informe login e senha do diretor.",
+          ? "Informe o email da direcao."
+          : "Informe o email do diretor.",
       );
+      return;
+    }
+
+    if (!form.diretorTelefone.trim()) {
+      setMensagem("Informe o telefone do diretor.");
+      return;
+    }
+
+    if (!form.id && !form.diretorSenha.trim()) {
+      setMensagem("Informe a senha do diretor.");
       return;
     }
 
@@ -141,7 +157,22 @@ function Escolas() {
     try {
       if (usarSupabase) {
         if (form.id) {
-          setMensagem("Edicao de escola da rede sera feita no proximo passo.");
+          const escolaAtualizada = await atualizarEscolaDirecaoSupabase(form.id, {
+            nome: form.nome.trim(),
+            cidade: form.cidade.trim(),
+            diretorNome: form.diretorNome.trim(),
+            diretorEmail: form.diretorEmail.trim(),
+            diretorTelefone: form.diretorTelefone.trim(),
+            status: form.status,
+          });
+
+          setEscolas((atuais) =>
+            atuais.map((escola) =>
+              escola.id === form.id ? escolaAtualizada : escola,
+            ),
+          );
+          setMensagem("Escola atualizada com sucesso.");
+          setForm(FORM_INICIAL);
           return;
         }
 
@@ -149,7 +180,8 @@ function Escolas() {
           nome: form.nome.trim(),
           cidade: form.cidade.trim(),
           diretorNome: form.diretorNome.trim(),
-          diretorEmail: form.diretorLogin.trim(),
+          diretorEmail: form.diretorEmail.trim(),
+          diretorTelefone: form.diretorTelefone.trim(),
           diretorSenha: form.diretorSenha,
           status: form.status,
         });
@@ -164,12 +196,12 @@ function Escolas() {
       const loginEmUso = escolas.some(
         (escola) =>
           escola.id !== id &&
-          escola.diretorLogin.trim().toLowerCase() ===
-            form.diretorLogin.trim().toLowerCase(),
+          (escola.diretorEmail || escola.diretorLogin || "").trim().toLowerCase() ===
+            form.diretorEmail.trim().toLowerCase(),
       );
 
       if (loginEmUso) {
-        setMensagem("Este login de diretor ja esta em uso.");
+        setMensagem("Este email de diretor ja esta em uso.");
         return;
       }
 
@@ -178,7 +210,9 @@ function Escolas() {
         nome: form.nome.trim(),
         cidade: form.cidade.trim(),
         diretorNome: form.diretorNome.trim(),
-        diretorLogin: form.diretorLogin.trim(),
+        diretorLogin: form.diretorEmail.trim(),
+        diretorEmail: form.diretorEmail.trim(),
+        diretorTelefone: form.diretorTelefone.trim(),
         diretorSenha: form.diretorSenha,
         status: form.status,
       };
@@ -237,6 +271,31 @@ function Escolas() {
           : escola,
       ),
     );
+  }
+
+  async function excluirEscola(escolaId) {
+    const escola = escolas.find((item) => item.id === escolaId);
+    if (!escola) return;
+
+    const confirmar = window.confirm(
+      `Excluir a escola "${escola.nome}"? Esta acao nao pode ser desfeita.`,
+    );
+
+    if (!confirmar) return;
+
+    try {
+      if (usarSupabase) {
+        await excluirEscolaSupabase(escolaId);
+      }
+
+      setEscolas((atuais) => atuais.filter((item) => item.id !== escolaId));
+      if (form.id === escolaId) {
+        setForm(FORM_INICIAL);
+      }
+      setMensagem("Escola excluida com sucesso.");
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel excluir a escola.");
+    }
   }
 
   return (
@@ -307,16 +366,30 @@ function Escolas() {
 
               <div className="escola-form-duplo">
                 <label>
-                  {usarSupabase ? "Email da direcao" : "Login do diretor"}
+                  Email do diretor
                   <input
-                    value={form.diretorLogin}
+                    type="email"
+                    value={form.diretorEmail}
                     onChange={(event) =>
-                      atualizarCampo("diretorLogin", event.target.value)
+                      atualizarCampo("diretorEmail", event.target.value)
                     }
-                    placeholder={usarSupabase ? "direcao@escola.com" : "login-diretor"}
+                    placeholder="direcao@escola.com"
                   />
                 </label>
 
+                <label>
+                  Telefone do diretor
+                  <input
+                    value={form.diretorTelefone}
+                    onChange={(event) =>
+                      atualizarCampo("diretorTelefone", event.target.value)
+                    }
+                    placeholder="(31) 99999-9999"
+                  />
+                </label>
+              </div>
+
+              <div className="escola-form-duplo">
                 <label>
                   Senha do diretor
                   <input
@@ -383,19 +456,24 @@ function Escolas() {
                         <dd>{escola.diretorNome || "-"}</dd>
                       </div>
                       <div>
-                        <dt>Login</dt>
-                        <dd>{escola.diretorLogin || "-"}</dd>
+                        <dt>Email</dt>
+                        <dd>{escola.diretorEmail || escola.diretorLogin || "-"}</dd>
+                      </div>
+                      <div>
+                        <dt>Telefone</dt>
+                        <dd>{escola.diretorTelefone || "-"}</dd>
                       </div>
                     </dl>
 
                     <div className="escola-item-acoes">
-                      {!usarSupabase && (
-                        <button type="button" onClick={() => editarEscola(escola)}>
-                          Editar
-                        </button>
-                      )}
+                      <button type="button" onClick={() => editarEscola(escola)}>
+                        Editar
+                      </button>
                       <button type="button" onClick={() => alternarStatus(escola.id)}>
                         {escola.status === "inativo" ? "Ativar" : "Inativar"}
+                      </button>
+                      <button type="button" onClick={() => excluirEscola(escola.id)}>
+                        Excluir
                       </button>
                     </div>
                   </article>

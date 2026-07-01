@@ -8,6 +8,8 @@ export const ESCOLAS_INICIAIS = [
     status: "ativo",
     diretorNome: "Direcao",
     diretorLogin: "diretor-imaculada",
+    diretorEmail: "direcao.imaculada@escola.com",
+    diretorTelefone: "",
     diretorSenha: "123",
   },
   {
@@ -17,6 +19,8 @@ export const ESCOLAS_INICIAIS = [
     status: "ativo",
     diretorNome: "Direcao",
     diretorLogin: "diretor-filinha",
+    diretorEmail: "direcao.filinha@escola.com",
+    diretorTelefone: "",
     diretorSenha: "123",
   },
 ];
@@ -102,6 +106,8 @@ function normalizarEscola(escola) {
     status: escola.status || escolaInicial?.status || "ativo",
     diretorNome: escola.diretorNome || escolaInicial?.diretorNome || "Direcao",
     diretorLogin: escola.diretorLogin || escolaInicial?.diretorLogin || "",
+    diretorEmail: escola.diretorEmail || escola.diretorLogin || escolaInicial?.diretorEmail || "",
+    diretorTelefone: escola.diretorTelefone || escolaInicial?.diretorTelefone || "",
     diretorSenha: escola.diretorSenha || escolaInicial?.diretorSenha || "",
   };
 }
@@ -144,7 +150,9 @@ function encontrarDiretorDaEscola(login, senha) {
   const escola = carregarEscolasSistema().find(
     (item) =>
       item.status !== "inativo" &&
-      normalizarLogin(item.diretorLogin) === loginNormalizado &&
+      [item.diretorLogin, item.diretorEmail].some(
+        (loginDiretor) => normalizarLogin(loginDiretor || "") === loginNormalizado,
+      ) &&
       item.diretorSenha === senha,
   );
 
@@ -152,7 +160,7 @@ function encontrarDiretorDaEscola(login, senha) {
 
   return {
     id: `direcao-${escola.id}`,
-    login: escola.diretorLogin,
+    login: escola.diretorEmail || escola.diretorLogin,
     nome: escola.diretorNome,
     role: "diretor",
     escolaId: escola.id,

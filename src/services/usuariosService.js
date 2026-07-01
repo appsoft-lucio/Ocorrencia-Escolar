@@ -23,7 +23,7 @@ export async function listarUsuariosEscolaSupabase(user, perfisPermitidos = []) 
 
   const { data, error } = await supabase
     .from("perfis")
-    .select("id, escola_id, nome, perfil, whatsapp, status, created_at, updated_at")
+    .select("id, escola_id, nome, perfil, email, whatsapp, status, created_at, updated_at")
     .eq("escola_id", user.escolaId)
     .in("perfil", perfisPermitidos)
     .order("nome", { ascending: true });

@@ -5,16 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext";
-import { podeGerenciarUsuarios } from "../../data/demoUsers";
-
-const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
+import {
+  MODULOS,
+  perfilDesenvolvedor,
+  podeAcessarModulo,
+} from "../../utils/permissoes";
 
 function Sidebar() {
   const { logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const isGestao = GESTAO_ROLES.includes(user?.role);
-  const isDesenvolvedor = user?.role === "desenvolvedor";
-  const podeVerUsuarios = podeGerenciarUsuarios(user?.role || "");
+  const isDesenvolvedor = perfilDesenvolvedor(user?.role);
 
   function handleLogout() {
     logout();
@@ -59,25 +59,25 @@ function Sidebar() {
                 <Link to="/alunos">Alunos</Link>
               </li>
 
-              {isGestao && (
+              {podeAcessarModulo(user, MODULOS.PROFESSORES) && (
                 <li>
                   <Link to="/professores">Professores</Link>
                 </li>
               )}
 
-              {podeVerUsuarios && (
+              {podeAcessarModulo(user, MODULOS.USUARIOS) && (
                 <li>
                   <Link to="/usuarios">Usuarios</Link>
                 </li>
               )}
 
-              {isGestao && (
+              {podeAcessarModulo(user, MODULOS.COORDENADOR) && (
                 <li>
                   <Link to="/coordenador">Coordenador</Link>
                 </li>
               )}
 
-              {isGestao && (
+              {podeAcessarModulo(user, MODULOS.RELATORIOS) && (
                 <li>
                   <Link to="/relatorios">Relatorios</Link>
                 </li>

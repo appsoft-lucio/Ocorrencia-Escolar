@@ -17,31 +17,7 @@ import Usuarios from "./pages/usuarios/Usuarios.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { OcorrenciaProvider } from "./context/OcorrenciaContext.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
-
-const PERFIS_ESCOLA = [
-  "diretor",
-  "direcao",
-  "vice_diretor",
-  "coordenador",
-  "coordenacao",
-  "professor",
-];
-
-const PERFIS_GESTAO = [
-  "diretor",
-  "direcao",
-  "vice_diretor",
-  "coordenador",
-  "coordenacao",
-];
-
-const PERFIS_USUARIOS = [
-  "diretor",
-  "direcao",
-  "vice_diretor",
-  "coordenador",
-  "coordenacao",
-];
+import { MODULOS } from "./utils/permissoes";
 
 function App() {
   return (
@@ -56,7 +32,7 @@ function App() {
             <Route
               path="/escolas"
               element={
-                <PrivateRoute allowedRoles={["desenvolvedor"]}>
+                <PrivateRoute modulo={MODULOS.ESCOLAS}>
                   <Escolas />
                 </PrivateRoute>
               }
@@ -64,7 +40,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
+                <PrivateRoute modulo={MODULOS.DASHBOARD}>
                   <Dashboard />
                 </PrivateRoute>
               }
@@ -72,7 +48,7 @@ function App() {
             <Route
               path="/ocorrencias"
               element={
-                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
+                <PrivateRoute modulo={MODULOS.OCORRENCIAS}>
                   <Ocorrencias />
                 </PrivateRoute>
               }
@@ -80,7 +56,7 @@ function App() {
             <Route
               path="/alunos"
               element={
-                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
+                <PrivateRoute modulo={MODULOS.ALUNOS}>
                   <Alunos />
                 </PrivateRoute>
               }
@@ -88,7 +64,7 @@ function App() {
             <Route
               path="/professores"
               element={
-                <PrivateRoute allowedRoles={PERFIS_GESTAO}>
+                <PrivateRoute modulo={MODULOS.PROFESSORES}>
                   <Professor />
                 </PrivateRoute>
               }
@@ -96,7 +72,7 @@ function App() {
             <Route
               path="/relatorios"
               element={
-                <PrivateRoute allowedRoles={PERFIS_GESTAO}>
+                <PrivateRoute modulo={MODULOS.RELATORIOS}>
                   <Relatorios />
                 </PrivateRoute>
               }
@@ -104,7 +80,7 @@ function App() {
             <Route
               path="/configuracao"
               element={
-                <PrivateRoute allowedRoles={PERFIS_ESCOLA}>
+                <PrivateRoute modulo={MODULOS.CONFIGURACAO}>
                   <Configuracao />
                 </PrivateRoute>
               }
@@ -112,7 +88,7 @@ function App() {
             <Route
               path="/usuarios"
               element={
-                <PrivateRoute allowedRoles={PERFIS_USUARIOS}>
+                <PrivateRoute modulo={MODULOS.USUARIOS}>
                   <Usuarios />
                 </PrivateRoute>
               }
@@ -120,7 +96,7 @@ function App() {
             <Route
               path="/coordenador"
               element={
-                <PrivateRoute allowedRoles={PERFIS_GESTAO}>
+                <PrivateRoute modulo={MODULOS.COORDENADOR}>
                   <Coordenador />
                 </PrivateRoute>
               }

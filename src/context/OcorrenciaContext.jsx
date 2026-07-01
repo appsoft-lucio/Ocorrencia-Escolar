@@ -39,7 +39,7 @@ export function OcorrenciaProvider({ children }) {
       setLoading(true);
       setStoragePronto(false);
 
-      listarOcorrenciasSupabase()
+      listarOcorrenciasSupabase(user)
         .then((dados) => {
           if (ativo) {
             setOcorrencias(dados);
@@ -90,7 +90,7 @@ export function OcorrenciaProvider({ children }) {
     return () => {
       ativo = false;
     };
-  }, [storageKey, usarSupabase]);
+  }, [storageKey, usarSupabase, user]);
 
   useEffect(() => {
     if (usarSupabase || !storageKey || !storagePronto) return;
@@ -107,7 +107,7 @@ export function OcorrenciaProvider({ children }) {
       };
 
       if (usarSupabase) {
-        const ocorrenciaSalva = await criarOcorrenciaSupabase(novaOcorrencia);
+        const ocorrenciaSalva = await criarOcorrenciaSupabase(novaOcorrencia, user);
         setOcorrencias((ocorrenciasAtuais) => [
           ocorrenciaSalva,
           ...ocorrenciasAtuais,
@@ -121,7 +121,7 @@ export function OcorrenciaProvider({ children }) {
       ]);
       return novaOcorrencia;
     },
-    [usarSupabase, user?.escolaId, user?.escolaNome],
+    [usarSupabase, user],
   );
 
   const updateOcorrenciaStatus = useCallback(
@@ -130,6 +130,7 @@ export function OcorrenciaProvider({ children }) {
         const ocorrenciaAtualizada = await atualizarStatusOcorrenciaSupabase(
           id,
           statusData,
+          user,
         );
         setOcorrencias((ocorrenciasAtuais) =>
           ocorrenciasAtuais.map((ocorrencia) =>
@@ -146,7 +147,7 @@ export function OcorrenciaProvider({ children }) {
       );
       return statusData;
     },
-    [usarSupabase],
+    [usarSupabase, user],
   );
 
   return (

@@ -1,4 +1,23 @@
 import { supabase } from "./supabaseClient";
+import { perfilGestao } from "../utils/permissoes";
+
+const CAMPOS_OCORRENCIA = `
+  id,
+  escola_id,
+  professor_id,
+  professor_nome,
+  alunos,
+  disciplina,
+  turno,
+  turma,
+  horario,
+  tipos,
+  observacao,
+  status,
+  status_atualizado_por,
+  status_atualizado_em,
+  created_at
+`;
 
 function formatarData(data) {
   if (!data) return "";
@@ -28,29 +47,26 @@ export function mapearOcorrenciaSupabase(row) {
   };
 }
 
-export async function listarOcorrenciasSupabase() {
-  const { data, error } = await supabase
+function validarUsuarioEscola(user) {
+  if (!user?.escolaId) {
+    throw new Error("Usuario sem escola vinculada.");
+  }
+}
+
+export async function listarOcorrenciasSupabase(user) {
+  validarUsuarioEscola(user);
+
+  let query = supabase
     .from("ocorrencias")
-    .select(
-      `
-        id,
-        escola_id,
-        professor_id,
-        professor_nome,
-        alunos,
-        disciplina,
-        turno,
-        turma,
-        horario,
-        tipos,
-        observacao,
-        status,
-        status_atualizado_por,
-        status_atualizado_em,
-        created_at
-      `,
-    )
+    .select(CAMPOS_OCORRENCIA)
+    .eq("escola_id", user.escolaId)
     .order("created_at", { ascending: false });
+
+  if (!perfilGestao(user.role)) {
+    query = query.eq("professor_id", user.id);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error("Nao foi possivel carregar as ocorrencias.");
@@ -59,13 +75,15 @@ export async function listarOcorrenciasSupabase() {
   return (data || []).map(mapearOcorrenciaSupabase);
 }
 
-export async function criarOcorrenciaSupabase(ocorrencia) {
+export async function criarOcorrenciaSupabase(ocorrencia, user) {
+  validarUsuarioEscola(user);
+
   const { data, error } = await supabase
     .from("ocorrencias")
     .insert({
-      escola_id: ocorrencia.escolaId,
-      professor_id: ocorrencia.professorId,
-      professor_nome: ocorrencia.professorNome,
+      escola_id: user.escolaId,
+      professor_id: user.id,
+      professor_nome: user.nome,
       alunos: ocorrencia.alunos || [],
       disciplina: ocorrencia.disciplina,
       turno: ocorrencia.turno,
@@ -75,25 +93,7 @@ export async function criarOcorrenciaSupabase(ocorrencia) {
       observacao: ocorrencia.observacao || null,
       status: ocorrencia.status || "Pendente",
     })
-    .select(
-      `
-        id,
-        escola_id,
-        professor_id,
-        professor_nome,
-        alunos,
-        disciplina,
-        turno,
-        turma,
-        horario,
-        tipos,
-        observacao,
-        status,
-        status_atualizado_por,
-        status_atualizado_em,
-        created_at
-      `,
-    )
+    .select(CAMPOS_OCORRENCIA)
     .single();
 
   if (error) {
@@ -103,7 +103,13 @@ export async function criarOcorrenciaSupabase(ocorrencia) {
   return mapearOcorrenciaSupabase(data);
 }
 
-export async function atualizarStatusOcorrenciaSupabase(id, statusData) {
+export async function atualizarStatusOcorrenciaSupabase(id, statusData, user) {
+  validarUsuarioEscola(user);
+
+  if (!perfilGestao(user.role)) {
+    throw new Error("Usuario sem permissao para atualizar status.");
+  }
+
   const { data, error } = await supabase
     .from("ocorrencias")
     .update({
@@ -112,25 +118,8 @@ export async function atualizarStatusOcorrenciaSupabase(id, statusData) {
       status_atualizado_em: new Date().toISOString(),
     })
     .eq("id", id)
-    .select(
-      `
-        id,
-        escola_id,
-        professor_id,
-        professor_nome,
-        alunos,
-        disciplina,
-        turno,
-        turma,
-        horario,
-        tipos,
-        observacao,
-        status,
-        status_atualizado_por,
-        status_atualizado_em,
-        created_at
-      `,
-    )
+    .eq("escola_id", user.escolaId)
+    .select(CAMPOS_OCORRENCIA)
     .single();
 
   if (error) {

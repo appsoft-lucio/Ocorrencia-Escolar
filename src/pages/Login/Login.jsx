@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { encontrarUsuarioDemo } from "../../data/demoUsers";
+import { obterRotaInicial } from "../../utils/permissoes";
 
 function Login() {
   const [userName, setUserName] = useState("");
@@ -17,7 +18,7 @@ function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate(user.role === "desenvolvedor" ? "/escolas" : "/dashboard");
+      navigate(obterRotaInicial(user));
     }
   }, [user, navigate]);
 

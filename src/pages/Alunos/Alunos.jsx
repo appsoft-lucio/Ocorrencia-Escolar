@@ -9,8 +9,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import { useProfessores } from "../../hooks/useProfessores";
-
-const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
+import { perfilGestao } from "../../utils/permissoes";
 
 function lerStorage(chave, fallback = []) {
   try {
@@ -92,7 +91,7 @@ function Alunos() {
   const [responsavelPedagogico, setResponsavelPedagogico] = useState("");
   const [responsavelDirecao, setResponsavelDirecao] = useState("");
 
-  const isGestao = GESTAO_ROLES.includes(user?.role);
+  const isGestao = perfilGestao(user?.role);
 
   const ocorrenciasVisiveis = useMemo(() => {
     if (!user) return [];

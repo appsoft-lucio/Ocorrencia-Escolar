@@ -5,8 +5,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext.jsx";
-
-const GESTAO_ROLES = ["direcao", "coordenacao"];
+import { normalizarPerfil, perfilGestao } from "../../utils/permissoes";
 
 function lerStorage(chave, fallback = []) {
   try {
@@ -49,9 +48,12 @@ function Configuracao() {
   const [mensagemAcesso, setMensagemAcesso] = useState("");
   const [acessos, setAcessos] = useState(() => lerStorage("acessosUsuarios", {}));
 
-  const isDirecao = ["diretor", "direcao"].includes(user?.role);
-  const isCoordenacao = GESTAO_ROLES.includes(user?.role) && !isDirecao;
-  const isGestao = GESTAO_ROLES.includes(user?.role);
+  const perfilAtual = normalizarPerfil(user?.role);
+  const isDirecao = ["diretor", "direcao"].includes(perfilAtual);
+  const isCoordenacao =
+    ["coordenador", "coordenacao", "vice_diretor"].includes(perfilAtual) &&
+    !isDirecao;
+  const isGestao = perfilGestao(perfilAtual);
 
   const professores = useMemo(
     () => lerStorage(criarChaveEscola("professores", user?.escolaId)),

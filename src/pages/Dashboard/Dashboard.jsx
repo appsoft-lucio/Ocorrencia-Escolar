@@ -12,8 +12,7 @@ import {
   listarTiposOcorrenciaSupabase,
   listarTurmasSupabase,
 } from "../../services/cadastrosEscolaresService";
-
-const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
+import { perfilGestao } from "../../utils/permissoes";
 
 function lerStorage(chave, fallback = []) {
   try {
@@ -44,10 +43,6 @@ function normalizarTurmasProfessor(turmas = []) {
       return turma.codigo || turma.nome || "";
     })
     .filter(Boolean);
-}
-
-function perfilGestao(role) {
-  return GESTAO_ROLES.includes(normalizarTexto(role));
 }
 
 function nomePerfil(role) {

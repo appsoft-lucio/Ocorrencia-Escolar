@@ -9,6 +9,7 @@ import {
   listarTiposOcorrenciaSupabase,
   listarTurmasSupabase,
 } from "../../services/cadastrosEscolaresService";
+import { perfilGestao } from "../../utils/permissoes";
 import FormularioOcorrencia from "./components/FormularioOcorrencia";
 import ListaOcorrencias from "./components/ListaOcorrencias";
 
@@ -168,8 +169,6 @@ const FILTROS_INICIAIS = {
   turno: "",
 };
 
-const GESTAO_ROLES = ["diretor", "direcao", "vice_diretor", "coordenador", "coordenacao"];
-
 const STATUS_INICIAL = "Pendente";
 const STATUS_FINAIS = ["Confirmada", "Não confirmada", "Cancelada"];
 const VISAO_INICIAL = "novas";
@@ -269,7 +268,7 @@ function Ocorrencias() {
   );
   const notificacaoTimerRef = useRef(null);
   const reconhecimentoVozRef = useRef(null);
-  const isGestao = GESTAO_ROLES.includes(user?.role);
+  const isGestao = perfilGestao(user?.role);
   const usarSupabase = user?.origem === "supabase";
   const vozDisponivel = typeof window !== "undefined" && Boolean(obterReconhecimentoVoz());
 
@@ -482,7 +481,7 @@ function Ocorrencias() {
 
     return ocorrencias.filter(
       (item) =>
-        GESTAO_ROLES.includes(user.role) ||
+        perfilGestao(user.role) ||
         item.professorId === user.id,
     );
   }, [ocorrencias, user]);

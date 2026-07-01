@@ -193,23 +193,37 @@ create policy "usuario ve o proprio perfil"
 on public.perfis
 for select
 to authenticated
-using (
-  id = auth.uid()
-  or public.eh_desenvolvedor()
-  or (public.eh_gestao() and escola_id = public.escola_atual())
-);
+using (id = auth.uid());
 
-create policy "gestao gerencia perfis da escola"
+create policy "desenvolvedor gerencia perfis"
 on public.perfis
 for all
 to authenticated
+using (public.eh_desenvolvedor())
+with check (public.eh_desenvolvedor());
+
+create policy "gestao ve perfis da escola"
+on public.perfis
+for select
+to authenticated
 using (
-  public.eh_desenvolvedor()
-  or (public.eh_gestao() and escola_id = public.escola_atual())
+  public.eh_gestao()
+  and escola_id = public.escola_atual()
+);
+
+create policy "gestao atualiza status de professores"
+on public.perfis
+for update
+to authenticated
+using (
+  public.eh_gestao()
+  and escola_id = public.escola_atual()
+  and perfil = 'professor'
 )
 with check (
-  public.eh_desenvolvedor()
-  or (public.eh_gestao() and escola_id = public.escola_atual())
+  public.eh_gestao()
+  and escola_id = public.escola_atual()
+  and perfil = 'professor'
 );
 
 create policy "turmas da escola"

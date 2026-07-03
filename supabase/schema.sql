@@ -43,6 +43,7 @@ create table public.turmas (
   id uuid primary key default gen_random_uuid(),
   escola_id uuid not null references public.escolas(id) on delete cascade,
   codigo text not null,
+  turno text,
   status public.status_registro not null default 'ativo',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

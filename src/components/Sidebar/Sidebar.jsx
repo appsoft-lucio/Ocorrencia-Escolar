@@ -59,6 +59,10 @@ function Sidebar() {
                 <Link to="/alunos">Alunos</Link>
               </li>
 
+              <li>
+                <Link to="/turmas">Turmas</Link>
+              </li>
+
               {podeAcessarModulo(user, MODULOS.PROFESSORES) && (
                 <li>
                   <Link to="/professores">Professores</Link>

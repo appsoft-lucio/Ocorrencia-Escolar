@@ -8,6 +8,7 @@ import Login from "./pages/Login/Login.jsx";
 import RecuperarSenha from "./pages/recuperarSenha/recuperarSenha.jsx";
 import Ocorrencias from "./pages/Ocorrencias/Ocorrencias.jsx";
 import Alunos from "./pages/Alunos/Alunos.jsx";
+import Turmas from "./pages/turmas/Turmas.jsx";
 import Professor from "./pages/professor/professor.jsx";
 import Relatorios from "./pages/relatorios/relatorios.jsx";
 import Configuracao from "./pages/configuracao/configuracao.jsx";
@@ -57,6 +58,14 @@ function App() {
               element={
                 <PrivateRoute modulo={MODULOS.ALUNOS}>
                   <Alunos />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/turmas"
+              element={
+                <PrivateRoute modulo={MODULOS.TURMAS}>
+                  <Turmas />
                 </PrivateRoute>
               }
             />

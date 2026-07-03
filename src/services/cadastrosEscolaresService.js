@@ -2,7 +2,8 @@ import { supabase } from "./supabaseClient";
 import { perfilGestao } from "../utils/permissoes";
 
 const CAMPOS_TIPO = "id, nome, status, created_at, updated_at";
-const CAMPOS_TURMA = "id, codigo, status, created_at, updated_at";
+const CAMPOS_TURMA = "id, codigo, turno, status, created_at, updated_at";
+const CAMPOS_TURMA_BASE = "id, codigo, status, created_at, updated_at";
 
 function mapearTipo(row) {
   return {
@@ -18,6 +19,8 @@ function mapearTurma(row) {
   return {
     id: row.id,
     nome: row.codigo,
+    codigo: row.codigo,
+    turno: row.turno || "",
     status: row.status || "ativo",
     criadoEm: row.created_at || null,
     desativadoEm: row.status === "inativo" ? row.updated_at : null,
@@ -101,6 +104,20 @@ export async function listarTurmasSupabase(user) {
     .eq("escola_id", user.escolaId)
     .order("codigo", { ascending: true });
 
+  if (error?.code === "42703") {
+    const { data: dataBase, error: errorBase } = await supabase
+      .from("turmas")
+      .select(CAMPOS_TURMA_BASE)
+      .eq("escola_id", user.escolaId)
+      .order("codigo", { ascending: true });
+
+    if (errorBase) {
+      throw new Error("Nao foi possivel carregar as turmas.");
+    }
+
+    return (dataBase || []).map(mapearTurma);
+  }
+
   if (error) {
     throw new Error("Nao foi possivel carregar as turmas.");
   }
@@ -108,18 +125,36 @@ export async function listarTurmasSupabase(user) {
   return (data || []).map(mapearTurma);
 }
 
-export async function criarTurmaSupabase(user, codigo) {
+export async function criarTurmaSupabase(user, codigo, turno = "") {
   validarGestao(user);
+
+  const payload = {
+    escola_id: user.escolaId,
+    codigo,
+    turno: turno || null,
+    status: "ativo",
+  };
 
   const { data, error } = await supabase
     .from("turmas")
-    .insert({
-      escola_id: user.escolaId,
-      codigo,
-      status: "ativo",
-    })
+    .insert(payload)
     .select(CAMPOS_TURMA)
     .single();
+
+  if (error?.code === "42703") {
+    const { turno: _turno, ...payloadBase } = payload;
+    const { data: dataBase, error: errorBase } = await supabase
+      .from("turmas")
+      .insert(payloadBase)
+      .select(CAMPOS_TURMA_BASE)
+      .single();
+
+    if (errorBase) {
+      throw new Error("Nao foi possivel salvar a turma.");
+    }
+
+    return mapearTurma(dataBase);
+  }
 
   if (error) {
     throw new Error("Nao foi possivel salvar a turma.");
@@ -138,6 +173,22 @@ export async function atualizarStatusTurmaSupabase(id, status, user) {
     .eq("escola_id", user.escolaId)
     .select(CAMPOS_TURMA)
     .single();
+
+  if (error?.code === "42703") {
+    const { data: dataBase, error: errorBase } = await supabase
+      .from("turmas")
+      .update({ status })
+      .eq("id", id)
+      .eq("escola_id", user.escolaId)
+      .select(CAMPOS_TURMA_BASE)
+      .single();
+
+    if (errorBase) {
+      throw new Error("Nao foi possivel atualizar a turma.");
+    }
+
+    return mapearTurma(dataBase);
+  }
 
   if (error) {
     throw new Error("Nao foi possivel atualizar a turma.");

@@ -26,6 +26,17 @@ function normalizarTexto(valor = "") {
   return valor.toString().trim();
 }
 
+function gerarAuthEmail(login: string) {
+  const usuario = login
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return `${usuario || "usuario"}@login.ocorrencia-escolar.local`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -82,6 +93,7 @@ Deno.serve(async (req) => {
   const nome = normalizarTexto(body.nome);
   const login = normalizarTexto(body.login).toLowerCase();
   const email = normalizarTexto(body.email).toLowerCase();
+  const authEmail = gerarAuthEmail(login);
   const senha = normalizarTexto(body.senha);
   const perfil = normalizarTexto(body.perfil);
   const whatsapp = normalizarTexto(body.whatsapp);
@@ -120,12 +132,13 @@ Deno.serve(async (req) => {
 
   const { data: usuarioCriado, error: criarUsuarioError } =
     await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: authEmail,
       password: senha,
       email_confirm: true,
       user_metadata: {
         nome,
         login,
+        email,
         perfil,
         escola_id: escolaId,
       },
@@ -146,6 +159,7 @@ Deno.serve(async (req) => {
       nome,
       login,
       email,
+      auth_email: authEmail,
       perfil,
       whatsapp,
       status,

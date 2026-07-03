@@ -7,6 +7,9 @@ add column if not exists email text;
 alter table public.perfis
 add column if not exists login text;
 
+alter table public.perfis
+add column if not exists auth_email text;
+
 create index if not exists perfis_email_idx
 on public.perfis (email);
 
@@ -21,7 +24,7 @@ security definer
 stable
 set search_path = public
 as $$
-  select email
+  select coalesce(auth_email, email)
   from public.perfis
   where lower(login) = lower(trim(usuario_login))
     and status = 'ativo'

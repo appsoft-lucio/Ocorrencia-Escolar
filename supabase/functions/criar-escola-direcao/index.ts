@@ -20,6 +20,17 @@ function normalizarTexto(valor = "") {
   return valor.toString().trim();
 }
 
+function gerarAuthEmail(login: string) {
+  const usuario = login
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return `${usuario || "usuario"}@login.ocorrencia-escolar.local`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -83,6 +94,7 @@ Deno.serve(async (req) => {
   const diretorNome = normalizarTexto(body.diretorNome);
   const diretorLogin = normalizarTexto(body.diretorLogin).toLowerCase();
   const diretorEmail = normalizarTexto(body.diretorEmail).toLowerCase();
+  const diretorAuthEmail = gerarAuthEmail(diretorLogin);
   const diretorTelefone = normalizarTexto(body.diretorTelefone);
   const diretorSenha = normalizarTexto(body.diretorSenha);
   const status = body.status === "inativo" ? "inativo" : "ativo";
@@ -134,12 +146,13 @@ Deno.serve(async (req) => {
 
   const { data: usuarioCriado, error: criarUsuarioError } =
     await supabaseAdmin.auth.admin.createUser({
-      email: diretorEmail,
+      email: diretorAuthEmail,
       password: diretorSenha,
       email_confirm: true,
       user_metadata: {
         nome: diretorNome,
         login: diretorLogin,
+        email: diretorEmail,
         whatsapp: diretorTelefone,
         perfil: "diretor",
         escola_id: escolaCriada.id,
@@ -163,6 +176,7 @@ Deno.serve(async (req) => {
     nome: diretorNome,
     login: diretorLogin,
     email: diretorEmail,
+    auth_email: diretorAuthEmail,
     whatsapp: diretorTelefone,
     perfil: "diretor",
     status: "ativo",

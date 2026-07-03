@@ -49,7 +49,7 @@ security definer
 stable
 set search_path = public
 as $$
-  select email
+  select coalesce(auth_email, email)
   from public.perfis
   where lower(login) = lower(trim(usuario_login))
     and status = 'ativo'

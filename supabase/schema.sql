@@ -29,6 +29,7 @@ create table public.perfis (
   login text,
   perfil public.perfil_usuario not null,
   email text,
+  auth_email text,
   whatsapp text,
   status public.status_registro not null default 'ativo',
   created_at timestamptz not null default now(),
@@ -90,6 +91,7 @@ create table public.ocorrencias (
 create index escolas_status_idx on public.escolas(status);
 create index perfis_escola_id_idx on public.perfis(escola_id);
 create index perfis_perfil_idx on public.perfis(perfil);
+create index perfis_email_idx on public.perfis(email);
 create unique index perfis_login_unique_idx on public.perfis (lower(login)) where login is not null;
 create index turmas_escola_id_idx on public.turmas(escola_id);
 create index tipos_ocorrencia_escola_id_idx on public.tipos_ocorrencia(escola_id);
@@ -179,7 +181,7 @@ security definer
 stable
 set search_path = public
 as $$
-  select email
+  select coalesce(auth_email, email)
   from public.perfis
   where lower(login) = lower(trim(usuario_login))
     and status = 'ativo'

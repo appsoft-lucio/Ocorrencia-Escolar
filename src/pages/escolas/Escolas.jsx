@@ -133,6 +133,11 @@ function Escolas() {
       return;
     }
 
+    if (!form.diretorLogin.trim()) {
+      setMensagem("Informe o usuario do diretor.");
+      return;
+    }
+
     if (!form.diretorEmail.trim()) {
       setMensagem(
         usarSupabase
@@ -161,6 +166,7 @@ function Escolas() {
             nome: form.nome.trim(),
             cidade: form.cidade.trim(),
             diretorNome: form.diretorNome.trim(),
+            diretorLogin: form.diretorLogin.trim(),
             diretorEmail: form.diretorEmail.trim(),
             diretorTelefone: form.diretorTelefone.trim(),
             status: form.status,
@@ -180,6 +186,7 @@ function Escolas() {
           nome: form.nome.trim(),
           cidade: form.cidade.trim(),
           diretorNome: form.diretorNome.trim(),
+          diretorLogin: form.diretorLogin.trim(),
           diretorEmail: form.diretorEmail.trim(),
           diretorTelefone: form.diretorTelefone.trim(),
           diretorSenha: form.diretorSenha,
@@ -196,12 +203,12 @@ function Escolas() {
       const loginEmUso = escolas.some(
         (escola) =>
           escola.id !== id &&
-          (escola.diretorEmail || escola.diretorLogin || "").trim().toLowerCase() ===
-            form.diretorEmail.trim().toLowerCase(),
+          (escola.diretorLogin || "").trim().toLowerCase() ===
+            form.diretorLogin.trim().toLowerCase(),
       );
 
       if (loginEmUso) {
-        setMensagem("Este email de diretor ja esta em uso.");
+        setMensagem("Este usuario de diretor ja esta em uso.");
         return;
       }
 
@@ -210,7 +217,7 @@ function Escolas() {
         nome: form.nome.trim(),
         cidade: form.cidade.trim(),
         diretorNome: form.diretorNome.trim(),
-        diretorLogin: form.diretorEmail.trim(),
+        diretorLogin: form.diretorLogin.trim(),
         diretorEmail: form.diretorEmail.trim(),
         diretorTelefone: form.diretorTelefone.trim(),
         diretorSenha: form.diretorSenha,
@@ -364,6 +371,17 @@ function Escolas() {
                 />
               </label>
 
+              <label>
+                Usuario do diretor
+                <input
+                  value={form.diretorLogin}
+                  onChange={(event) =>
+                    atualizarCampo("diretorLogin", event.target.value)
+                  }
+                  placeholder="direcao.imaculada"
+                />
+              </label>
+
               <div className="escola-form-duplo">
                 <label>
                   Email do diretor
@@ -456,8 +474,12 @@ function Escolas() {
                         <dd>{escola.diretorNome || "-"}</dd>
                       </div>
                       <div>
+                        <dt>Usuario</dt>
+                        <dd>{escola.diretorLogin || "-"}</dd>
+                      </div>
+                      <div>
                         <dt>Email</dt>
-                        <dd>{escola.diretorEmail || escola.diretorLogin || "-"}</dd>
+                        <dd>{escola.diretorEmail || "-"}</dd>
                       </div>
                       <div>
                         <dt>Telefone</dt>

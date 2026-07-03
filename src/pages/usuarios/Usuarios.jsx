@@ -62,7 +62,7 @@ function loginJaExiste(acessos, escolas, login, chaveAtual) {
   const loginDeUsuario = Object.entries(acessos).some(([chave, acesso]) => {
     if (chave === chaveAtual) return false;
 
-    return normalizarLogin(acesso.email || acesso.login || chave) === loginNormalizado;
+    return normalizarLogin(acesso.login || chave) === loginNormalizado;
   });
 
   const loginDeDiretor = escolas.some(
@@ -237,7 +237,8 @@ function Usuarios() {
 
         const usuarioCriado = await criarUsuarioEscolaSupabase({
           nome: form.nome.trim(),
-          email: form.login.trim(),
+          login: form.login.trim(),
+          email: form.email.trim(),
           senha: form.senha,
           perfil: form.role,
           whatsapp: form.whatsapp.trim(),
@@ -264,7 +265,7 @@ function Usuarios() {
         nome: form.nome.trim(),
         role: form.role,
         login: form.login.trim(),
-        email: form.login.trim(),
+        email: form.email.trim(),
         emailContato: form.email.trim(),
         whatsapp: form.whatsapp.trim(),
         senha: form.senha,
@@ -372,7 +373,7 @@ function Usuarios() {
                   <input
                     value={form.login}
                     onChange={(event) => atualizarCampo("login", event.target.value)}
-                    placeholder={usarSupabase ? "email@escola.com" : "login.usuario"}
+                    placeholder="usuario.login"
                   />
                 </label>
 

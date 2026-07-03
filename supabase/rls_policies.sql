@@ -42,6 +42,23 @@ as $$
   select coalesce(public.perfil_atual() in ('diretor', 'vice_diretor', 'coordenador'), false)
 $$;
 
+create or replace function public.email_por_usuario(usuario_login text)
+returns text
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select email
+  from public.perfis
+  where lower(login) = lower(trim(usuario_login))
+    and status = 'ativo'
+  limit 1
+$$;
+
+grant execute on function public.email_por_usuario(text) to anon;
+grant execute on function public.email_por_usuario(text) to authenticated;
+
 alter table public.escolas enable row level security;
 alter table public.perfis enable row level security;
 alter table public.turmas enable row level security;

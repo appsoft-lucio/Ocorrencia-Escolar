@@ -106,7 +106,7 @@ function normalizarEscola(escola) {
     status: escola.status || escolaInicial?.status || "ativo",
     diretorNome: escola.diretorNome || escolaInicial?.diretorNome || "Direcao",
     diretorLogin: escola.diretorLogin || escolaInicial?.diretorLogin || "",
-    diretorEmail: escola.diretorEmail || escola.diretorLogin || escolaInicial?.diretorEmail || "",
+    diretorEmail: escola.diretorEmail || escolaInicial?.diretorEmail || "",
     diretorTelefone: escola.diretorTelefone || escolaInicial?.diretorTelefone || "",
     diretorSenha: escola.diretorSenha || escolaInicial?.diretorSenha || "",
   };
@@ -176,12 +176,15 @@ function encontrarAcessoCadastrado(login, senha) {
     const loginNormalizado = normalizarLogin(login);
 
     const entrada = Object.entries(acessos).find(([chave, acesso]) => {
+      const login = normalizarLogin(acesso?.login || "");
       const email = normalizarLogin(acesso?.email || "");
       const chaveNormalizada = normalizarLogin(chave);
 
       return (
         acesso?.senha === senha &&
-        (email === loginNormalizado || chaveNormalizada === loginNormalizado)
+        (login === loginNormalizado ||
+          email === loginNormalizado ||
+          chaveNormalizada === loginNormalizado)
       );
     });
 

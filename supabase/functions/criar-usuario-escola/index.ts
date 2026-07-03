@@ -80,6 +80,7 @@ Deno.serve(async (req) => {
 
   const body = await req.json().catch(() => ({}));
   const nome = normalizarTexto(body.nome);
+  const login = normalizarTexto(body.login).toLowerCase();
   const email = normalizarTexto(body.email).toLowerCase();
   const senha = normalizarTexto(body.senha);
   const perfil = normalizarTexto(body.perfil);
@@ -88,8 +89,11 @@ Deno.serve(async (req) => {
   const escolaId = perfilAtual.escola_id;
   const perfisPermitidos = PERFIS_GERENCIAVEIS[perfilAtual.perfil] || [];
 
-  if (!nome || !email || !senha || !perfil) {
-    return jsonResponse({ error: "Informe nome, email, senha e perfil." }, 400);
+  if (!nome || !login || !email || !senha || !perfil) {
+    return jsonResponse(
+      { error: "Informe nome, usuario, email, senha e perfil." },
+      400,
+    );
   }
 
   if (!escolaId) {
@@ -100,6 +104,20 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Perfil nao permitido para seu cargo." }, 403);
   }
 
+  const { data: loginExistente, error: loginError } = await supabaseAdmin
+    .from("perfis")
+    .select("id")
+    .eq("login", login)
+    .maybeSingle();
+
+  if (loginError) {
+    return jsonResponse({ error: "Nao foi possivel validar o usuario." }, 400);
+  }
+
+  if (loginExistente) {
+    return jsonResponse({ error: "Este usuario ja esta em uso." }, 400);
+  }
+
   const { data: usuarioCriado, error: criarUsuarioError } =
     await supabaseAdmin.auth.admin.createUser({
       email,
@@ -107,6 +125,7 @@ Deno.serve(async (req) => {
       email_confirm: true,
       user_metadata: {
         nome,
+        login,
         perfil,
         escola_id: escolaId,
       },
@@ -125,12 +144,13 @@ Deno.serve(async (req) => {
       id: usuarioCriado.user.id,
       escola_id: escolaId,
       nome,
+      login,
       email,
       perfil,
       whatsapp,
       status,
     })
-    .select("id, escola_id, nome, perfil, email, whatsapp, status, created_at, updated_at")
+    .select("id, escola_id, nome, perfil, login, email, whatsapp, status, created_at, updated_at")
     .single();
 
   if (criarPerfilError) {

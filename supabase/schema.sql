@@ -26,6 +26,7 @@ create table public.perfis (
   id uuid primary key references auth.users(id) on delete cascade,
   escola_id uuid references public.escolas(id) on delete set null,
   nome text not null,
+  login text,
   perfil public.perfil_usuario not null,
   email text,
   whatsapp text,
@@ -89,6 +90,7 @@ create table public.ocorrencias (
 create index escolas_status_idx on public.escolas(status);
 create index perfis_escola_id_idx on public.perfis(escola_id);
 create index perfis_perfil_idx on public.perfis(perfil);
+create unique index perfis_login_unique_idx on public.perfis (lower(login)) where login is not null;
 create index turmas_escola_id_idx on public.turmas(escola_id);
 create index tipos_ocorrencia_escola_id_idx on public.tipos_ocorrencia(escola_id);
 create index alunos_escola_id_idx on public.alunos(escola_id);
@@ -169,6 +171,23 @@ set search_path = public
 as $$
   select coalesce(public.perfil_atual() in ('diretor', 'vice_diretor', 'coordenador'), false)
 $$;
+
+create or replace function public.email_por_usuario(usuario_login text)
+returns text
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select email
+  from public.perfis
+  where lower(login) = lower(trim(usuario_login))
+    and status = 'ativo'
+  limit 1
+$$;
+
+grant execute on function public.email_por_usuario(text) to anon;
+grant execute on function public.email_por_usuario(text) to authenticated;
 
 alter table public.escolas enable row level security;
 alter table public.perfis enable row level security;

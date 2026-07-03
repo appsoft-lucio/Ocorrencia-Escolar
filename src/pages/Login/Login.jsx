@@ -28,10 +28,8 @@ function Login() {
 
     try {
       const loginInformado = userName.trim();
-      const podeTentarSupabase =
-        supabaseConfigurado && loginInformado.includes("@");
 
-      if (podeTentarSupabase) {
+      if (supabaseConfigurado) {
         await loginSupabase(loginInformado, password);
         return;
       }

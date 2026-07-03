@@ -81,16 +81,38 @@ Deno.serve(async (req) => {
   const nomeEscola = normalizarTexto(body.nome);
   const cidade = normalizarTexto(body.cidade);
   const diretorNome = normalizarTexto(body.diretorNome);
+  const diretorLogin = normalizarTexto(body.diretorLogin).toLowerCase();
   const diretorEmail = normalizarTexto(body.diretorEmail).toLowerCase();
   const diretorTelefone = normalizarTexto(body.diretorTelefone);
   const diretorSenha = normalizarTexto(body.diretorSenha);
   const status = body.status === "inativo" ? "inativo" : "ativo";
 
-  if (!nomeEscola || !diretorNome || !diretorEmail || !diretorTelefone || !diretorSenha) {
+  if (
+    !nomeEscola ||
+    !diretorNome ||
+    !diretorLogin ||
+    !diretorEmail ||
+    !diretorTelefone ||
+    !diretorSenha
+  ) {
     return jsonResponse(
-      { error: "Informe escola, nome, email, telefone e senha da direcao." },
+      { error: "Informe escola, nome, usuario, email, telefone e senha da direcao." },
       400,
     );
+  }
+
+  const { data: loginExistente, error: loginError } = await supabaseAdmin
+    .from("perfis")
+    .select("id")
+    .eq("login", diretorLogin)
+    .maybeSingle();
+
+  if (loginError) {
+    return jsonResponse({ error: "Nao foi possivel validar o usuario." }, 400);
+  }
+
+  if (loginExistente) {
+    return jsonResponse({ error: "Este usuario ja esta em uso." }, 400);
   }
 
   const { data: escolaCriada, error: criarEscolaError } = await supabaseAdmin
@@ -117,6 +139,7 @@ Deno.serve(async (req) => {
       email_confirm: true,
       user_metadata: {
         nome: diretorNome,
+        login: diretorLogin,
         whatsapp: diretorTelefone,
         perfil: "diretor",
         escola_id: escolaCriada.id,
@@ -138,6 +161,7 @@ Deno.serve(async (req) => {
     id: usuarioCriado.user.id,
     escola_id: escolaCriada.id,
     nome: diretorNome,
+    login: diretorLogin,
     email: diretorEmail,
     whatsapp: diretorTelefone,
     perfil: "diretor",
@@ -158,9 +182,9 @@ Deno.serve(async (req) => {
       escola: {
         ...escolaCriada,
         diretorNome,
+        diretorLogin,
         diretorEmail,
         diretorTelefone,
-        diretorLogin: diretorEmail,
       },
     },
     201,

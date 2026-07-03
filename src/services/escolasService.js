@@ -7,7 +7,7 @@ function mapearEscola(row) {
     cidade: row.cidade || "",
     status: row.status || "ativo",
     diretorNome: row.diretorNome || row.diretor_nome || "",
-    diretorLogin: row.diretorLogin || row.diretor_login || "",
+    diretorLogin: row.diretorLogin || row.diretor_login || row.login || "",
     diretorEmail: row.diretorEmail || row.diretor_email || row.email || "",
     diretorTelefone: row.diretorTelefone || row.diretor_telefone || row.whatsapp || "",
     diretorSenha: "",
@@ -36,7 +36,7 @@ export async function listarEscolasSupabase() {
 
   const { data: diretores, error: diretoresError } = await supabase
     .from("perfis")
-    .select("escola_id, nome, email, whatsapp")
+    .select("escola_id, nome, login, email, whatsapp")
     .eq("perfil", "diretor")
     .in("escola_id", escolaIds);
 
@@ -52,6 +52,7 @@ export async function listarEscolasSupabase() {
     mapearEscola({
       ...escola,
       diretor_nome: diretoresPorEscola.get(escola.id)?.nome || "",
+      diretor_login: diretoresPorEscola.get(escola.id)?.login || "",
       diretor_email: diretoresPorEscola.get(escola.id)?.email || "",
       diretor_telefone: diretoresPorEscola.get(escola.id)?.whatsapp || "",
     }),
@@ -94,6 +95,7 @@ export async function atualizarEscolaDirecaoSupabase(id, dados) {
     .from("perfis")
     .update({
       nome: dados.diretorNome,
+      login: dados.diretorLogin,
       email: dados.diretorEmail,
       whatsapp: dados.diretorTelefone,
     })
@@ -107,6 +109,7 @@ export async function atualizarEscolaDirecaoSupabase(id, dados) {
   return mapearEscola({
     ...escola,
     diretor_nome: dados.diretorNome,
+    diretor_login: dados.diretorLogin,
     diretor_email: dados.diretorEmail,
     diretor_telefone: dados.diretorTelefone,
   });

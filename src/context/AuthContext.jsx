@@ -18,6 +18,8 @@ export function AuthProvider({ children }) {
         `
           id,
           nome,
+          login,
+          email,
           perfil,
           status,
           escola_id,
@@ -43,7 +45,8 @@ export function AuthProvider({ children }) {
       id: data.id,
       nome: data.nome,
       role: data.perfil,
-      login: authUser.email,
+      login: data.login || authUser.email,
+      email: data.email || authUser.email,
       escolaId: data.escola_id,
       escolaNome: data.escolas?.nome,
       escolaCidade: data.escolas?.cidade,
@@ -61,9 +64,24 @@ export function AuthProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(userDataNormalizado));
   }
 
-  async function loginSupabase(email, senha) {
+  async function loginSupabase(usuario, senha) {
     if (!supabaseConfigurado || !supabase) {
       throw new Error("Supabase nao configurado.");
+    }
+
+    const usuarioInformado = usuario.trim();
+    let email = usuarioInformado;
+
+    if (!usuarioInformado.includes("@")) {
+      const { data, error } = await supabase.rpc("email_por_usuario", {
+        usuario_login: usuarioInformado,
+      });
+
+      if (error || !data) {
+        throw new Error("Usuario ou senha invalidos.");
+      }
+
+      email = data;
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({

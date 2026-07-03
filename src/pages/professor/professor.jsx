@@ -6,6 +6,7 @@ import { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import {
+  atualizarProfessorSupabase,
   atualizarStatusProfessorSupabase,
   listarProfessoresSupabase,
 } from "../../services/perfisService";
@@ -198,9 +199,11 @@ function Professor() {
               login: perfil.login,
               email: perfil.email,
               whatsapp: perfil.whatsapp,
-              disciplina: "Nao informada",
-              turno: "Nao informado",
-              turmas,
+              disciplina: perfil.disciplina || "Nao informada",
+              turno: perfil.turno || "Nao informado",
+              turmas: normalizarTurmas(perfil.turmas).length
+                ? normalizarTurmas(perfil.turmas)
+                : turmas,
               ocorrencias: ocorrenciasProfessor.length,
               status: perfil.status,
               desativadoEm:
@@ -429,6 +432,9 @@ function Professor() {
           perfil: "professor",
           whatsapp: formData.whatsapp.trim(),
           status: "ativo",
+          disciplina: formData.disciplina,
+          turno: formData.turno,
+          turmas: normalizarTurmas(formData.turmas).map((turma) => turma.codigo),
         });
 
         setProfessores((prev) => [
@@ -475,6 +481,10 @@ function Professor() {
     setProfessorEmEdicao(professor);
     setFormData({
       nome: professor.nome,
+      login: professor.login || "",
+      email: professor.email || "",
+      whatsapp: professor.whatsapp || "",
+      senha: "",
       disciplina: professor.disciplina,
       turno: professor.turno,
       novaTurma: "",
@@ -483,9 +493,19 @@ function Professor() {
     setAbrirModalEdicao(true);
   };
 
-  const salvarEdicao = () => {
+  const salvarEdicao = async () => {
     if (!formData.nome.trim()) {
       setMensagem("Informe o nome do professor.");
+      return;
+    }
+
+    if (usarSupabase && !formData.email.trim()) {
+      setMensagem("Informe o email do professor.");
+      return;
+    }
+
+    if (usarSupabase && !formData.whatsapp.trim()) {
+      setMensagem("Informe o WhatsApp do professor.");
       return;
     }
 
@@ -499,23 +519,44 @@ function Professor() {
       return;
     }
 
-    setProfessores((prev) =>
-      prev.map((prof) =>
-        prof.id === professorEmEdicao.id
-          ? {
-              ...prof,
-              nome: formData.nome,
-              disciplina: formData.disciplina,
-              turno: formData.turno,
-              turmas: normalizarTurmas(formData.turmas),
-            }
-          : prof,
-      ),
-    );
-    setMensagem("Professor atualizado com sucesso!");
-    setTimeout(() => {
-      fecharModalEdicao();
-    }, 1000);
+    const professorAtualizado = {
+      nome: formData.nome.trim(),
+      email: formData.email.trim(),
+      whatsapp: formData.whatsapp.trim(),
+      disciplina: formData.disciplina.trim(),
+      turno: formData.turno,
+      turmas: normalizarTurmas(formData.turmas),
+    };
+
+    try {
+      if (usarSupabase) {
+        await atualizarProfessorSupabase(
+          professorEmEdicao.id,
+          {
+            ...professorAtualizado,
+            turmas: professorAtualizado.turmas.map((turma) => turma.codigo),
+          },
+          user,
+        );
+      }
+
+      setProfessores((prev) =>
+        prev.map((prof) =>
+          prof.id === professorEmEdicao.id
+            ? {
+                ...prof,
+                ...professorAtualizado,
+              }
+            : prof,
+        ),
+      );
+      setMensagem("Professor atualizado com sucesso!");
+      setTimeout(() => {
+        fecharModalEdicao();
+      }, 1000);
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel atualizar o professor.");
+    }
   };
 
   const alternarStatusProfessor = async (professorId) => {
@@ -695,6 +736,34 @@ function Professor() {
                   onChange={handleInputChange}
                 />
               </div>
+
+              {usarSupabase && (
+                <div className="form-grid-duplo">
+                  <div className="form-group">
+                    <label htmlFor="email-edicao">Email</label>
+                    <input
+                      id="email-edicao"
+                      type="email"
+                      name="email"
+                      placeholder="professor@escola.com"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="whatsapp-edicao">WhatsApp</label>
+                    <input
+                      id="whatsapp-edicao"
+                      type="text"
+                      name="whatsapp"
+                      placeholder="(31) 99999-9999"
+                      value={formData.whatsapp}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="form-group">
                 <label htmlFor="disciplina-edicao">Disciplina</label>
@@ -1061,9 +1130,7 @@ function Professor() {
                   status={professor.status}
                   desativadoEm={professor.desativadoEm}
                   onDetalhes={() => verDetalhes(professor)}
-                  onEditar={
-                    usarSupabase ? null : () => editarProfessor(professor)
-                  }
+                  onEditar={() => editarProfessor(professor)}
                   onAlternarStatus={() => alternarStatusProfessor(professor.id)}
                 />
               ))

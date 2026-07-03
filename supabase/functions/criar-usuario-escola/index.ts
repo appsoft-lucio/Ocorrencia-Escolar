@@ -97,6 +97,11 @@ Deno.serve(async (req) => {
   const senha = normalizarTexto(body.senha);
   const perfil = normalizarTexto(body.perfil);
   const whatsapp = normalizarTexto(body.whatsapp);
+  const disciplina = normalizarTexto(body.disciplina);
+  const turno = normalizarTexto(body.turno);
+  const turmas = Array.isArray(body.turmas)
+    ? body.turmas.map((turma) => normalizarTexto(turma)).filter(Boolean)
+    : [];
   const status = body.status === "inativo" ? "inativo" : "ativo";
   const escolaId = perfilAtual.escola_id;
   const perfisPermitidos = PERFIS_GERENCIAVEIS[perfilAtual.perfil] || [];
@@ -162,9 +167,12 @@ Deno.serve(async (req) => {
       auth_email: authEmail,
       perfil,
       whatsapp,
+      disciplina: perfil === "professor" ? disciplina : null,
+      turno: perfil === "professor" ? turno : null,
+      turmas: perfil === "professor" ? turmas : [],
       status,
     })
-    .select("id, escola_id, nome, perfil, login, email, whatsapp, status, created_at, updated_at")
+    .select("id, escola_id, nome, perfil, login, email, whatsapp, disciplina, turno, turmas, status, created_at, updated_at")
     .single();
 
   if (criarPerfilError) {

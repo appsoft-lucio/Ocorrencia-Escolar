@@ -36,3 +36,12 @@ grant execute on function public.email_por_usuario(text) to authenticated;
 
 alter table public.turmas
 add column if not exists turno text;
+
+alter table public.perfis
+add column if not exists disciplina text;
+
+alter table public.perfis
+add column if not exists turno text;
+
+alter table public.perfis
+add column if not exists turmas text[] not null default '{}';

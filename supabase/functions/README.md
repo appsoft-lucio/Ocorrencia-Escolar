@@ -61,7 +61,7 @@ para o perfil dele.
 ## Funcao `criar-escola-direcao`
 
 Cria a escola, cria o login da direcao no Supabase Auth e cria o perfil
-`diretor` vinculado a essa escola, com email e telefone.
+`diretor` vinculado a essa escola, com email e WhatsApp.
 
 Antes de usar em projeto ja existente, execute no SQL Editor:
 
@@ -79,7 +79,7 @@ Teste esperado:
 
 1. Entre no app como desenvolvedor Supabase.
 2. Abra `Escolas`.
-3. Cadastre uma escola informando email, telefone e senha da direcao.
+3. Cadastre uma escola informando email, WhatsApp e senha da direcao.
 4. Saia do app.
 5. Entre com o email e senha da direcao.
 

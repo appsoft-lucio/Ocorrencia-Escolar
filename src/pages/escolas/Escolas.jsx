@@ -148,7 +148,7 @@ function Escolas() {
     }
 
     if (!form.diretorTelefone.trim()) {
-      setMensagem("Informe o telefone do diretor.");
+      setMensagem("Informe o WhatsApp do diretor.");
       return;
     }
 
@@ -396,7 +396,7 @@ function Escolas() {
                 </label>
 
                 <label>
-                  Telefone do diretor
+                  WhatsApp do diretor
                   <input
                     value={form.diretorTelefone}
                     onChange={(event) =>
@@ -482,7 +482,7 @@ function Escolas() {
                         <dd>{escola.diretorEmail || "-"}</dd>
                       </div>
                       <div>
-                        <dt>Telefone</dt>
+                        <dt>WhatsApp</dt>
                         <dd>{escola.diretorTelefone || "-"}</dd>
                       </div>
                     </dl>

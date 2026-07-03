@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
     !diretorSenha
   ) {
     return jsonResponse(
-      { error: "Informe escola, nome, usuario, email, telefone e senha da direcao." },
+      { error: "Informe escola, nome, usuario, email, WhatsApp e senha da direcao." },
       400,
     );
   }

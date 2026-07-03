@@ -9,6 +9,7 @@ import {
   atualizarStatusProfessorSupabase,
   listarProfessoresSupabase,
 } from "../../services/perfisService";
+import { criarUsuarioEscolaSupabase } from "../../services/usuariosService";
 
 const CINCO_ANOS_EM_MS = 5 * 365 * 24 * 60 * 60 * 1000;
 
@@ -91,6 +92,10 @@ function Professor() {
   // Estados do formulário
   const [formData, setFormData] = useState({
     nome: "",
+    login: "",
+    email: "",
+    whatsapp: "",
+    senha: "",
     disciplina: "",
     turno: "Manhã",
     novaTurma: "",
@@ -190,6 +195,9 @@ function Professor() {
             return {
               id: perfil.id,
               nome: perfil.nome,
+              login: perfil.login,
+              email: perfil.email,
+              whatsapp: perfil.whatsapp,
               disciplina: "Nao informada",
               turno: "Nao informado",
               turmas,
@@ -284,6 +292,10 @@ function Professor() {
   const limparFormulario = () => {
     setFormData({
       nome: "",
+      login: "",
+      email: "",
+      whatsapp: "",
+      senha: "",
       disciplina: "",
       turno: "Manhã",
       novaTurma: "",
@@ -355,10 +367,32 @@ function Professor() {
       }),
     }));
   };
-  const salvarProfessor = () => {
+  const salvarProfessor = async () => {
     if (!formData.nome.trim()) {
       setMensagem("Informe o nome do professor.");
       return;
+    }
+
+    if (usarSupabase) {
+      if (!formData.login.trim()) {
+        setMensagem("Informe o usuario do professor.");
+        return;
+      }
+
+      if (!formData.email.trim()) {
+        setMensagem("Informe o email do professor.");
+        return;
+      }
+
+      if (!formData.whatsapp.trim()) {
+        setMensagem("Informe o WhatsApp do professor.");
+        return;
+      }
+
+      if (!formData.senha.trim()) {
+        setMensagem("Informe a senha provisoria.");
+        return;
+      }
     }
 
     if (!formData.disciplina.trim()) {
@@ -371,23 +405,52 @@ function Professor() {
       return;
     }
 
-    const novoProfessor = {
-      id: Date.now(), // ID único baseado em timestamp
-      nome: formData.nome,
-      disciplina: formData.disciplina,
-      turno: formData.turno,
-      turmas: normalizarTurmas(formData.turmas),
-      ocorrencias: 0,
-      status: "ativo",
-      desativadoEm: null,
-    };
+    try {
+      const professorBase = {
+        id: Date.now(),
+        nome: formData.nome.trim(),
+        login: formData.login.trim(),
+        email: formData.email.trim(),
+        whatsapp: formData.whatsapp.trim(),
+        disciplina: formData.disciplina,
+        turno: formData.turno,
+        turmas: normalizarTurmas(formData.turmas),
+        ocorrencias: 0,
+        status: "ativo",
+        desativadoEm: null,
+      };
 
-    setProfessores((prev) => [...prev, novoProfessor]);
-    setMensagem("Professor adicionado com sucesso!");
+      if (usarSupabase) {
+        const professorCriado = await criarUsuarioEscolaSupabase({
+          nome: formData.nome.trim(),
+          login: formData.login.trim(),
+          email: formData.email.trim(),
+          senha: formData.senha,
+          perfil: "professor",
+          whatsapp: formData.whatsapp.trim(),
+          status: "ativo",
+        });
 
-    setTimeout(() => {
-      fecharModal();
-    }, 1000);
+        setProfessores((prev) => [
+          ...prev,
+          {
+            ...professorBase,
+            id: professorCriado.id,
+            origem: "supabase",
+          },
+        ]);
+      } else {
+        setProfessores((prev) => [...prev, professorBase]);
+      }
+
+      setMensagem("Professor adicionado com sucesso!");
+
+      setTimeout(() => {
+        fecharModal();
+      }, 1000);
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel cadastrar o professor.");
+    }
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -755,6 +818,58 @@ function Professor() {
                 />
               </div>
 
+              <div className="form-grid-duplo">
+                <div className="form-group">
+                  <label htmlFor="login-professor">Usuario</label>
+                  <input
+                    id="login-professor"
+                    type="text"
+                    name="login"
+                    placeholder="Ex: joao.silva"
+                    value={formData.login}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="senha-professor">Senha provisoria</label>
+                  <input
+                    id="senha-professor"
+                    type="text"
+                    name="senha"
+                    placeholder="Senha"
+                    value={formData.senha}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-grid-duplo">
+                <div className="form-group">
+                  <label htmlFor="email-professor">Email</label>
+                  <input
+                    id="email-professor"
+                    type="email"
+                    name="email"
+                    placeholder="professor@escola.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="whatsapp-professor">WhatsApp</label>
+                  <input
+                    id="whatsapp-professor"
+                    type="text"
+                    name="whatsapp"
+                    placeholder="(31) 99999-9999"
+                    value={formData.whatsapp}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
                 <label htmlFor="disciplina">Disciplina</label>
                 <input
@@ -856,14 +971,12 @@ function Professor() {
               <h2>Gerenciamento de professores e turmas</h2>
             </div>
 
-            {!usarSupabase && (
-              <button
-                className="btn-novo-professor"
-                onClick={() => setAbrirModal(true)}
-              >
-                Novo Professor
-              </button>
-            )}
+            <button
+              className="btn-novo-professor"
+              onClick={() => setAbrirModal(true)}
+            >
+              Novo Professor
+            </button>
           </div>
 
           <p className="professores-descricao">

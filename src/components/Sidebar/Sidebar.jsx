@@ -65,15 +65,15 @@ function Sidebar() {
                 </li>
               )}
 
-              {podeAcessarModulo(user, MODULOS.USUARIOS) && (
+              {podeAcessarModulo(user, MODULOS.VICE_DIRETORES) && (
                 <li>
-                  <Link to="/usuarios">Usuarios</Link>
+                  <Link to="/vice-diretores">Vice-diretor</Link>
                 </li>
               )}
 
-              {podeAcessarModulo(user, MODULOS.COORDENADOR) && (
+              {podeAcessarModulo(user, MODULOS.SUPERVISAO) && (
                 <li>
-                  <Link to="/coordenador">Coordenador</Link>
+                  <Link to="/supervisao">Supervisao</Link>
                 </li>
               )}
 

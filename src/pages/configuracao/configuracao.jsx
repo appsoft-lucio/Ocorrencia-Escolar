@@ -101,7 +101,7 @@ function Configuracao() {
         escolaId: user.escolaId,
         escolaNome: user.escolaNome,
         escolaCidade: user.escolaCidade,
-        tipo: "Coordenação",
+        tipo: "Supervisao",
       };
     });
 
@@ -292,7 +292,7 @@ function Configuracao() {
                   <p>
                     {isDirecao
                       ? "Direção pode alterar email e senha da coordenação e dos professores."
-                      : "Coordenação pode alterar email e senha dos professores."}
+                      : "Supervisao pode alterar email e senha dos professores."}
                   </p>
                 </div>
               </div>
@@ -356,7 +356,7 @@ function Configuracao() {
 
             <div className="recuperacao-regras">
               <span>Professor procura a coordenação ou direção.</span>
-              <span>Coordenação procura a direção.</span>
+              <span>Supervisao procura a direção.</span>
               <span>Direção solicita suporte do sistema.</span>
             </div>
           </section>

@@ -2,13 +2,15 @@ import { supabase } from "./supabaseClient";
 import { perfilGestao } from "../utils/permissoes";
 
 const CAMPOS_PERFIL_PROFESSOR =
-  "id, escola_id, nome, perfil, whatsapp, status, created_at, updated_at";
+  "id, escola_id, nome, perfil, login, email, whatsapp, status, created_at, updated_at";
 
 export function mapearPerfilProfessor(row) {
   return {
     id: row.id,
     nome: row.nome,
     perfil: row.perfil,
+    login: row.login || "",
+    email: row.email || "",
     whatsapp: row.whatsapp || "",
     status: row.status || "ativo",
     escolaId: row.escola_id,

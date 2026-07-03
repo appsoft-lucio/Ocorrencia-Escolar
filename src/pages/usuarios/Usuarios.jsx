@@ -72,7 +72,13 @@ function loginJaExiste(acessos, escolas, login, chaveAtual) {
   return loginDeUsuario || loginDeDiretor;
 }
 
-function Usuarios() {
+function Usuarios({
+  titulo = "Usuarios",
+  descricao = "Cadastre acessos e redefina senhas provisórias dos cargos abaixo.",
+  perfilFixo = "",
+  nomeSingular = "usuario",
+  nomePlural = "usuarios",
+}) {
   const { user } = useContext(AuthContext);
   const [acessos, setAcessos] = useState(lerAcessos);
   const [usuariosSupabase, setUsuariosSupabase] = useState([]);
@@ -81,10 +87,13 @@ function Usuarios() {
   const [salvando, setSalvando] = useState(false);
   const usarSupabase = user?.origem === "supabase";
 
-  const perfisPermitidos = useMemo(
-    () => obterPerfisGerenciaveis(user?.role || ""),
-    [user?.role],
-  );
+  const perfisPermitidos = useMemo(() => {
+    const gerenciaveis = obterPerfisGerenciaveis(user?.role || "");
+
+    if (!perfilFixo) return gerenciaveis;
+
+    return gerenciaveis.includes(perfilFixo) ? [perfilFixo] : [];
+  }, [perfilFixo, user?.role]);
 
   const usuarios = useMemo(() => {
     if (usarSupabase) {
@@ -135,6 +144,14 @@ function Usuarios() {
     if (usarSupabase) return;
     salvarAcessos(acessos);
   }, [acessos, usarSupabase]);
+
+  useEffect(() => {
+    if (!perfilFixo) return;
+
+    setForm((atual) =>
+      atual.role === perfilFixo ? atual : { ...atual, role: perfilFixo },
+    );
+  }, [perfilFixo]);
 
   useEffect(() => {
     let ativo = true;
@@ -317,12 +334,12 @@ function Usuarios() {
         <main className="usuarios-container">
           <section className="usuarios-topo">
             <div>
-              <h1>Usuarios</h1>
-              <p>Cadastre acessos e redefina senhas provisórias dos cargos abaixo.</p>
+              <h1>{titulo}</h1>
+              <p>{descricao}</p>
             </div>
           </section>
 
-          <section className="usuarios-resumo" aria-label="Resumo de usuarios">
+          <section className="usuarios-resumo" aria-label={`Resumo de ${nomePlural}`}>
             <div>
               <strong>{resumo.total}</strong>
               <span>Total</span>
@@ -339,7 +356,7 @@ function Usuarios() {
 
           <section className="usuarios-grid">
             <form className="usuario-form" onSubmit={salvarUsuario}>
-              <h2>{form.chave ? "Editar usuario" : "Novo usuario"}</h2>
+              <h2>{form.chave ? `Editar ${nomeSingular}` : `Novo ${nomeSingular}`}</h2>
 
               {mensagem && <div className="usuario-mensagem">{mensagem}</div>}
 
@@ -352,20 +369,22 @@ function Usuarios() {
                 />
               </label>
 
-              <label>
-                Perfil
-                <select
-                  value={form.role}
-                  onChange={(event) => atualizarCampo("role", event.target.value)}
-                >
-                  <option value="">Selecione</option>
-                  {perfisPermitidos.map((perfil) => (
-                    <option key={perfil} value={perfil}>
-                      {obterNomePerfil(perfil)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {!perfilFixo && (
+                <label>
+                  Perfil
+                  <select
+                    value={form.role}
+                    onChange={(event) => atualizarCampo("role", event.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {perfisPermitidos.map((perfil) => (
+                      <option key={perfil} value={perfil}>
+                        {obterNomePerfil(perfil)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               <div className="usuario-form-duplo">
                 <label>
@@ -431,14 +450,14 @@ function Usuarios() {
                     ? "Salvando..."
                     : form.chave
                       ? "Atualizar usuario"
-                      : "Cadastrar usuario"}
+                      : `Cadastrar ${nomeSingular}`}
                 </button>
               </div>
             </form>
 
-            <section className="usuarios-lista" aria-label="Usuarios cadastrados">
+            <section className="usuarios-lista" aria-label={`${titulo} cadastrados`}>
               {usuarios.length === 0 ? (
-                <div className="usuarios-vazio">Nenhum usuario cadastrado.</div>
+                <div className="usuarios-vazio">Nenhum {nomeSingular} cadastrado.</div>
               ) : (
                 usuarios.map((usuario) => (
                   <article

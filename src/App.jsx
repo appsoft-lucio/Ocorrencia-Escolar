@@ -11,7 +11,6 @@ import Alunos from "./pages/Alunos/Alunos.jsx";
 import Professor from "./pages/professor/professor.jsx";
 import Relatorios from "./pages/relatorios/relatorios.jsx";
 import Configuracao from "./pages/configuracao/configuracao.jsx";
-import Coordenador from "./pages/coordenador/Coordenador";
 import Escolas from "./pages/escolas/Escolas.jsx";
 import Usuarios from "./pages/usuarios/Usuarios.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -86,18 +85,30 @@ function App() {
               }
             />
             <Route
-              path="/usuarios"
+              path="/vice-diretores"
               element={
-                <PrivateRoute modulo={MODULOS.USUARIOS}>
-                  <Usuarios />
+                <PrivateRoute modulo={MODULOS.VICE_DIRETORES}>
+                  <Usuarios
+                    titulo="Vice-diretor"
+                    descricao="Cadastre vice-diretores e defina os dados de acesso."
+                    perfilFixo="vice_diretor"
+                    nomeSingular="vice-diretor"
+                    nomePlural="vice-diretores"
+                  />
                 </PrivateRoute>
               }
             />
             <Route
-              path="/coordenador"
+              path="/supervisao"
               element={
-                <PrivateRoute modulo={MODULOS.COORDENADOR}>
-                  <Coordenador />
+                <PrivateRoute modulo={MODULOS.SUPERVISAO}>
+                  <Usuarios
+                    titulo="Supervisao"
+                    descricao="Cadastre a supervisao e defina os dados de acesso."
+                    perfilFixo="coordenador"
+                    nomeSingular="supervisor"
+                    nomePlural="supervisores"
+                  />
                 </PrivateRoute>
               }
             />

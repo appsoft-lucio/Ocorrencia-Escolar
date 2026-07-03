@@ -57,8 +57,8 @@ export const PERFIL_LABELS = {
   diretor: "Diretor",
   direcao: "Diretor",
   vice_diretor: "Vice-diretor",
-  coordenador: "Coordenador",
-  coordenacao: "Coordenador",
+  coordenador: "Supervisao",
+  coordenacao: "Supervisao",
   professor: "Professor",
 };
 

@@ -261,6 +261,12 @@
   gap: var(--spacing-sm);
 }
 
+.form-grid-duplo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
 .form-group label,
 .turmas-section h3 {
   color: var(--cor-texto);
@@ -497,6 +503,10 @@
 }
 
 @media (max-width: 520px) {
+  .form-grid-duplo {
+    grid-template-columns: 1fr;
+  }
+
   .modal-professor {
     padding: var(--spacing-lg);
   }

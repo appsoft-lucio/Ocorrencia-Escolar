@@ -48,7 +48,7 @@ function normalizarTurmasProfessor(turmas = []) {
 function nomePerfil(role) {
   if (["diretor", "direcao"].includes(normalizarTexto(role))) return "Diretor";
   if (normalizarTexto(role) === "vice_diretor") return "Vice-diretor";
-  if (perfilGestao(role)) return "Coordenação";
+  if (perfilGestao(role)) return "Supervisao";
   return "Professor";
 }
 

@@ -14,6 +14,7 @@ import {
   criarOcorrenciaSupabase,
   listarOcorrenciasSupabase,
 } from "../services/ocorrenciasService";
+import { perfilDesenvolvedor } from "../utils/permissoes";
 
 export const OcorrenciaContext = createContext();
 
@@ -27,6 +28,8 @@ export function OcorrenciaProvider({ children }) {
   const [storagePronto, setStoragePronto] = useState(false);
   const [loading, setLoading] = useState(false);
   const usarSupabase = user?.origem === "supabase";
+  const usuarioSemOcorrencias =
+    !user || perfilDesenvolvedor(user.role) || !user.escolaId;
   const storageKey = useMemo(
     () => criarChaveOcorrencias(user?.escolaId),
     [user?.escolaId],
@@ -34,6 +37,13 @@ export function OcorrenciaProvider({ children }) {
 
   useEffect(() => {
     let ativo = true;
+
+    if (usuarioSemOcorrencias) {
+      setOcorrencias([]);
+      setLoading(false);
+      setStoragePronto(true);
+      return undefined;
+    }
 
     if (usarSupabase) {
       setLoading(true);
@@ -90,7 +100,7 @@ export function OcorrenciaProvider({ children }) {
     return () => {
       ativo = false;
     };
-  }, [storageKey, usarSupabase, user]);
+  }, [storageKey, usarSupabase, user, usuarioSemOcorrencias]);
 
   useEffect(() => {
     if (usarSupabase || !storageKey || !storagePronto) return;
@@ -107,6 +117,10 @@ export function OcorrenciaProvider({ children }) {
       };
 
       if (usarSupabase) {
+        if (!user?.escolaId) {
+          throw new Error("Usuario sem escola vinculada.");
+        }
+
         const ocorrenciaSalva = await criarOcorrenciaSupabase(novaOcorrencia, user);
         setOcorrencias((ocorrenciasAtuais) => [
           ocorrenciaSalva,
@@ -127,6 +141,10 @@ export function OcorrenciaProvider({ children }) {
   const updateOcorrenciaStatus = useCallback(
     async (id, statusData) => {
       if (usarSupabase) {
+        if (!user?.escolaId) {
+          throw new Error("Usuario sem escola vinculada.");
+        }
+
         const ocorrenciaAtualizada = await atualizarStatusOcorrenciaSupabase(
           id,
           statusData,

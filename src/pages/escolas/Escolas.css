@@ -154,13 +154,20 @@
   margin-bottom: 14px;
 }
 
+.escola-item-topo > div {
+  min-width: 0;
+}
+
 .escola-item-topo h2 {
   margin-bottom: 6px;
   font-size: 1.2rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .escola-item-topo p {
   color: var(--cor-texto-secundario);
+  overflow-wrap: anywhere;
 }
 
 .escola-item-topo span {
@@ -180,9 +187,16 @@
 
 .escola-item dl {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.escola-item dl div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--cor-fundo-alt);
 }
 
 .escola-item dt {
@@ -191,7 +205,11 @@
 }
 
 .escola-item dd {
+  margin: 4px 0 0;
   font-weight: var(--font-semi-bold);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .escolas-vazio {

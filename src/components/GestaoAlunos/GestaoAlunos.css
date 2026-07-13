@@ -12,6 +12,20 @@
 .importacao-alunos div { display: flex; gap: 8px; }
 .mostrar-arquivados { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 12px; }
 .mostrar-arquivados input { width: auto; }
+.filtro-turmas-alunos { margin: 18px 0 14px; padding: 14px; border: 1px solid #e5e7eb; border-radius: 8px; }
+.filtro-turmas-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.filtro-turmas-cabecalho p { margin-top: 4px; color: var(--cor-texto-secundario); font-size: 13px; }
+.filtro-turmas-cabecalho > div:last-child { display: flex; gap: 7px; }
+.filtro-turmas-cabecalho button { padding: 7px 10px; background: var(--cor-secundaria); }
+.filtro-turmas-opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.filtro-turmas-opcoes label { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 7px; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 7px; cursor: pointer; }
+.filtro-turmas-opcoes input { width: auto; grid-row: 1 / 3; }
+.filtro-turmas-opcoes span { font-weight: 800; }
+.filtro-turmas-opcoes small { color: var(--cor-texto-secundario); }
+.comparativo-turmas { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 9px; margin-bottom: 14px; }
+.comparativo-turmas article { display: grid; gap: 3px; padding: 12px; border-radius: 7px; background: var(--cor-fundo-alt); }
+.comparativo-turmas span, .comparativo-turmas small { color: var(--cor-texto-secundario); }
+.gestao-alunos-vazio { padding: 22px; border: 1px dashed #cbd5e1; border-radius: 7px; color: var(--cor-texto-secundario); text-align: center; }
 .gestao-alunos-lista { display: grid; gap: 8px; }
 .gestao-alunos-lista article { padding: 12px; border: 1px solid #e5e7eb; border-radius: 7px; }
 .gestao-alunos-lista article > div { display: flex; gap: 7px; flex-wrap: wrap; }
@@ -19,4 +33,4 @@
 .gestao-alunos-lista span { color: var(--cor-texto-secundario); font-size: 13px; }
 .gestao-alunos-lista button { padding: 7px 10px; background: var(--cor-secundaria); }
 .aluno-inativo { opacity: .65; }
-@media (max-width: 800px) { .gestao-alunos-form { grid-template-columns: 1fr; } .gestao-alunos-cabecalho, .gestao-alunos-lista article { align-items: stretch; flex-direction: column; } }
+@media (max-width: 800px) { .gestao-alunos-form { grid-template-columns: 1fr; } .gestao-alunos-cabecalho, .gestao-alunos-lista article, .filtro-turmas-cabecalho { align-items: stretch; flex-direction: column; } }

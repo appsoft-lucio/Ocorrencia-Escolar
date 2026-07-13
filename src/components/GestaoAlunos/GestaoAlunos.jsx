@@ -88,15 +88,48 @@ async function extrairTextoPDF(arquivo) {
 function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupabase }) {
   const [form, setForm] = useState(FORM_INICIAL);
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
+  const [turmasSelecionadas, setTurmasSelecionadas] = useState([]);
   const [importacao, setImportacao] = useState({ aberta: false, turmaId: "", turno: "", nomes: [] });
   const [importando, setImportando] = useState(false);
   const [mensagem, setMensagem] = useMensagemComAlerta();
 
   const turmaSelecionada = turmas.find((turma) => turma.id === form.turmaId);
   const alunosVisiveis = useMemo(
-    () => alunos.filter((aluno) => mostrarArquivados || !aluno.arquivadoEm),
-    [alunos, mostrarArquivados],
+    () => alunos.filter(
+      (aluno) =>
+        turmasSelecionadas.includes(aluno.turmaId) &&
+        (mostrarArquivados || !aluno.arquivadoEm),
+    ),
+    [alunos, mostrarArquivados, turmasSelecionadas],
   );
+  const turmasAtivas = useMemo(
+    () => turmas.filter((turma) => turma.cadastrado && turma.status !== "inativo"),
+    [turmas],
+  );
+  const comparativo = useMemo(
+    () => turmasSelecionadas.map((turmaId) => {
+      const turma = turmas.find((item) => item.id === turmaId);
+      const alunosDaTurma = alunos.filter(
+        (aluno) => aluno.turmaId === turmaId && !aluno.arquivadoEm,
+      );
+      return {
+        id: turmaId,
+        codigo: turma?.codigo || "Turma",
+        ativos: alunosDaTurma.filter((aluno) => aluno.status === "ativo").length,
+        inativos: alunosDaTurma.filter((aluno) => aluno.status === "inativo").length,
+        total: alunosDaTurma.length,
+      };
+    }),
+    [alunos, turmas, turmasSelecionadas],
+  );
+
+  function alternarTurmaSelecionada(turmaId) {
+    setTurmasSelecionadas((atuais) =>
+      atuais.includes(turmaId)
+        ? atuais.filter((id) => id !== turmaId)
+        : [...atuais, turmaId],
+    );
+  }
 
   function atualizarLista(proximos) {
     if (usarSupabase) setAlunos(proximos);
@@ -143,6 +176,9 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         form.id
           ? alunos.map((aluno) => (aluno.id === form.id ? salvo : aluno))
           : [...alunos, salvo].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
+      );
+      setTurmasSelecionadas((atuais) =>
+        atuais.includes(form.turmaId) ? atuais : [...atuais, form.turmaId],
       );
       setMensagem(form.id ? "Aluno atualizado ou transferido com sucesso." : "Aluno cadastrado com sucesso.");
       setForm(FORM_INICIAL);
@@ -234,6 +270,11 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         ? await importarAlunosSupabase(user, novos)
         : novos.map((aluno) => ({ ...aluno, id: crypto.randomUUID() }));
       atualizarLista([...alunos, ...salvos].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")));
+      setTurmasSelecionadas((atuais) =>
+        atuais.includes(importacao.turmaId)
+          ? atuais
+          : [...atuais, importacao.turmaId],
+      );
       setImportacao({ aberta: false, turmaId: "", turno: "", nomes: [] });
       setMensagem(`${salvos.length} alunos importados com sucesso.`);
     } catch (error) {
@@ -275,9 +316,34 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         </div>
       )}
 
-      <label className="mostrar-arquivados"><input type="checkbox" checked={mostrarArquivados} onChange={(e) => setMostrarArquivados(e.target.checked)} /> Mostrar arquivados</label>
+      <section className="filtro-turmas-alunos">
+        <div className="filtro-turmas-cabecalho">
+          <div><h3>Selecionar turmas</h3><p>Marque uma turma para consultar ou várias para comparar.</p></div>
+          <div><button type="button" onClick={() => setTurmasSelecionadas(turmasAtivas.map((turma) => turma.id))}>Selecionar todas</button><button type="button" onClick={() => setTurmasSelecionadas([])}>Limpar seleção</button></div>
+        </div>
+        <div className="filtro-turmas-opcoes">
+          {turmasAtivas.map((turma) => (
+            <label key={turma.id}>
+              <input type="checkbox" checked={turmasSelecionadas.includes(turma.id)} onChange={() => alternarTurmaSelecionada(turma.id)} />
+              <span>{turma.codigo}</span><small>{turma.turno || "Sem turno"}</small>
+            </label>
+          ))}
+        </div>
+      </section>
+
+      {comparativo.length > 0 && (
+        <section className="comparativo-turmas" aria-label="Comparação das turmas selecionadas">
+          {comparativo.map((item) => <article key={item.id}><strong>{item.codigo}</strong><span>{item.total} aluno(s)</span><small>{item.ativos} ativos · {item.inativos} inativos</small></article>)}
+        </section>
+      )}
+
+      {turmasSelecionadas.length > 0 && <label className="mostrar-arquivados"><input type="checkbox" checked={mostrarArquivados} onChange={(e) => setMostrarArquivados(e.target.checked)} /> Mostrar alunos arquivados das turmas selecionadas</label>}
       <div className="gestao-alunos-lista">
-        {alunosVisiveis.map((aluno) => (
+        {turmasSelecionadas.length === 0 ? (
+          <div className="gestao-alunos-vazio">Selecione uma ou mais turmas para visualizar os alunos.</div>
+        ) : alunosVisiveis.length === 0 ? (
+          <div className="gestao-alunos-vazio">Nenhum aluno encontrado nas turmas selecionadas.</div>
+        ) : alunosVisiveis.map((aluno) => (
           <article key={aluno.id} className={aluno.status === "inativo" ? "aluno-inativo" : ""}>
             <div><strong>{aluno.nome}</strong><span>{aluno.turma} · {aluno.turno} · {aluno.arquivadoEm ? "Arquivado" : aluno.status}</span></div>
             {!aluno.arquivadoEm && <div><button type="button" onClick={() => setForm({ id: aluno.id, nome: aluno.nome, turmaId: aluno.turmaId, turno: aluno.turno })}>Editar/transferir</button><button type="button" onClick={() => alternarStatus(aluno)}>{aluno.status === "ativo" ? "Inativar" : "Ativar"}</button><button type="button" onClick={() => arquivar(aluno)}>Excluir</button></div>}

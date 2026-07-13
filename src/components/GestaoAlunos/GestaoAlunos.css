@@ -25,6 +25,7 @@
 .comparativo-turmas { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 9px; margin-bottom: 14px; }
 .comparativo-turmas article { display: grid; gap: 3px; padding: 12px; border-radius: 7px; background: var(--cor-fundo-alt); }
 .comparativo-turmas span, .comparativo-turmas small { color: var(--cor-texto-secundario); }
+.comparativo-turmas b, .gestao-alunos-lista b { color: var(--cor-laranja); font-size: 13px; }
 .gestao-alunos-vazio { padding: 22px; border: 1px dashed #cbd5e1; border-radius: 7px; color: var(--cor-texto-secundario); text-align: center; }
 .gestao-alunos-lista { display: grid; gap: 8px; }
 .gestao-alunos-lista article { padding: 12px; border: 1px solid #e5e7eb; border-radius: 7px; }

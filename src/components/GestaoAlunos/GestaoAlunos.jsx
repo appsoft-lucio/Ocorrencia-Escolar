@@ -85,7 +85,7 @@ async function extrairTextoPDF(arquivo) {
   return linhas.join("\n");
 }
 
-function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupabase }) {
+function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupabase, ocorrencias }) {
   const [form, setForm] = useState(FORM_INICIAL);
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
   const [turmasSelecionadas, setTurmasSelecionadas] = useState([]);
@@ -118,10 +118,23 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         ativos: alunosDaTurma.filter((aluno) => aluno.status === "ativo").length,
         inativos: alunosDaTurma.filter((aluno) => aluno.status === "inativo").length,
         total: alunosDaTurma.length,
+        ocorrencias: ocorrencias.filter(
+          (ocorrencia) => normalizar(ocorrencia.turma) === normalizar(turma?.codigo),
+        ).length,
       };
     }),
-    [alunos, turmas, turmasSelecionadas],
+    [alunos, ocorrencias, turmas, turmasSelecionadas],
   );
+  const ocorrenciasPorAluno = useMemo(() => {
+    const totais = new Map();
+    ocorrencias.forEach((ocorrencia) => {
+      (ocorrencia.alunos || []).forEach((nome) => {
+        const chave = normalizar(nome);
+        totais.set(chave, (totais.get(chave) || 0) + 1);
+      });
+    });
+    return totais;
+  }, [ocorrencias]);
 
   function alternarTurmaSelecionada(turmaId) {
     setTurmasSelecionadas((atuais) =>
@@ -333,7 +346,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
 
       {comparativo.length > 0 && (
         <section className="comparativo-turmas" aria-label="Comparação das turmas selecionadas">
-          {comparativo.map((item) => <article key={item.id}><strong>{item.codigo}</strong><span>{item.total} aluno(s)</span><small>{item.ativos} ativos · {item.inativos} inativos</small></article>)}
+          {comparativo.map((item) => <article key={item.id}><strong>{item.codigo}</strong><span>{item.total} aluno(s)</span><small>{item.ativos} ativos · {item.inativos} inativos</small><b>{item.ocorrencias} ocorrência(s)</b></article>)}
         </section>
       )}
 
@@ -345,7 +358,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
           <div className="gestao-alunos-vazio">Nenhum aluno encontrado nas turmas selecionadas.</div>
         ) : alunosVisiveis.map((aluno) => (
           <article key={aluno.id} className={aluno.status === "inativo" ? "aluno-inativo" : ""}>
-            <div><strong>{aluno.nome}</strong><span>{aluno.turma} · {aluno.turno} · {aluno.arquivadoEm ? "Arquivado" : aluno.status}</span></div>
+            <div><strong>{aluno.nome}</strong><span>{aluno.turma} · {aluno.turno} · {aluno.arquivadoEm ? "Arquivado" : aluno.status}</span><b>{ocorrenciasPorAluno.get(normalizar(aluno.nome)) || 0} ocorrência(s) no histórico</b></div>
             {!aluno.arquivadoEm && <div><button type="button" onClick={() => setForm({ id: aluno.id, nome: aluno.nome, turmaId: aluno.turmaId, turno: aluno.turno })}>Editar/transferir</button><button type="button" onClick={() => alternarStatus(aluno)}>{aluno.status === "ativo" ? "Inativar" : "Ativar"}</button><button type="button" onClick={() => arquivar(aluno)}>Excluir</button></div>}
           </article>
         ))}

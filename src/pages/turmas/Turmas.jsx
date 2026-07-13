@@ -489,6 +489,7 @@ function Turmas() {
               setAlunos={setAlunosCadastrados}
               salvarLocais={salvarAlunosLocais}
               usarSupabase={alunosNoSupabase}
+              ocorrencias={ocorrencias}
             />
           )}
 

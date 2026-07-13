@@ -134,8 +134,8 @@ function Configuracao() {
       return;
     }
 
-    if (novaSenha.length < 4) {
-      setMensagemSenha("Use uma senha com pelo menos 4 caracteres.");
+    if (novaSenha.length < 6) {
+      setMensagemSenha("Use uma senha com pelo menos 6 caracteres.");
       return;
     }
 
@@ -174,6 +174,11 @@ function Configuracao() {
   };
 
   const salvarAcesso = (acesso) => {
+    if (acesso.senha.length > 0 && acesso.senha.length < 6) {
+      setMensagemAcesso("Use uma senha com pelo menos 6 caracteres.");
+      return;
+    }
+
     if (!acesso.email.trim()) {
       setMensagemAcesso("Informe o email de acesso.");
       return;
@@ -264,9 +269,12 @@ function Configuracao() {
                 Nova senha
                 <input
                   type="password"
+                  minLength={6}
+                  aria-describedby="regra-minha-senha"
                   value={novaSenha}
                   onChange={(event) => setNovaSenha(event.target.value)}
                 />
+                <small id="regra-minha-senha">Use pelo menos 6 caracteres.</small>
               </label>
 
               <label>
@@ -327,13 +335,18 @@ function Configuracao() {
                       <label>
                         Senha
                         <input
-                          type="text"
+                          type="password"
+                          minLength={6}
+                          aria-describedby={`regra-senha-${acesso.chave}`}
                           value={acesso.senha}
                           onChange={(event) =>
                             atualizarAcesso(acesso.chave, "senha", event.target.value)
                           }
                           placeholder="Senha de acesso"
                         />
+                        <small id={`regra-senha-${acesso.chave}`}>
+                          Use pelo menos 6 caracteres.
+                        </small>
                       </label>
 
                       <button type="button" onClick={() => salvarAcesso(acesso)}>

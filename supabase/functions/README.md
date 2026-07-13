@@ -104,3 +104,14 @@ Teste esperado:
 4. Confirme a exclusao.
 
 A escola deve sair da lista e os acessos vinculados a ela devem ser removidos.
+
+## Funcao `atualizar-escola-direcao`
+
+Atualiza os dados da escola, o perfil da direcao e as credenciais no Supabase
+Auth. A senha so e alterada quando uma nova senha e informada.
+
+Publique com:
+
+```powershell
+npx.cmd supabase@latest functions deploy atualizar-escola-direcao
+```

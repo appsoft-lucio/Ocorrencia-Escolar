@@ -113,6 +113,13 @@ Deno.serve(async (req) => {
     );
   }
 
+  if (senha.length < 6) {
+    return jsonResponse(
+      { error: "A senha deve ter pelo menos 6 caracteres." },
+      400,
+    );
+  }
+
   if (!escolaId) {
     return jsonResponse({ error: "Usuario atual sem escola vinculada." }, 403);
   }

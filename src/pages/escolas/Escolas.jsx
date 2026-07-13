@@ -157,6 +157,11 @@ function Escolas() {
       return;
     }
 
+    if (form.diretorSenha && form.diretorSenha.length < 6) {
+      setMensagem("A senha do diretor deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
     setSalvando(true);
 
     try {
@@ -169,6 +174,7 @@ function Escolas() {
             diretorLogin: form.diretorLogin.trim(),
             diretorEmail: form.diretorEmail.trim(),
             diretorTelefone: form.diretorTelefone.trim(),
+            diretorSenha: form.diretorSenha,
             status: form.status,
           });
 
@@ -409,15 +415,21 @@ function Escolas() {
 
               <div className="escola-form-duplo">
                 <label>
-                  Senha do diretor
+                  {form.id ? "Nova senha do diretor" : "Senha do diretor"}
                   <input
-                    type="text"
+                    type="password"
+                    minLength={6}
+                    aria-describedby="regra-senha-diretor"
                     value={form.diretorSenha}
                     onChange={(event) =>
                       atualizarCampo("diretorSenha", event.target.value)
                     }
-                    placeholder="Senha"
+                    placeholder={form.id ? "Deixe vazio para manter a atual" : "Senha"}
                   />
+                  <small id="regra-senha-diretor">
+                    Use pelo menos 6 caracteres.
+                    {form.id ? " Deixe vazio para manter a senha atual." : ""}
+                  </small>
                 </label>
               </div>
 

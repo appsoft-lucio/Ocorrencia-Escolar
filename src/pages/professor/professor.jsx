@@ -396,6 +396,11 @@ function Professor() {
         setMensagem("Informe a senha provisoria.");
         return;
       }
+
+      if (formData.senha.length < 6) {
+        setMensagem("A senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
     }
 
     if (!formData.disciplina.trim()) {
@@ -904,12 +909,17 @@ function Professor() {
                   <label htmlFor="senha-professor">Senha provisoria</label>
                   <input
                     id="senha-professor"
-                    type="text"
+                    type="password"
+                    minLength={6}
+                    aria-describedby="regra-senha-professor"
                     name="senha"
                     placeholder="Senha"
                     value={formData.senha}
                     onChange={handleInputChange}
                   />
+                  <small id="regra-senha-professor">
+                    Use pelo menos 6 caracteres.
+                  </small>
                 </div>
               </div>
 

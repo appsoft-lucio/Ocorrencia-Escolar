@@ -243,6 +243,11 @@ function Usuarios({
       return;
     }
 
+    if (form.senha.length < 6) {
+      setMensagem("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
     setSalvando(true);
 
     try {
@@ -399,11 +404,16 @@ function Usuarios({
                 <label>
                   Senha provisoria
                   <input
-                    type="text"
+                    type="password"
+                    minLength={6}
+                    aria-describedby="regra-senha-usuario"
                     value={form.senha}
                     onChange={(event) => atualizarCampo("senha", event.target.value)}
                     placeholder="Senha provisoria"
                   />
+                  <small id="regra-senha-usuario">
+                    Use pelo menos 6 caracteres.
+                  </small>
                 </label>
               </div>
 

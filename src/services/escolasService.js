@@ -76,43 +76,22 @@ export async function criarEscolaDirecaoSupabase(dados) {
 }
 
 export async function atualizarEscolaDirecaoSupabase(id, dados) {
-  const { data: escola, error: escolaError } = await supabase
-    .from("escolas")
-    .update({
-      nome: dados.nome,
-      cidade: dados.cidade,
-      status: dados.status,
-    })
-    .eq("id", id)
-    .select("id, nome, cidade, status, created_at, updated_at")
-    .single();
+  const { data, error } = await supabase.functions.invoke(
+    "atualizar-escola-direcao",
+    {
+      body: { id, ...dados },
+    },
+  );
 
-  if (escolaError) {
-    throw new Error("Nao foi possivel atualizar a escola.");
+  if (error) {
+    throw new Error(error.message || "Nao foi possivel atualizar a escola.");
   }
 
-  const { error: perfilError } = await supabase
-    .from("perfis")
-    .update({
-      nome: dados.diretorNome,
-      login: dados.diretorLogin,
-      email: dados.diretorEmail,
-      whatsapp: dados.diretorTelefone,
-    })
-    .eq("escola_id", id)
-    .eq("perfil", "diretor");
-
-  if (perfilError) {
-    throw new Error("Escola atualizada, mas nao foi possivel atualizar a direcao.");
+  if (data?.error) {
+    throw new Error(data.error);
   }
 
-  return mapearEscola({
-    ...escola,
-    diretor_nome: dados.diretorNome,
-    diretor_login: dados.diretorLogin,
-    diretor_email: dados.diretorEmail,
-    diretor_telefone: dados.diretorTelefone,
-  });
+  return mapearEscola(data.escola);
 }
 
 export async function atualizarStatusEscolaSupabase(id, status) {

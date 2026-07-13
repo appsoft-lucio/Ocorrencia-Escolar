@@ -9,10 +9,7 @@ const corsHeaders = {
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json",
-    },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
@@ -56,15 +53,10 @@ Deno.serve(async (req) => {
   }
 
   const supabaseAuth = createClient(supabaseUrl, anonKey, {
-    global: {
-      headers: { Authorization: authHeader },
-    },
+    global: { headers: { Authorization: authHeader } },
   });
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+    auth: { autoRefreshToken: false, persistSession: false },
   });
 
   const { data: authData, error: authError } = await supabaseAuth.auth.getUser(token);
@@ -73,57 +65,63 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Sessao invalida." }, 401);
   }
 
-  const { data: perfilAtual, error: perfilError } = await supabaseAdmin
+  const { data: perfilAtual, error: perfilAtualError } = await supabaseAdmin
     .from("perfis")
     .select("id, perfil, status")
     .eq("id", authData.user.id)
     .single();
 
   if (
-    perfilError ||
+    perfilAtualError ||
     !perfilAtual ||
     perfilAtual.status !== "ativo" ||
     perfilAtual.perfil !== "desenvolvedor"
   ) {
-    return jsonResponse({ error: "Apenas desenvolvedor pode criar escola." }, 403);
+    return jsonResponse({ error: "Apenas desenvolvedor pode atualizar escola." }, 403);
   }
 
   const body = await req.json().catch(() => ({}));
+  const id = normalizarTexto(body.id);
   const nomeEscola = normalizarTexto(body.nome);
   const cidade = normalizarTexto(body.cidade);
   const diretorNome = normalizarTexto(body.diretorNome);
   const diretorLogin = normalizarTexto(body.diretorLogin).toLowerCase();
   const diretorEmail = normalizarTexto(body.diretorEmail).toLowerCase();
-  const diretorAuthEmail = gerarAuthEmail(diretorLogin);
   const diretorTelefone = normalizarTexto(body.diretorTelefone);
   const diretorSenha = normalizarTexto(body.diretorSenha);
+  const diretorAuthEmail = gerarAuthEmail(diretorLogin);
   const status = body.status === "inativo" ? "inativo" : "ativo";
 
-  if (
-    !nomeEscola ||
-    !diretorNome ||
-    !diretorLogin ||
-    !diretorEmail ||
-    !diretorTelefone ||
-    !diretorSenha
-  ) {
+  if (!id || !nomeEscola || !diretorNome || !diretorLogin || !diretorEmail || !diretorTelefone) {
     return jsonResponse(
-      { error: "Informe escola, nome, usuario, email, WhatsApp e senha da direcao." },
+      { error: "Informe escola, nome, usuario, email e WhatsApp da direcao." },
       400,
     );
   }
 
-  if (diretorSenha.length < 6) {
+  if (diretorSenha && diretorSenha.length < 6) {
     return jsonResponse(
       { error: "A senha da direcao deve ter pelo menos 6 caracteres." },
       400,
     );
   }
 
+  const { data: diretor, error: diretorError } = await supabaseAdmin
+    .from("perfis")
+    .select("id, login, auth_email")
+    .eq("escola_id", id)
+    .eq("perfil", "diretor")
+    .maybeSingle();
+
+  if (diretorError || !diretor) {
+    return jsonResponse({ error: "Diretor da escola nao encontrado." }, 404);
+  }
+
   const { data: loginExistente, error: loginError } = await supabaseAdmin
     .from("perfis")
     .select("id")
-    .eq("login", diretorLogin)
+    .ilike("login", diretorLogin)
+    .neq("id", diretor.id)
     .maybeSingle();
 
   if (loginError) {
@@ -134,80 +132,66 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Este usuario ja esta em uso." }, 400);
   }
 
-  const { data: escolaCriada, error: criarEscolaError } = await supabaseAdmin
+  const authUpdates: { email: string; password?: string; user_metadata: Record<string, string> } = {
+    email: diretorAuthEmail,
+    user_metadata: {
+      nome: diretorNome,
+      login: diretorLogin,
+      email: diretorEmail,
+      whatsapp: diretorTelefone,
+      perfil: "diretor",
+      escola_id: id,
+    },
+  };
+
+  if (diretorSenha) {
+    authUpdates.password = diretorSenha;
+  }
+
+  const { error: atualizarAuthError } = await supabaseAdmin.auth.admin.updateUserById(
+    diretor.id,
+    authUpdates,
+  );
+
+  if (atualizarAuthError) {
+    return jsonResponse(
+      { error: atualizarAuthError.message || "Nao foi possivel atualizar o acesso da direcao." },
+      400,
+    );
+  }
+
+  const { data: escola, error: escolaError } = await supabaseAdmin
     .from("escolas")
-    .insert({
-      nome: nomeEscola,
-      cidade,
-      status,
-    })
+    .update({ nome: nomeEscola, cidade, status })
+    .eq("id", id)
     .select("id, nome, cidade, status, created_at, updated_at")
     .single();
 
-  if (criarEscolaError || !escolaCriada) {
+  const { error: perfilError } = await supabaseAdmin
+    .from("perfis")
+    .update({
+      nome: diretorNome,
+      login: diretorLogin,
+      email: diretorEmail,
+      auth_email: diretorAuthEmail,
+      whatsapp: diretorTelefone,
+    })
+    .eq("id", diretor.id);
+
+  if (escolaError || perfilError || !escola) {
     return jsonResponse(
-      { error: criarEscolaError?.message || "Nao foi possivel criar a escola." },
-      400,
+      { error: "O acesso foi atualizado, mas nao foi possivel concluir os dados da escola." },
+      500,
     );
   }
 
-  const { data: usuarioCriado, error: criarUsuarioError } =
-    await supabaseAdmin.auth.admin.createUser({
-      email: diretorAuthEmail,
-      password: diretorSenha,
-      email_confirm: true,
-      user_metadata: {
-        nome: diretorNome,
-        login: diretorLogin,
-        email: diretorEmail,
-        whatsapp: diretorTelefone,
-        perfil: "diretor",
-        escola_id: escolaCriada.id,
-      },
-    });
-
-  if (criarUsuarioError || !usuarioCriado.user) {
-    await supabaseAdmin.from("escolas").delete().eq("id", escolaCriada.id);
-    return jsonResponse(
-      {
-        error:
-          criarUsuarioError?.message || "Nao foi possivel criar o login da direcao.",
-      },
-      400,
-    );
-  }
-
-  const { error: criarPerfilError } = await supabaseAdmin.from("perfis").insert({
-    id: usuarioCriado.user.id,
-    escola_id: escolaCriada.id,
-    nome: diretorNome,
-    login: diretorLogin,
-    email: diretorEmail,
-    auth_email: diretorAuthEmail,
-    whatsapp: diretorTelefone,
-    perfil: "diretor",
-    status: "ativo",
-  });
-
-  if (criarPerfilError) {
-    await supabaseAdmin.auth.admin.deleteUser(usuarioCriado.user.id);
-    await supabaseAdmin.from("escolas").delete().eq("id", escolaCriada.id);
-    return jsonResponse(
-      { error: criarPerfilError.message || "Nao foi possivel criar o perfil." },
-      400,
-    );
-  }
-
-  return jsonResponse(
-    {
-      escola: {
-        ...escolaCriada,
-        diretorNome,
-        diretorLogin,
-        diretorEmail,
-        diretorTelefone,
-      },
+  return jsonResponse({
+    escola: {
+      ...escola,
+      diretorNome,
+      diretorLogin,
+      diretorEmail,
+      diretorTelefone,
     },
-    201,
-  );
+  });
 });

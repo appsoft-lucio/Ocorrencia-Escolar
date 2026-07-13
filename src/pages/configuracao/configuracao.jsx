@@ -4,6 +4,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import GestaoTiposOcorrencia from "../../components/GestaoTiposOcorrencia/GestaoTiposOcorrencia";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import { normalizarPerfil, perfilGestao } from "../../utils/permissoes";
@@ -359,6 +360,8 @@ function Configuracao() {
               )}
             </section>
           )}
+
+          {isGestao && <GestaoTiposOcorrencia user={user} />}
 
           <section className="config-card recuperacao-card">
             <h2>Recuperação de acesso</h2>

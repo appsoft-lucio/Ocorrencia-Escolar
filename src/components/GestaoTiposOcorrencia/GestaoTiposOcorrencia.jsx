@@ -14,8 +14,14 @@ const TIPOS_PADRAO = [
   "Atraso",
   "Falta de material",
   "Desrespeito",
+  "Agressão verbal",
+  "Agressão física",
   "Briga",
-  "Uso de celular",
+  "Bullying",
+  "Uso indevido de celular",
+  "Saída da sala sem autorização",
+  "Dano ao patrimônio",
+  "Recusa em realizar atividade",
   "Outro",
 ];
 

@@ -1,5 +1,21 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const TIPOS_OCORRENCIA_PADRAO = [
+  "Indisciplina",
+  "Atraso",
+  "Falta de material",
+  "Desrespeito",
+  "Agressão verbal",
+  "Agressão física",
+  "Briga",
+  "Bullying",
+  "Uso indevido de celular",
+  "Saída da sala sem autorização",
+  "Dano ao patrimônio",
+  "Recusa em realizar atividade",
+  "Outro",
+];
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -149,6 +165,24 @@ Deno.serve(async (req) => {
   if (criarEscolaError || !escolaCriada) {
     return jsonResponse(
       { error: criarEscolaError?.message || "Nao foi possivel criar a escola." },
+      400,
+    );
+  }
+
+  const { error: tiposError } = await supabaseAdmin
+    .from("tipos_ocorrencia")
+    .insert(
+      TIPOS_OCORRENCIA_PADRAO.map((nome) => ({
+        escola_id: escolaCriada.id,
+        nome,
+        status: "ativo",
+      })),
+    );
+
+  if (tiposError) {
+    await supabaseAdmin.from("escolas").delete().eq("id", escolaCriada.id);
+    return jsonResponse(
+      { error: "Nao foi possivel criar os tipos de ocorrencia da escola." },
       400,
     );
   }

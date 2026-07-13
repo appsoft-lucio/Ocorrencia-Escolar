@@ -20,8 +20,14 @@ const TIPOS_OCORRENCIA_PADRAO = [
   "Atraso",
   "Falta de material",
   "Desrespeito",
+  "Agressão verbal",
+  "Agressão física",
   "Briga",
-  "Uso de celular",
+  "Bullying",
+  "Uso indevido de celular",
+  "Saída da sala sem autorização",
+  "Dano ao patrimônio",
+  "Recusa em realizar atividade",
   "Outro",
 ];
 
@@ -381,10 +387,14 @@ function Ocorrencias() {
   }, [mostrarNotificacao, usarSupabase, user]);
 
   const tiposOcorrenciaAtivos = useMemo(
-    () =>
-      tiposOcorrencia
+    () => {
+      const ativos = tiposOcorrencia
         .filter((tipo) => tipo.status !== "inativo")
-        .map((tipo) => tipo.nome),
+        .map((tipo) => tipo.nome);
+      return ativos.some((tipo) => normalizarTexto(tipo) === "outro")
+        ? ativos
+        : [...ativos, "Outro"];
+    },
     [tiposOcorrencia],
   );
 

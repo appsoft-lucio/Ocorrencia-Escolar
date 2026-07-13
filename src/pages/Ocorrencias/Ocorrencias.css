@@ -739,3 +739,58 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Opção "Outro" separada das ocorrências predefinidas */
+.tipo-outro-bloco {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 2px dashed var(--cor-borda-light);
+}
+
+/* Destaque visual para indicar que "Outro" é uma opção especial */
+.checkbox-item-outro {
+  border-color: var(--cor-laranja);
+  background: rgba(255, 122, 0, 0.06);
+}
+
+.checkbox-item-outro > span {
+  display: grid;
+  gap: 3px;
+}
+
+.checkbox-item-outro strong {
+  color: var(--cor-secundaria);
+  font-size: 15px;
+}
+
+.checkbox-item-outro small {
+  color: var(--cor-texto-secundario);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.checkbox-item-outro input:checked + span strong {
+  color: var(--cor-laranja);
+}
+
+/* Campo revelado somente quando "Outro" estiver selecionado */
+.campo-outro-tipo {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid rgba(255, 122, 0, 0.35);
+  border-radius: 8px;
+  background: #fffaf5;
+}
+
+.texto-ajuda-outro {
+  margin-top: 0;
+}
+
+.campo-outro-tipo textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.5;
+}

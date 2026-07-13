@@ -35,7 +35,10 @@ function FormularioOcorrencia({
   onVoltar,
 }) {
   return (
-    <section className="ocorrencias-form" aria-labelledby="titulo-form-ocorrencia">
+    <section
+      className="ocorrencias-form"
+      aria-labelledby="titulo-form-ocorrencia"
+    >
       <div className="formulario-cabecalho">
         <div>
           <h2 id="titulo-form-ocorrencia">Nova ocorrencia</h2>
@@ -132,7 +135,9 @@ function FormularioOcorrencia({
                   {turma ? "Selecione o aluno" : "Selecione a turma primeiro"}
                 </option>
                 {alunosDisponiveis.map((aluno) => (
-                  <option key={aluno.id} value={aluno.id}>{aluno.nome}</option>
+                  <option key={aluno.id} value={aluno.id}>
+                    {aluno.nome}
+                  </option>
                 ))}
               </select>
               <button type="button" onClick={onAdicionarAluno}>
@@ -142,12 +147,15 @@ function FormularioOcorrencia({
           </label>
 
           <small id="aluno-ajuda" className="texto-ajuda">
-            Somente alunos ativos da turma e do turno selecionados aparecem aqui.
+            Somente alunos ativos da turma e do turno selecionados aparecem
+            aqui.
           </small>
 
           <div className="lista-alunos" aria-live="polite">
             {alunos.length === 0 ? (
-              <span className="lista-alunos-vazia">Nenhum aluno adicionado.</span>
+              <span className="lista-alunos-vazia">
+                Nenhum aluno adicionado.
+              </span>
             ) : (
               alunos.map((aluno) => (
                 <div key={aluno.id}>
@@ -166,19 +174,81 @@ function FormularioOcorrencia({
         </fieldset>
 
         <fieldset className="formulario-grupo checkbox-area">
-          <legend>Tipos de ocorrencia</legend>
+          <legend>Tipos de ocorrência</legend>
 
           <div className="checkbox-grid">
-            {tiposOcorrencia.map((tipo) => (
-              <label className="checkbox-item" key={tipo}>
-                <input
-                  type="checkbox"
-                  checked={ocorrenciasTipo.includes(tipo)}
-                  onChange={() => onCheckboxChange(tipo)}
-                />
-                <span>{tipo}</span>
+            {tiposOcorrencia
+              .filter((tipo) => tipo !== "Outro")
+              .map((tipo) => (
+                <label className="checkbox-item" key={tipo}>
+                  <input
+                    type="checkbox"
+                    checked={ocorrenciasTipo.includes(tipo)}
+                    onChange={() => onCheckboxChange(tipo)}
+                  />
+                  <span>{tipo}</span>
+                </label>
+              ))}
+          </div>
+
+          <div className="tipo-outro-bloco">
+            <label className="checkbox-item checkbox-item-outro">
+              <input
+                type="checkbox"
+                checked={ocorrenciasTipo.includes("Outro")}
+                onChange={() => onCheckboxChange("Outro")}
+              />
+
+              <span>
+                <strong>Outro</strong>
+                <small>
+                  Use quando a situação não estiver nas opções acima.
+                </small>
+              </span>
+            </label>
+
+            {ocorrenciasTipo.includes("Outro") && (
+              <label
+                className="campo-form campo-outro-tipo"
+                htmlFor="outro-tipo"
+              >
+                <span>Descreva o outro tipo de ocorrência</span>
+
+                <small className="texto-ajuda texto-ajuda-outro">
+                  Explique de forma objetiva o que aconteceu.
+                </small>
+
+                <div className="campo-com-voz">
+                  <textarea
+                    id="outro-tipo"
+                    value={outro}
+                    onChange={(event) => onOutroChange(event.target.value)}
+                    placeholder="Ex: O aluno apresentou uma situação que não corresponde aos tipos disponíveis."
+                    rows={3}
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    className={`btn-campo-voz ${gravandoOutro ? "gravando" : ""}`}
+                    onClick={onOutroVoz}
+                    disabled={!vozDisponivel}
+                    title={
+                      vozDisponivel
+                        ? "Descrever o outro tipo por voz"
+                        : "Reconhecimento de voz indisponível neste navegador"
+                    }
+                    aria-label={
+                      gravandoOutro
+                        ? "Parar gravação do outro tipo"
+                        : "Descrever o outro tipo por voz"
+                    }
+                  >
+                    {gravandoOutro ? "Gravando..." : "Microfone"}
+                  </button>
+                </div>
               </label>
-            ))}
+            )}
           </div>
         </fieldset>
 

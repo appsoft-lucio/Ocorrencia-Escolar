@@ -19,10 +19,16 @@ const FORM_INICIAL = { id: null, nome: "", turmaId: "", turno: "" };
 
 function nomesDoTexto(texto) {
   const ignorar = /^(alunos?|nome|turma|turno|lista|diario|matricula|n[ºo°]|página|pagina|total)$/i;
+  const linhas = texto.split(/\r?\n/);
+  const linhasDaTabela = linhas.filter((linha) => /^\s*\d+\s+\d{6,}\s+/.test(linha));
+  const candidatas = linhasDaTabela.length ? linhasDaTabela : linhas;
+
   return [...new Set(
-    texto
-      .split(/\r?\n/)
-      .map((linha) => linha.replace(/^\s*\d+[.)º°-]?\s*/, "").trim())
+    candidatas
+      .map((linha) => linha
+        .replace(/^\s*\d+[.)º°-]?\s*/, "")
+        .replace(/^\d{6,}\s+/, "")
+        .trim())
       .filter((linha) =>
         linha.length >= 5 &&
         linha.length <= 100 &&
@@ -31,6 +37,26 @@ function nomesDoTexto(texto) {
         !ignorar.test(linha),
       ),
   )];
+}
+
+function normalizar(valor = "") {
+  return valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+function dadosDoCabecalho(texto, turmas) {
+  const linhaTurma = texto.match(/Turma:\s*(.+?)\s+Turno:\s*([^\n]+)/i);
+  const descricaoTurma = linhaTurma?.[1]?.trim() || "";
+  const turnoEncontrado = linhaTurma?.[2]?.trim().split(/\s{2,}|Professor:/i)[0] || "";
+  const turma = turmas.find((item) => {
+    const codigo = normalizar(item.codigo);
+    const descricao = normalizar(descricaoTurma);
+    return codigo && (descricao === codigo || descricao.includes(codigo));
+  });
+  const turno = ["Manha", "Tarde", "Noite", "Integral"].find(
+    (item) => normalizar(item) === normalizar(turnoEncontrado),
+  ) || "";
+
+  return { turmaId: turma?.id || "", turno };
 }
 
 async function extrairTextoPDF(arquivo) {
@@ -160,7 +186,14 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         ? await extrairTextoPDF(arquivo)
         : await arquivo.text();
       const nomes = nomesDoTexto(texto);
-      setImportacao((atual) => ({ ...atual, aberta: true, nomes }));
+      const cabecalho = dadosDoCabecalho(texto, turmas);
+      setImportacao((atual) => ({
+        ...atual,
+        aberta: true,
+        nomes,
+        turmaId: cabecalho.turmaId || atual.turmaId,
+        turno: cabecalho.turno || atual.turno,
+      }));
       setMensagem(`${nomes.length} possiveis nomes encontrados. Revise antes de importar.`);
     } catch (error) {
       console.error(error);

@@ -1,0 +1,22 @@
+.gestao-alunos { margin: 18px 0; padding: 18px; border-radius: 8px; background: #fff; box-shadow: var(--shadow-sm); }
+.gestao-alunos-cabecalho, .gestao-alunos-lista article { display: flex; justify-content: space-between; gap: 14px; align-items: center; }
+.gestao-alunos h2, .gestao-alunos h3, .gestao-alunos p { margin: 0; }
+.gestao-alunos-cabecalho p { margin-top: 5px; color: var(--cor-texto-secundario); }
+.botao-arquivo, .gestao-alunos button { padding: 10px 14px; border: 0; border-radius: 6px; background: var(--cor-laranja); color: #fff; font-weight: 700; cursor: pointer; }
+.botao-arquivo input { display: none; }
+.gestao-alunos-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto auto; gap: 10px; margin: 18px 0; }
+.gestao-alunos input, .gestao-alunos select, .gestao-alunos textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; }
+.gestao-alunos-mensagem { margin-top: 12px; padding: 10px; border-radius: 6px; background: #fff7ed; color: #9a3412; font-weight: 700; }
+.importacao-alunos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; padding: 15px; border: 1px solid #fdba74; border-radius: 8px; background: #fff7ed; }
+.importacao-alunos h3, .importacao-alunos textarea, .importacao-alunos div { grid-column: 1 / -1; }
+.importacao-alunos div { display: flex; gap: 8px; }
+.mostrar-arquivados { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 12px; }
+.mostrar-arquivados input { width: auto; }
+.gestao-alunos-lista { display: grid; gap: 8px; }
+.gestao-alunos-lista article { padding: 12px; border: 1px solid #e5e7eb; border-radius: 7px; }
+.gestao-alunos-lista article > div { display: flex; gap: 7px; flex-wrap: wrap; }
+.gestao-alunos-lista article > div:first-child { flex-direction: column; gap: 3px; }
+.gestao-alunos-lista span { color: var(--cor-texto-secundario); font-size: 13px; }
+.gestao-alunos-lista button { padding: 7px 10px; background: var(--cor-secundaria); }
+.aluno-inativo { opacity: .65; }
+@media (max-width: 800px) { .gestao-alunos-form { grid-template-columns: 1fr; } .gestao-alunos-cabecalho, .gestao-alunos-lista article { align-items: stretch; flex-direction: column; } }

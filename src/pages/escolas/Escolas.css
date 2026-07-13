@@ -91,6 +91,19 @@
   font-weight: var(--font-semi-bold);
 }
 
+.escola-form .escola-opcao-importacao {
+  flex-direction: row;
+  align-items: center;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--cor-fundo-alt);
+}
+
+.escola-opcao-importacao input {
+  width: 18px;
+  height: 18px;
+}
+
 .escola-form-duplo {
   display: grid;
   grid-template-columns: 1fr 1fr;

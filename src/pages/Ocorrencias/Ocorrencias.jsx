@@ -11,6 +11,7 @@ import {
 } from "../../services/cadastrosEscolaresService";
 import { perfilGestao } from "../../utils/permissoes";
 import { exibirAlertaCentral } from "../../utils/alertaCentral";
+import { useAlunos } from "../../hooks/useAlunos";
 import FormularioOcorrencia from "./components/FormularioOcorrencia";
 import ListaOcorrencias from "./components/ListaOcorrencias";
 
@@ -210,15 +211,6 @@ function dataOcorrenciaParaISO(data) {
   return `${terceiro}-${segundo.padStart(2, "0")}-${primeiro.padStart(2, "0")}`;
 }
 
-function nomeAlunoValido(nome) {
-  const palavras = nome.split(" ");
-
-  return (
-    palavras.length >= 2 &&
-    palavras.every((palavra) => palavra.replace(/[^\p{L}]/gu, "").length >= 2)
-  );
-}
-
 function obterReconhecimentoVoz() {
   return window.SpeechRecognition || window.webkitSpeechRecognition;
 }
@@ -247,6 +239,7 @@ function Ocorrencias() {
   const { user } = useContext(AuthContext);
   const { ocorrencias, addOcorrencia, updateOcorrenciaStatus } =
     useContext(OcorrenciaContext);
+  const { alunos: alunosCadastrados } = useAlunos(user);
 
   const [turno, setTurno] = useState("");
   const [horario, setHorario] = useState("");
@@ -403,6 +396,17 @@ function Ocorrencias() {
     [turmasEscolares],
   );
 
+  const alunosDisponiveis = useMemo(
+    () => alunosCadastrados.filter(
+      (aluno) =>
+        aluno.status === "ativo" &&
+        !aluno.arquivadoEm &&
+        aluno.turma === turma &&
+        (!turno || normalizarTexto(aluno.turno) === normalizarTexto(turno)),
+    ),
+    [alunosCadastrados, turma, turno],
+  );
+
   const limparFormulario = useCallback(() => {
     setTurno("");
     setTurma("");
@@ -436,26 +440,21 @@ function Ocorrencias() {
   }, []);
 
   const adicionarAluno = useCallback(() => {
-    const nome = normalizarNomeAluno(alunoInput);
-
-    if (!nome) return;
-
-    if (!nomeAlunoValido(nome)) {
-      mostrarNotificacao(
-        "Informe nome e sobrenome, com no mínimo 2 letras em cada palavra.",
-        "erro",
-      );
-      return;
-    }
+    const alunoCadastrado = alunosDisponiveis.find((item) => item.id === alunoInput);
+    if (!alunoCadastrado) return;
+    const nome = normalizarNomeAluno(alunoCadastrado.nome);
 
     if (alunos.some((aluno) => aluno.nome.toLowerCase() === nome.toLowerCase())) {
       mostrarNotificacao("Aluno já adicionado.", "erro");
       return;
     }
 
-    setAlunos((alunosAtuais) => [...alunosAtuais, { id: Date.now(), nome }]);
+    setAlunos((alunosAtuais) => [
+      ...alunosAtuais,
+      { id: alunoCadastrado.id, nome },
+    ]);
     setAlunoInput("");
-  }, [alunoInput, alunos, mostrarNotificacao]);
+  }, [alunoInput, alunos, alunosDisponiveis, mostrarNotificacao]);
 
   const removerAluno = useCallback((id) => {
     setAlunos((alunosAtuais) => alunosAtuais.filter((aluno) => aluno.id !== id));
@@ -709,6 +708,7 @@ function Ocorrencias() {
       <FormularioOcorrencia
         alunoInput={alunoInput}
         alunos={alunos}
+        alunosDisponiveis={alunosDisponiveis}
         disciplina={disciplina}
         disciplinas={DISCIPLINAS}
         horario={horario}
@@ -731,8 +731,16 @@ function Ocorrencias() {
         onOutroVoz={() => alternarDitadoVoz("outro")}
         onRemoverAluno={removerAluno}
         onSubmit={handleSubmit}
-        onTurmaChange={setTurma}
-        onTurnoChange={setTurno}
+        onTurmaChange={(valor) => {
+          setTurma(valor);
+          setAlunoInput("");
+          setAlunos([]);
+        }}
+        onTurnoChange={(valor) => {
+          setTurno(valor);
+          setAlunoInput("");
+          setAlunos([]);
+        }}
         onVoltar={handleBack}
         gravandoObservacao={campoVozAtivo === "observacao"}
         gravandoOutro={campoVozAtivo === "outro"}

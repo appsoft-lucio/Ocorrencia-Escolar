@@ -27,6 +27,7 @@ const FORM_INICIAL = {
   diretorEmail: "",
   diretorTelefone: "",
   diretorSenha: "",
+  permitirImportacaoAlunos: false,
   status: "ativo",
 };
 
@@ -113,6 +114,7 @@ function Escolas() {
       diretorEmail: escola.diretorEmail || escola.diretorLogin || "",
       diretorTelefone: escola.diretorTelefone || "",
       diretorSenha: escola.diretorSenha || "",
+      permitirImportacaoAlunos: Boolean(escola.permitirImportacaoAlunos),
       status: escola.status || "ativo",
     });
     setMensagem(`Editando ${escola.nome}.`);
@@ -176,6 +178,7 @@ function Escolas() {
             diretorEmail: form.diretorEmail.trim(),
             diretorTelefone: form.diretorTelefone.trim(),
             diretorSenha: form.diretorSenha,
+            permitirImportacaoAlunos: form.permitirImportacaoAlunos,
             status: form.status,
           });
 
@@ -197,6 +200,7 @@ function Escolas() {
           diretorEmail: form.diretorEmail.trim(),
           diretorTelefone: form.diretorTelefone.trim(),
           diretorSenha: form.diretorSenha,
+          permitirImportacaoAlunos: form.permitirImportacaoAlunos,
           status: form.status,
         });
 
@@ -228,6 +232,7 @@ function Escolas() {
         diretorEmail: form.diretorEmail.trim(),
         diretorTelefone: form.diretorTelefone.trim(),
         diretorSenha: form.diretorSenha,
+        permitirImportacaoAlunos: form.permitirImportacaoAlunos,
         status: form.status,
       };
 
@@ -443,6 +448,17 @@ function Escolas() {
                   <option value="ativo">Ativa</option>
                   <option value="inativo">Inativa</option>
                 </select>
+              </label>
+
+              <label className="escola-opcao-importacao">
+                <input
+                  type="checkbox"
+                  checked={form.permitirImportacaoAlunos}
+                  onChange={(event) =>
+                    atualizarCampo("permitirImportacaoAlunos", event.target.checked)
+                  }
+                />
+                Permitir importacao de alunos por PDF nesta escola
               </label>
 
               <div className="escola-form-acoes">

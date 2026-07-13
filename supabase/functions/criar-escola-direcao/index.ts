@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
   const diretorTelefone = normalizarTexto(body.diretorTelefone);
   const diretorSenha = normalizarTexto(body.diretorSenha);
   const status = body.status === "inativo" ? "inativo" : "ativo";
+  const permitirImportacaoAlunos = body.permitirImportacaoAlunos === true;
 
   if (
     !nomeEscola ||
@@ -140,6 +141,7 @@ Deno.serve(async (req) => {
       nome: nomeEscola,
       cidade,
       status,
+      permitir_importacao_alunos: permitirImportacaoAlunos,
     })
     .select("id, nome, cidade, status, created_at, updated_at")
     .single();
@@ -202,6 +204,7 @@ Deno.serve(async (req) => {
     {
       escola: {
         ...escolaCriada,
+        permitirImportacaoAlunos,
         diretorNome,
         diretorLogin,
         diretorEmail,

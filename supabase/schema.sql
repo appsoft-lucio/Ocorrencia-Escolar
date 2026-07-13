@@ -18,6 +18,7 @@ create table public.escolas (
   nome text not null,
   cidade text,
   status public.status_registro not null default 'ativo',
+  permitir_importacao_alunos boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -68,6 +69,8 @@ create table public.alunos (
   escola_id uuid not null references public.escolas(id) on delete cascade,
   nome text not null,
   turma_id uuid references public.turmas(id) on delete set null,
+  turno text,
+  arquivado_em timestamptz,
   status public.status_registro not null default 'ativo',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

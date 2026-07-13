@@ -11,6 +11,9 @@ function mapearEscola(row) {
     diretorEmail: row.diretorEmail || row.diretor_email || row.email || "",
     diretorTelefone: row.diretorTelefone || row.diretor_telefone || row.whatsapp || "",
     diretorSenha: "",
+    permitirImportacaoAlunos: Boolean(
+      row.permitirImportacaoAlunos ?? row.permitir_importacao_alunos,
+    ),
     criadoEm: row.created_at || null,
     atualizadoEm: row.updated_at || null,
     origem: "supabase",
@@ -20,7 +23,7 @@ function mapearEscola(row) {
 export async function listarEscolasSupabase() {
   const { data, error } = await supabase
     .from("escolas")
-    .select("id, nome, cidade, status, created_at, updated_at")
+    .select("id, nome, cidade, status, permitir_importacao_alunos, created_at, updated_at")
     .order("nome", { ascending: true });
 
   if (error) {

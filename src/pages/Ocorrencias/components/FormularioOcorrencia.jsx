@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 function FormularioOcorrencia({
   alunoInput,
   alunos,
+  alunosDisponiveis,
   disciplina,
   disciplinas,
   horario,
@@ -120,13 +121,20 @@ function FormularioOcorrencia({
           <label className="campo-form" htmlFor="aluno">
             <span>Nome do aluno</span>
             <div className="aluno-box">
-              <input
+              <select
                 id="aluno"
                 value={alunoInput}
                 onChange={onAlunoInputChange}
-                placeholder="Nome e sobrenome"
                 aria-describedby="aluno-ajuda"
-              />
+                disabled={!turma}
+              >
+                <option value="">
+                  {turma ? "Selecione o aluno" : "Selecione a turma primeiro"}
+                </option>
+                {alunosDisponiveis.map((aluno) => (
+                  <option key={aluno.id} value={aluno.id}>{aluno.nome}</option>
+                ))}
+              </select>
               <button type="button" onClick={onAdicionarAluno}>
                 Adicionar
               </button>
@@ -134,7 +142,7 @@ function FormularioOcorrencia({
           </label>
 
           <small id="aluno-ajuda" className="texto-ajuda">
-            Informe nome e sobrenome, com no minimo 2 letras em cada palavra.
+            Somente alunos ativos da turma e do turno selecionados aparecem aqui.
           </small>
 
           <div className="lista-alunos" aria-live="polite">
@@ -256,13 +264,14 @@ function FormularioOcorrencia({
 }
 
 const alunoShape = PropTypes.shape({
-  id: PropTypes.number.isRequired,
+  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   nome: PropTypes.string.isRequired,
 });
 
 FormularioOcorrencia.propTypes = {
   alunoInput: PropTypes.string.isRequired,
   alunos: PropTypes.arrayOf(alunoShape).isRequired,
+  alunosDisponiveis: PropTypes.arrayOf(alunoShape).isRequired,
   disciplina: PropTypes.string.isRequired,
   disciplinas: PropTypes.arrayOf(PropTypes.string).isRequired,
   horario: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,

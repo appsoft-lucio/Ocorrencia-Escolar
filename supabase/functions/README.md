@@ -115,3 +115,10 @@ Publique com:
 ```powershell
 npx.cmd supabase@latest functions deploy atualizar-escola-direcao
 ```
+
+## Cadastro e importacao de alunos
+
+Antes de publicar o frontend, execute `supabase/alunos_cadastro_importacao.sql`
+no SQL Editor. Ele adiciona turno e arquivamento aos alunos e a permissao de
+importacao por PDF em cada escola. Depois publique novamente as funcoes de criar
+e atualizar escola.

@@ -91,6 +91,7 @@ Deno.serve(async (req) => {
   const diretorSenha = normalizarTexto(body.diretorSenha);
   const diretorAuthEmail = gerarAuthEmail(diretorLogin);
   const status = body.status === "inativo" ? "inativo" : "ativo";
+  const permitirImportacaoAlunos = body.permitirImportacaoAlunos === true;
 
   if (!id || !nomeEscola || !diretorNome || !diretorLogin || !diretorEmail || !diretorTelefone) {
     return jsonResponse(
@@ -162,7 +163,12 @@ Deno.serve(async (req) => {
 
   const { data: escola, error: escolaError } = await supabaseAdmin
     .from("escolas")
-    .update({ nome: nomeEscola, cidade, status })
+    .update({
+      nome: nomeEscola,
+      cidade,
+      status,
+      permitir_importacao_alunos: permitirImportacaoAlunos,
+    })
     .eq("id", id)
     .select("id, nome, cidade, status, created_at, updated_at")
     .single();
@@ -192,6 +198,7 @@ Deno.serve(async (req) => {
       diretorLogin,
       diretorEmail,
       diretorTelefone,
+      permitirImportacaoAlunos,
     },
   });
 });

@@ -166,6 +166,7 @@ function encontrarDiretorDaEscola(login, senha) {
     escolaId: escola.id,
     escolaNome: escola.nome,
     escolaCidade: escola.cidade,
+    permitirImportacaoAlunos: Boolean(escola.permitirImportacaoAlunos),
   };
 }
 
@@ -205,6 +206,7 @@ function encontrarAcessoCadastrado(login, senha) {
       escolaId: escola.id,
       escolaNome: escola.nome,
       escolaCidade: escola.cidade,
+      permitirImportacaoAlunos: Boolean(escola.permitirImportacaoAlunos),
     };
   } catch (error) {
     console.error("Erro ao carregar acessos cadastrados:", error);

@@ -26,7 +26,8 @@ export function AuthProvider({ children }) {
           escolas (
             nome,
             cidade,
-            status
+            status,
+            permitir_importacao_alunos
           )
         `,
       )
@@ -50,6 +51,7 @@ export function AuthProvider({ children }) {
       escolaId: data.escola_id,
       escolaNome: data.escolas?.nome,
       escolaCidade: data.escolas?.cidade,
+      permitirImportacaoAlunos: Boolean(data.escolas?.permitir_importacao_alunos),
       origem: "supabase",
     };
   }, []);

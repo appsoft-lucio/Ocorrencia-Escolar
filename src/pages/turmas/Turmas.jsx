@@ -3,11 +3,13 @@ import "./Turmas.css";
 import { useContext, useEffect, useMemo, useState } from "react";
 
 import Header from "../../components/Header/Header";
+import GestaoAlunos from "../../components/GestaoAlunos/GestaoAlunos";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import { useProfessores } from "../../hooks/useProfessores";
+import { useAlunos } from "../../hooks/useAlunos";
 import {
   atualizarStatusTurmaSupabase,
   criarTurmaSupabase,
@@ -86,6 +88,12 @@ function Turmas() {
   const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
   const { professores } = useProfessores(user);
+  const {
+    alunos: alunosCadastrados,
+    setAlunos: setAlunosCadastrados,
+    salvarLocais: salvarAlunosLocais,
+    usarSupabase: alunosNoSupabase,
+  } = useAlunos(user);
   const [turmasCadastradas, setTurmasCadastradas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useMensagemComAlerta();
@@ -253,7 +261,10 @@ function Turmas() {
 
     return Array.from(mapa.values())
       .map((turma) => {
-        const alunos = new Set(
+        const alunosDaTurma = alunosCadastrados.filter(
+          (aluno) => !aluno.arquivadoEm && aluno.turma === turma.codigo,
+        );
+        const alunosHistoricos = new Set(
           turma.ocorrencias.flatMap((ocorrencia) => ocorrencia.alunos || []),
         );
         const tipos = contarPor(turma.ocorrencias, (ocorrencia) => ocorrencia.tipos || []);
@@ -270,7 +281,7 @@ function Turmas() {
 
         return {
           ...turma,
-          alunos: alunos.size,
+          alunos: alunosDaTurma.length || alunosHistoricos.size,
           professores: Array.from(turma.professores).sort((a, b) =>
             a.localeCompare(b, "pt-BR"),
           ),
@@ -281,7 +292,7 @@ function Turmas() {
         };
       })
       .sort((a, b) => a.codigo.localeCompare(b.codigo, "pt-BR", { numeric: true }));
-  }, [ocorrencias, professoresComTurmas, turmasCadastradas]);
+  }, [alunosCadastrados, ocorrencias, professoresComTurmas, turmasCadastradas]);
 
   const turmasVisiveis = useMemo(() => {
     if (!user) return [];
@@ -469,6 +480,17 @@ function Turmas() {
               <span>Criticas</span>
             </div>
           </section>
+
+          {isGestao && (
+            <GestaoAlunos
+              user={user}
+              turmas={turmas}
+              alunos={alunosCadastrados}
+              setAlunos={setAlunosCadastrados}
+              salvarLocais={salvarAlunosLocais}
+              usarSupabase={alunosNoSupabase}
+            />
+          )}
 
           <section className="turmas-painel">
             {podeCadastrar && (

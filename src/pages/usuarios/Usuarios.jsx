@@ -5,6 +5,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
+import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import {
   carregarEscolasSistema,
   obterNomePerfil,
@@ -83,7 +84,7 @@ function Usuarios({
   const [acessos, setAcessos] = useState(lerAcessos);
   const [usuariosSupabase, setUsuariosSupabase] = useState([]);
   const [form, setForm] = useState(FORM_INICIAL);
-  const [mensagem, setMensagem] = useState("");
+  const [mensagem, setMensagem] = useMensagemComAlerta();
   const [salvando, setSalvando] = useState(false);
   const usarSupabase = user?.origem === "supabase";
 

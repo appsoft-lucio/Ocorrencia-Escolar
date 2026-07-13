@@ -4,6 +4,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import ProfessorCard from "../../components/Cards/professorCard/professorCard";
 import { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import {
   atualizarProfessorSupabase,
@@ -102,7 +103,7 @@ function Professor() {
     novaTurma: "",
     turmas: [],
   });
-  const [mensagem, setMensagem] = useState("");
+  const [mensagem, setMensagem] = useMensagemComAlerta();
   const [filtros, setFiltros] = useState({
     busca: "",
     status: "",
@@ -223,7 +224,7 @@ function Professor() {
     return () => {
       ativo = false;
     };
-  }, [ocorrencias, usarSupabase, user]);
+  }, [ocorrencias, setMensagem, usarSupabase, user]);
 
   const professoresResumo = useMemo(() => {
     const ativos = professores.filter((professor) => professor.status !== "inativo");

@@ -3,6 +3,7 @@ import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import {
   atualizarStatusTipoOcorrenciaSupabase,
   atualizarStatusTurmaSupabase,
@@ -171,7 +172,7 @@ function Coordenador() {
 
   const [nome, setNome] = useState("");
   const [principal, setPrincipal] = useState(coordenadores.length === 0);
-  const [mensagem, setMensagem] = useState("");
+  const [mensagem, setMensagem] = useMensagemComAlerta();
   const [tiposOcorrencia, setTiposOcorrencia] = useState(() => {
     const stored = localStorage.getItem(tiposStorageKey);
     return stored
@@ -188,8 +189,8 @@ function Coordenador() {
   const [abrirModalTurmas, setAbrirModalTurmas] = useState(false);
   const [novoTipo, setNovoTipo] = useState("");
   const [novaTurma, setNovaTurma] = useState("");
-  const [mensagemTipo, setMensagemTipo] = useState("");
-  const [mensagemTurma, setMensagemTurma] = useState("");
+  const [mensagemTipo, setMensagemTipo] = useMensagemComAlerta();
+  const [mensagemTurma, setMensagemTurma] = useMensagemComAlerta();
 
   useEffect(() => {
     let ativo = true;
@@ -216,7 +217,7 @@ function Coordenador() {
     return () => {
       ativo = false;
     };
-  }, [usarSupabase, user]);
+  }, [setMensagemTipo, setMensagemTurma, usarSupabase, user]);
 
   const coordenadorPrincipal = useMemo(
     () => coordenadores.find((coordenador) => coordenador.principal),

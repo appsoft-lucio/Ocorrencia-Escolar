@@ -5,6 +5,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext.jsx";
+import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import { normalizarPerfil, perfilGestao } from "../../utils/permissoes";
 
 function lerStorage(chave, fallback = []) {
@@ -44,8 +45,8 @@ function Configuracao() {
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [mensagemSenha, setMensagemSenha] = useState("");
-  const [mensagemAcesso, setMensagemAcesso] = useState("");
+  const [mensagemSenha, setMensagemSenha] = useMensagemComAlerta();
+  const [mensagemAcesso, setMensagemAcesso] = useMensagemComAlerta();
   const [acessos, setAcessos] = useState(() => lerStorage("acessosUsuarios", {}));
 
   const perfilAtual = normalizarPerfil(user?.role);

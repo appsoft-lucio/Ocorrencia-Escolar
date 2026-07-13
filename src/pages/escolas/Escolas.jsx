@@ -5,6 +5,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
+import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import {
   carregarEscolasSistema,
   salvarEscolasSistema,
@@ -44,7 +45,7 @@ function Escolas() {
   const { user } = useContext(AuthContext);
   const [escolas, setEscolas] = useState(carregarEscolasSistema);
   const [form, setForm] = useState(FORM_INICIAL);
-  const [mensagem, setMensagem] = useState("");
+  const [mensagem, setMensagem] = useMensagemComAlerta();
   const [salvando, setSalvando] = useState(false);
   const nomeInputRef = useRef(null);
   const formRef = useRef(null);
@@ -77,7 +78,7 @@ function Escolas() {
     return () => {
       ativo = false;
     };
-  }, [usarSupabase]);
+  }, [setMensagem, usarSupabase]);
 
   const resumo = useMemo(() => {
     const ativas = escolas.filter((escola) => escola.status !== "inativo").length;

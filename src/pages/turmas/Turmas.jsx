@@ -5,6 +5,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
+import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 import { useProfessores } from "../../hooks/useProfessores";
 import {
@@ -87,7 +88,7 @@ function Turmas() {
   const { professores } = useProfessores(user);
   const [turmasCadastradas, setTurmasCadastradas] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mensagem, setMensagem] = useState("");
+  const [mensagem, setMensagem] = useMensagemComAlerta();
   const [filtros, setFiltros] = useState({
     busca: "",
     turno: "",
@@ -137,7 +138,7 @@ function Turmas() {
     return () => {
       ativo = false;
     };
-  }, [usarSupabase, user]);
+  }, [setMensagem, usarSupabase, user]);
 
   const professoresComTurmas = useMemo(() => {
     const mapaOcorrencias = new Map();

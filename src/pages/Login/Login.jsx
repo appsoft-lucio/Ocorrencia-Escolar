@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { encontrarUsuarioDemo } from "../../data/demoUsers";
+import { exibirAlertaCentral } from "../../utils/alertaCentral";
 import { obterRotaInicial } from "../../utils/permissoes";
 
 function Login() {
@@ -31,13 +32,14 @@ function Login() {
 
       if (supabaseConfigurado) {
         await loginSupabase(loginInformado, password);
+        exibirAlertaCentral("Login realizado com sucesso.", "sucesso");
         return;
       }
 
       const usuarioDemo = encontrarUsuarioDemo(userName, password);
 
       if (!usuarioDemo) {
-        alert("Usuario ou senha invalidos.");
+        exibirAlertaCentral("Usuario ou senha invalidos.", "erro");
         return;
       }
 
@@ -50,8 +52,9 @@ function Login() {
         escolaNome: usuarioDemo.escolaNome,
         escolaCidade: usuarioDemo.escolaCidade,
       });
+      exibirAlertaCentral("Login realizado com sucesso.", "sucesso");
     } catch (error) {
-      alert(error.message || "Nao foi possivel entrar.");
+      exibirAlertaCentral(error.message || "Nao foi possivel entrar.", "erro");
     } finally {
       setEnviando(false);
     }

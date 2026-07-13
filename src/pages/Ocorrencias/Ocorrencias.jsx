@@ -10,6 +10,7 @@ import {
   listarTurmasSupabase,
 } from "../../services/cadastrosEscolaresService";
 import { perfilGestao } from "../../utils/permissoes";
+import { exibirAlertaCentral } from "../../utils/alertaCentral";
 import FormularioOcorrencia from "./components/FormularioOcorrencia";
 import ListaOcorrencias from "./components/ListaOcorrencias";
 
@@ -278,6 +279,7 @@ function Ocorrencias() {
     }
 
     setNotificacao({ mensagem, tipo });
+    exibirAlertaCentral(mensagem, tipo);
     notificacaoTimerRef.current = window.setTimeout(() => {
       setNotificacao(null);
       notificacaoTimerRef.current = null;

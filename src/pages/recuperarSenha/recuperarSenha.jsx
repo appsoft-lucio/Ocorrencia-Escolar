@@ -2,13 +2,19 @@ import "./recuperarSenha.css";
 
 import { useState } from "react";
 
+import { exibirAlertaCentral } from "../../utils/alertaCentral";
+
 function RecuperarSenha() {
   const [email, setEmail] = useState("");
   const [enviado, setEnviado] = useState(false);
 
   const enviar = () => {
-    if (!email) return;
+    if (!email) {
+      exibirAlertaCentral("Informe o email para recuperar a senha.", "erro");
+      return;
+    }
     setEnviado(true);
+    exibirAlertaCentral("Solicitacao de recuperacao enviada.", "sucesso");
   };
 
   return (

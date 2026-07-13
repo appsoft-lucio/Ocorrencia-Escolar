@@ -53,6 +53,9 @@ export async function criarAlunoSupabase(user, dados) {
     .select(CAMPOS)
     .single();
 
+  if (error?.code === "23505") {
+    throw new Error("Este aluno ja esta cadastrado nesta turma.");
+  }
   if (error) throw new Error("Nao foi possivel cadastrar o aluno.");
   return mapearAluno(data);
 }
@@ -99,9 +102,22 @@ export async function arquivarAlunoSupabase(user, id) {
 
 export async function importarAlunosSupabase(user, alunos) {
   validarGestao(user);
-  const resultados = [];
-  for (const aluno of alunos) {
-    resultados.push(await criarAlunoSupabase(user, aluno));
+  const { data, error } = await supabase
+    .from("alunos")
+    .insert(
+      alunos.map((aluno) => ({
+        escola_id: user.escolaId,
+        nome: aluno.nome,
+        turma_id: aluno.turmaId,
+        turno: aluno.turno,
+        status: "ativo",
+      })),
+    )
+    .select(CAMPOS);
+
+  if (error?.code === "23505") {
+    throw new Error("Um ou mais alunos ja estao cadastrados nesta turma.");
   }
-  return resultados;
+  if (error) throw new Error("Nao foi possivel importar os alunos.");
+  return (data || []).map(mapearAluno);
 }

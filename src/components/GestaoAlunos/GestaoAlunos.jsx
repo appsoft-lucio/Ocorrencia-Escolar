@@ -89,6 +89,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
   const [form, setForm] = useState(FORM_INICIAL);
   const [mostrarArquivados, setMostrarArquivados] = useState(false);
   const [importacao, setImportacao] = useState({ aberta: false, turmaId: "", turno: "", nomes: [] });
+  const [importando, setImportando] = useState(false);
   const [mensagem, setMensagem] = useMensagemComAlerta();
 
   const turmaSelecionada = turmas.find((turma) => turma.id === form.turmaId);
@@ -202,6 +203,8 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
   }
 
   async function confirmarImportacao() {
+    if (importando) return;
+
     if (!importacao.turmaId || !importacao.turno || importacao.nomes.length === 0) {
       setMensagem("Selecione turma e turno e mantenha pelo menos um nome.");
       return;
@@ -226,6 +229,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
       return;
     }
     try {
+      setImportando(true);
       const salvos = usarSupabase
         ? await importarAlunosSupabase(user, novos)
         : novos.map((aluno) => ({ ...aluno, id: crypto.randomUUID() }));
@@ -234,6 +238,8 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
       setMensagem(`${salvos.length} alunos importados com sucesso.`);
     } catch (error) {
       setMensagem(error.message);
+    } finally {
+      setImportando(false);
     }
   }
 
@@ -265,7 +271,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
           <select value={importacao.turmaId} onChange={(e) => setImportacao({ ...importacao, turmaId: e.target.value })}><option value="">Turma de destino</option>{turmas.filter((t) => t.cadastrado && t.status !== "inativo").map((t) => <option key={t.id} value={t.id}>{t.codigo}</option>)}</select>
           <select value={importacao.turno} onChange={(e) => setImportacao({ ...importacao, turno: e.target.value })}><option value="">Turno</option>{["Manha", "Tarde", "Noite", "Integral"].map((t) => <option key={t}>{t}</option>)}</select>
           <textarea rows="10" value={importacao.nomes.join("\n")} onChange={(e) => setImportacao({ ...importacao, nomes: e.target.value.split("\n").map((n) => n.trim()).filter(Boolean) })} />
-          <div><button type="button" onClick={confirmarImportacao}>Confirmar importação</button><button type="button" onClick={() => setImportacao({ aberta: false, turmaId: "", turno: "", nomes: [] })}>Cancelar</button></div>
+          <div><button type="button" onClick={confirmarImportacao} disabled={importando}>{importando ? "Importando..." : "Confirmar importação"}</button><button type="button" disabled={importando} onClick={() => setImportacao({ aberta: false, turmaId: "", turno: "", nomes: [] })}>Cancelar</button></div>
         </div>
       )}
 

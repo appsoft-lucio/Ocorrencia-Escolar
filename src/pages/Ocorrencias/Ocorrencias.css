@@ -794,3 +794,25 @@
   resize: vertical;
   line-height: 1.5;
 }
+.card-alunos-envolvidos {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f7f8fa;
+}
+
+.card-alunos-envolvidos > strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.card-alunos-envolvidos ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.card-alunos-envolvidos li {
+  line-height: 1.4;
+}

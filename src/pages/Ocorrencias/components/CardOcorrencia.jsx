@@ -9,14 +9,15 @@ const STATUS_OPCOES = [
 ];
 
 function CardOcorrencia({
-  aluno,
   canManage,
   ocorrencia,
   onStatusChange,
   normalizeStatus,
 }) {
   const [mostrarControleStatus, setMostrarControleStatus] = useState(false);
-  const tituloId = `ocorrencia-${ocorrencia.id}-${aluno}-titulo`;
+  const tituloId = `ocorrencia-${ocorrencia.id}-titulo`;
+  const alunosEnvolvidos = ocorrencia.alunos || [];
+  const quantidadeAlunos = alunosEnvolvidos.length;
   const status = normalizeStatus(ocorrencia.status);
   const statusInfo =
     STATUS_OPCOES.find((opcao) => opcao.valor === status) || STATUS_OPCOES[0];
@@ -32,9 +33,24 @@ function CardOcorrencia({
       aria-labelledby={tituloId}
     >
       <div className="card-ocorrencia-topo">
-        <h3 id={tituloId}>{aluno}</h3>
+        <h3 id={tituloId}>
+          {quantidadeAlunos === 1
+            ? alunosEnvolvidos[0]
+            : `${quantidadeAlunos} alunos envolvidos`}
+        </h3>
         <span className={`status-badge status-${classeStatus}`}>{status}</span>
       </div>
+
+      {quantidadeAlunos > 1 && (
+        <div className="card-alunos-envolvidos">
+          <strong>Alunos:</strong>
+          <ul>
+            {alunosEnvolvidos.map((nome) => (
+              <li key={nome}>{nome}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <p>
         <strong>Turma:</strong> {ocorrencia.turma}
@@ -108,14 +124,13 @@ function CardOcorrencia({
 }
 
 CardOcorrencia.propTypes = {
-  aluno: PropTypes.string.isRequired,
   canManage: PropTypes.bool.isRequired,
   ocorrencia: PropTypes.shape({
     alunos: PropTypes.arrayOf(PropTypes.string).isRequired,
     data: PropTypes.string.isRequired,
     disciplina: PropTypes.string.isRequired,
     horario: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    id: PropTypes.number.isRequired,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     observacao: PropTypes.string,
     professorNome: PropTypes.string.isRequired,
     status: PropTypes.string,

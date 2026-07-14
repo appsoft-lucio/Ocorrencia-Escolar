@@ -35,18 +35,15 @@ function ListaOcorrencias({
 
   return (
     <section className="ocorrencias-lista" aria-label="Lista de ocorrências">
-      {ocorrencias.flatMap((ocorrencia) =>
-        ocorrencia.alunos.map((aluno, index) => (
-          <CardOcorrencia
-            aluno={aluno}
-            canManage={canManage}
-            key={`${ocorrencia.id}-${index}`}
-            ocorrencia={ocorrencia}
-            onStatusChange={onStatusChange}
-            normalizeStatus={normalizeStatus}
-          />
-        )),
-      )}
+      {ocorrencias.map((ocorrencia) => (
+        <CardOcorrencia
+          canManage={canManage}
+          key={ocorrencia.id}
+          ocorrencia={ocorrencia}
+          onStatusChange={onStatusChange}
+          normalizeStatus={normalizeStatus}
+        />
+      ))}
     </section>
   );
 }

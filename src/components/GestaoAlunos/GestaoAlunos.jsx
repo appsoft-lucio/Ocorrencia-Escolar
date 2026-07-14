@@ -376,6 +376,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         tipo: "importacao",
         novos,
         duplicados: duplicadosOutraTurma,
+        selecionados: [],
         jaNaTurma,
         turmaDestino: turma?.codigo || "turma selecionada",
         turmaDestinoId: importacao.turmaId,
@@ -392,7 +393,12 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
     await executarImportacao(novos, [], jaNaTurma);
   }
 
-  async function executarImportacao(novos, duplicados, jaNaTurma = 0) {
+  async function executarImportacao(
+    novos,
+    duplicados,
+    jaNaTurma = 0,
+    mantidosEmOutraTurma = 0,
+  ) {
     const dadosConfirmacao = confirmacao;
     try {
       setImportando(true);
@@ -440,6 +446,9 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
           `${transferidos.length} aluno(s) transferido(s).` +
           (jaNaTurma > 0
             ? ` ${jaNaTurma} ja estava(m) na turma e foi(ram) mantido(s).`
+            : "") +
+          (mantidosEmOutraTurma > 0
+            ? ` ${mantidosEmOutraTurma} nao foi(ram) selecionado(s) e permaneceu(ram) na turma atual.`
             : ""),
       );
     } catch (error) {
@@ -452,8 +461,44 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
   async function confirmarTransferenciasImportacao() {
     if (confirmacao?.tipo !== "importacao" || importando) return;
     const dados = confirmacao;
-    await executarImportacao(dados.novos, dados.duplicados, dados.jaNaTurma);
+    const selecionados = new Set(dados.selecionados);
+    const duplicadosSelecionados = dados.duplicados.filter((aluno) =>
+      selecionados.has(aluno.id),
+    );
+    const mantidos = dados.duplicados.length - duplicadosSelecionados.length;
+    await executarImportacao(
+      dados.novos,
+      duplicadosSelecionados,
+      dados.jaNaTurma,
+      mantidos,
+    );
     setConfirmacao(null);
+  }
+
+  function alternarAlunoImportacao(alunoId) {
+    setConfirmacao((atual) => {
+      if (atual?.tipo !== "importacao") return atual;
+      const selecionados = atual.selecionados.includes(alunoId)
+        ? atual.selecionados.filter((id) => id !== alunoId)
+        : [...atual.selecionados, alunoId];
+      return { ...atual, selecionados };
+    });
+  }
+
+  function selecionarTodosDuplicados() {
+    setConfirmacao((atual) =>
+      atual?.tipo === "importacao"
+        ? { ...atual, selecionados: atual.duplicados.map((aluno) => aluno.id) }
+        : atual,
+    );
+  }
+
+  function limparSelecaoDuplicados() {
+    setConfirmacao((atual) =>
+      atual?.tipo === "importacao"
+        ? { ...atual, selecionados: [] }
+        : atual,
+    );
   }
 
   return (
@@ -489,6 +534,14 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
                 <p>
                   Os alunos abaixo ja estao cadastrados em outras turmas:
                 </p>
+                <div className="confirmacao-aluno-selecao-acoes">
+                  <button type="button" onClick={selecionarTodosDuplicados}>
+                    Selecionar todos
+                  </button>
+                  <button type="button" onClick={limparSelecaoDuplicados}>
+                    Limpar selecao
+                  </button>
+                </div>
                 <ul className="confirmacao-aluno-lista">
                   {confirmacao.duplicados.map((aluno) => {
                     const turmaAtual = turmas.find(
@@ -496,15 +549,24 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
                     );
                     return (
                       <li key={aluno.id}>
-                        <strong>{aluno.nome}</strong>
-                        <span>{turmaAtual?.codigo || "Turma atual"}</span>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={confirmacao.selecionados.includes(aluno.id)}
+                            onChange={() => alternarAlunoImportacao(aluno.id)}
+                          />
+                          <span>
+                            <strong>{aluno.nome}</strong>
+                            <small>{turmaAtual?.codigo || "Turma atual"}</small>
+                          </span>
+                        </label>
                       </li>
                     );
                   })}
                 </ul>
                 <p>
-                  Somente estes alunos serao transferidos para <strong>{confirmacao.turmaDestino}</strong>.
-                  Os alunos novos serao cadastrados normalmente.
+                  Somente os alunos marcados serao transferidos para <strong>{confirmacao.turmaDestino}</strong>.
+                  Os desmarcados permanecerao na turma atual. Os alunos novos serao cadastrados normalmente.
                 </p>
               </div>
             )}
@@ -534,7 +596,9 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
                   ? "Processando..."
                   : confirmacao.tipo === "cadastro"
                   ? "Transferir aluno"
-                  : `Importar e transferir ${confirmacao.duplicados.length} aluno(s)`}
+                  : confirmacao.selecionados.length > 0
+                    ? `Importar e transferir ${confirmacao.selecionados.length} selecionado(s)`
+                    : "Importar novos sem transferir"}
               </button>
             </div>
           </section>

@@ -103,8 +103,8 @@ create unique index perfis_login_unique_idx on public.perfis (lower(login)) wher
 create index turmas_escola_id_idx on public.turmas(escola_id);
 create index tipos_ocorrencia_escola_id_idx on public.tipos_ocorrencia(escola_id);
 create index alunos_escola_id_idx on public.alunos(escola_id);
-create unique index alunos_nome_turma_ativos_unique_idx
-on public.alunos(escola_id, turma_id, lower(btrim(nome)))
+create unique index alunos_nome_escola_ativos_unique_idx
+on public.alunos(escola_id, lower(btrim(nome)))
 where arquivado_em is null;
 create index ocorrencias_escola_id_idx on public.ocorrencias(escola_id);
 create index ocorrencias_professor_id_idx on public.ocorrencias(professor_id);

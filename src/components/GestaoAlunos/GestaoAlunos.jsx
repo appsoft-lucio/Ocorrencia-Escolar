@@ -156,16 +156,77 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
       return;
     }
 
-    const duplicado = alunos.some(
+    const alunoExistente = alunos.find(
       (aluno) =>
         aluno.id !== form.id &&
         !aluno.arquivadoEm &&
-        aluno.turmaId === form.turmaId &&
-        aluno.nome.toLocaleLowerCase("pt-BR") ===
-          form.nome.trim().toLocaleLowerCase("pt-BR"),
+        normalizar(aluno.nome) === normalizar(form.nome),
     );
-    if (duplicado) {
-      setMensagem("Este aluno ja esta cadastrado nesta turma.");
+
+    if (alunoExistente) {
+      const turmaAtual = turmas.find((item) => item.id === alunoExistente.turmaId);
+      const turmaDestino = turmas.find((item) => item.id === form.turmaId);
+
+      if (form.id) {
+        setMensagem(
+          `Ja existe outro cadastro para ${alunoExistente.nome} nesta escola.`,
+        );
+        return;
+      }
+
+      if (alunoExistente.turmaId === form.turmaId) {
+        setMensagem(
+          `${alunoExistente.nome} ja esta cadastrado na turma ${turmaAtual?.codigo || "selecionada"}.`,
+        );
+        return;
+      }
+
+      const transferir = window.confirm(
+        `${alunoExistente.nome} ja esta cadastrado na turma ${turmaAtual?.codigo || "atual"}.\n\n` +
+          `Deseja transferir o aluno para a turma ${turmaDestino?.codigo || "selecionada"}?\n\n` +
+          "OK: transferir para a nova turma.\nCancelar: manter na turma atual.",
+      );
+
+      if (!transferir) {
+        setMensagem(
+          `${alunoExistente.nome} foi mantido na turma ${turmaAtual?.codigo || "atual"}.`,
+        );
+        return;
+      }
+
+      try {
+        const dadosTransferencia = {
+          nome: alunoExistente.nome,
+          turmaId: form.turmaId,
+          turno: form.turno,
+        };
+        const transferido = usarSupabase
+          ? await atualizarAlunoSupabase(
+              user,
+              alunoExistente.id,
+              dadosTransferencia,
+            )
+          : {
+              ...alunoExistente,
+              ...dadosTransferencia,
+              turma: turmaDestino?.codigo || "",
+            };
+
+        atualizarLista(
+          alunos.map((aluno) =>
+            aluno.id === alunoExistente.id ? transferido : aluno,
+          ),
+        );
+        setTurmasSelecionadas((atuais) =>
+          atuais.includes(form.turmaId) ? atuais : [...atuais, form.turmaId],
+        );
+        setMensagem(
+          `${alunoExistente.nome} transferido para a turma ${turmaDestino?.codigo || "selecionada"}.`,
+        );
+        setForm(FORM_INICIAL);
+      } catch (error) {
+        setMensagem(error.message);
+      }
       return;
     }
 
@@ -261,11 +322,11 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
     const turma = turmas.find((item) => item.id === importacao.turmaId);
     const existentes = new Set(
       alunos
-        .filter((aluno) => aluno.turmaId === importacao.turmaId && !aluno.arquivadoEm)
-        .map((aluno) => aluno.nome.toLocaleLowerCase("pt-BR")),
+        .filter((aluno) => !aluno.arquivadoEm)
+        .map((aluno) => normalizar(aluno.nome)),
     );
     const novos = importacao.nomes
-      .filter((nome) => !existentes.has(nome.toLocaleLowerCase("pt-BR")))
+      .filter((nome) => !existentes.has(normalizar(nome)))
       .map((nome) => ({
       nome,
       turmaId: importacao.turmaId,
@@ -274,7 +335,7 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
       status: "ativo",
       }));
     if (novos.length === 0) {
-      setMensagem("Todos os nomes da importacao ja estao cadastrados nesta turma.");
+      setMensagem("Todos os nomes da importacao ja estao cadastrados nesta escola.");
       return;
     }
     try {
@@ -289,7 +350,13 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
           : [...atuais, importacao.turmaId],
       );
       setImportacao({ aberta: false, turmaId: "", turno: "", nomes: [] });
-      setMensagem(`${salvos.length} alunos importados com sucesso.`);
+      const ignorados = importacao.nomes.length - novos.length;
+      setMensagem(
+        `${salvos.length} alunos importados com sucesso.` +
+          (ignorados > 0
+            ? ` ${ignorados} ja estavam cadastrados na escola e foram ignorados.`
+            : ""),
+      );
     } catch (error) {
       setMensagem(error.message);
     } finally {

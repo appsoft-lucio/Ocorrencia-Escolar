@@ -54,7 +54,7 @@ export async function criarAlunoSupabase(user, dados) {
     .single();
 
   if (error?.code === "23505") {
-    throw new Error("Este aluno ja esta cadastrado nesta turma.");
+    throw new Error("Este aluno ja esta cadastrado nesta escola.");
   }
   if (error) throw new Error("Nao foi possivel cadastrar o aluno.");
   return mapearAluno(data);
@@ -116,7 +116,7 @@ export async function importarAlunosSupabase(user, alunos) {
     .select(CAMPOS);
 
   if (error?.code === "23505") {
-    throw new Error("Um ou mais alunos ja estao cadastrados nesta turma.");
+    throw new Error("Um ou mais alunos ja estao cadastrados nesta escola.");
   }
   if (error) throw new Error("Nao foi possivel importar os alunos.");
   return (data || []).map(mapearAluno);

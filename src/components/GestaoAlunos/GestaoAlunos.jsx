@@ -4,6 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
+import ConfirmacaoTransferencia from "./components/ConfirmacaoTransferencia";
+import FormularioAluno from "./components/FormularioAluno";
+import { normalizar } from "./utils/alunosUtils";
+
 import {
   arquivarAlunoSupabase,
   atualizarAlunoSupabase,
@@ -37,10 +41,6 @@ function nomesDoTexto(texto) {
         !ignorar.test(linha),
       ),
   )];
-}
-
-function normalizar(valor = "") {
-  return valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
 function dadosDoCabecalho(texto, turmas) {
@@ -503,107 +503,18 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
 
   return (
     <section className="gestao-alunos">
-      {confirmacao && (
-        <div className="confirmacao-aluno-fundo">
-          <section
-            ref={dialogoRef}
-            className="confirmacao-aluno"
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="confirmacao-aluno-titulo"
-            aria-describedby="confirmacao-aluno-descricao"
-            tabIndex="-1"
-          >
-            <h2 id="confirmacao-aluno-titulo">
-              {confirmacao.tipo === "cadastro"
-                ? "Aluno ja cadastrado"
-                : "Alunos encontrados em outras turmas"}
-            </h2>
-
-            {confirmacao.tipo === "cadastro" ? (
-              <div id="confirmacao-aluno-descricao">
-                <p><strong>{confirmacao.aluno.nome}</strong></p>
-                <p>
-                  Turma atual: <strong>{confirmacao.turmaAtual}</strong><br />
-                  Nova turma: <strong>{confirmacao.turmaDestino}</strong>
-                </p>
-                <p>Escolha se deseja manter ou transferir este aluno.</p>
-              </div>
-            ) : (
-              <div id="confirmacao-aluno-descricao">
-                <p>
-                  Os alunos abaixo ja estao cadastrados em outras turmas:
-                </p>
-                <div className="confirmacao-aluno-selecao-acoes">
-                  <button type="button" onClick={selecionarTodosDuplicados}>
-                    Selecionar todos
-                  </button>
-                  <button type="button" onClick={limparSelecaoDuplicados}>
-                    Limpar selecao
-                  </button>
-                </div>
-                <ul className="confirmacao-aluno-lista">
-                  {confirmacao.duplicados.map((aluno) => {
-                    const turmaAtual = turmas.find(
-                      (item) => item.id === aluno.turmaId,
-                    );
-                    return (
-                      <li key={aluno.id}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={confirmacao.selecionados.includes(aluno.id)}
-                            onChange={() => alternarAlunoImportacao(aluno.id)}
-                          />
-                          <span>
-                            <strong>{aluno.nome}</strong>
-                            <small>{turmaAtual?.codigo || "Turma atual"}</small>
-                          </span>
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <p>
-                  Somente os alunos marcados serao transferidos para <strong>{confirmacao.turmaDestino}</strong>.
-                  Os desmarcados permanecerao na turma atual. Os alunos novos serao cadastrados normalmente.
-                </p>
-              </div>
-            )}
-
-            <div className="confirmacao-aluno-acoes">
-              <button
-                type="button"
-                className="btn-confirmacao-cancelar"
-                onClick={cancelarConfirmacao}
-                disabled={importando}
-              >
-                {confirmacao.tipo === "cadastro"
-                  ? "Manter na turma atual"
-                  : "Cancelar importacao"}
-              </button>
-              <button
-                type="button"
-                className="btn-confirmacao-transferir"
-                onClick={
-                  confirmacao.tipo === "cadastro"
-                    ? confirmarTransferenciaCadastro
-                    : confirmarTransferenciasImportacao
-                }
-                disabled={importando}
-              >
-                {importando
-                  ? "Processando..."
-                  : confirmacao.tipo === "cadastro"
-                  ? "Transferir aluno"
-                  : confirmacao.selecionados.length > 0
-                    ? `Importar e transferir ${confirmacao.selecionados.length} selecionado(s)`
-                    : "Importar novos sem transferir"}
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
+      <ConfirmacaoTransferencia
+        confirmacao={confirmacao}
+        dialogoRef={dialogoRef}
+        importando={importando}
+        onAlternarAluno={alternarAlunoImportacao}
+        onCancelar={cancelarConfirmacao}
+        onConfirmarCadastro={confirmarTransferenciaCadastro}
+        onConfirmarImportacao={confirmarTransferenciasImportacao}
+        onLimparSelecao={limparSelecaoDuplicados}
+        onSelecionarTodos={selecionarTodosDuplicados}
+        turmas={turmas}
+      />
       <div className="gestao-alunos-cabecalho">
         <div><h2>Alunos das turmas</h2><p>Cadastre, transfira, inative ou arquive sem perder o histórico.</p></div>
         {user.permitirImportacaoAlunos && (
@@ -613,16 +524,13 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
 
       {mensagem && <div className="gestao-alunos-mensagem">{mensagem}</div>}
 
-      <form className="gestao-alunos-form" onSubmit={salvar}>
-        <input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome completo" />
-        <select value={form.turmaId} onChange={(e) => {
-          const turma = turmas.find((item) => item.id === e.target.value);
-          setForm({ ...form, turmaId: e.target.value, turno: turma?.turno || form.turno });
-        }}><option value="">Turma</option>{turmas.filter((t) => t.cadastrado && t.status !== "inativo").map((t) => <option key={t.id} value={t.id}>{t.codigo}</option>)}</select>
-        <select value={form.turno} onChange={(e) => setForm({ ...form, turno: e.target.value })}><option value="">Turno</option>{["Manha", "Tarde", "Noite", "Integral"].map((t) => <option key={t}>{t}</option>)}</select>
-        <button type="submit">{form.id ? "Atualizar/transferir" : "Cadastrar aluno"}</button>
-        {form.id && <button type="button" onClick={() => setForm(FORM_INICIAL)}>Cancelar</button>}
-      </form>
+      <FormularioAluno
+        form={form}
+        onCancelar={() => setForm(FORM_INICIAL)}
+        onChange={setForm}
+        onSubmit={salvar}
+        turmas={turmas}
+      />
 
       {importacao.aberta && (
         <div className="importacao-alunos">

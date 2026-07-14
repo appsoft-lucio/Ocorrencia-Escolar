@@ -1,6 +1,6 @@
 import "./GestaoAlunos.css";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
@@ -91,7 +91,20 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
   const [turmasSelecionadas, setTurmasSelecionadas] = useState([]);
   const [importacao, setImportacao] = useState({ aberta: false, turmaId: "", turno: "", nomes: [] });
   const [importando, setImportando] = useState(false);
+  const [confirmacao, setConfirmacao] = useState(null);
   const [mensagem, setMensagem] = useMensagemComAlerta();
+  const dialogoRef = useRef(null);
+
+  useEffect(() => {
+    if (!confirmacao) return undefined;
+
+    dialogoRef.current?.focus();
+    const fecharComEsc = (event) => {
+      if (event.key === "Escape") setConfirmacao(null);
+    };
+    window.addEventListener("keydown", fecharComEsc);
+    return () => window.removeEventListener("keydown", fecharComEsc);
+  }, [confirmacao]);
 
   const turmaSelecionada = turmas.find((turma) => turma.id === form.turmaId);
   const alunosVisiveis = useMemo(
@@ -181,52 +194,14 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
         return;
       }
 
-      const transferir = window.confirm(
-        `${alunoExistente.nome} ja esta cadastrado na turma ${turmaAtual?.codigo || "atual"}.\n\n` +
-          `Deseja transferir o aluno para a turma ${turmaDestino?.codigo || "selecionada"}?\n\n` +
-          "OK: transferir para a nova turma.\nCancelar: manter na turma atual.",
-      );
-
-      if (!transferir) {
-        setMensagem(
-          `${alunoExistente.nome} foi mantido na turma ${turmaAtual?.codigo || "atual"}.`,
-        );
-        return;
-      }
-
-      try {
-        const dadosTransferencia = {
-          nome: alunoExistente.nome,
-          turmaId: form.turmaId,
-          turno: form.turno,
-        };
-        const transferido = usarSupabase
-          ? await atualizarAlunoSupabase(
-              user,
-              alunoExistente.id,
-              dadosTransferencia,
-            )
-          : {
-              ...alunoExistente,
-              ...dadosTransferencia,
-              turma: turmaDestino?.codigo || "",
-            };
-
-        atualizarLista(
-          alunos.map((aluno) =>
-            aluno.id === alunoExistente.id ? transferido : aluno,
-          ),
-        );
-        setTurmasSelecionadas((atuais) =>
-          atuais.includes(form.turmaId) ? atuais : [...atuais, form.turmaId],
-        );
-        setMensagem(
-          `${alunoExistente.nome} transferido para a turma ${turmaDestino?.codigo || "selecionada"}.`,
-        );
-        setForm(FORM_INICIAL);
-      } catch (error) {
-        setMensagem(error.message);
-      }
+      setConfirmacao({
+        tipo: "cadastro",
+        aluno: alunoExistente,
+        turmaAtual: turmaAtual?.codigo || "turma atual",
+        turmaDestino: turmaDestino?.codigo || "turma selecionada",
+        turmaDestinoId: form.turmaId,
+        turnoDestino: form.turno,
+      });
       return;
     }
 
@@ -259,6 +234,55 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
     } catch (error) {
       setMensagem(error.message);
     }
+  }
+
+  async function confirmarTransferenciaCadastro() {
+    if (confirmacao?.tipo !== "cadastro") return;
+
+    const dados = confirmacao;
+    setConfirmacao(null);
+    try {
+      const dadosTransferencia = {
+        nome: dados.aluno.nome,
+        turmaId: dados.turmaDestinoId,
+        turno: dados.turnoDestino,
+      };
+      const transferido = usarSupabase
+        ? await atualizarAlunoSupabase(user, dados.aluno.id, dadosTransferencia)
+        : {
+            ...dados.aluno,
+            ...dadosTransferencia,
+            turma: dados.turmaDestino,
+          };
+
+      atualizarLista(
+        alunos.map((aluno) =>
+          aluno.id === dados.aluno.id ? transferido : aluno,
+        ),
+      );
+      setTurmasSelecionadas((atuais) =>
+        atuais.includes(dados.turmaDestinoId)
+          ? atuais
+          : [...atuais, dados.turmaDestinoId],
+      );
+      setMensagem(
+        `${dados.aluno.nome} transferido para a turma ${dados.turmaDestino}.`,
+      );
+      setForm(FORM_INICIAL);
+    } catch (error) {
+      setMensagem(error.message);
+    }
+  }
+
+  function cancelarConfirmacao() {
+    if (confirmacao?.tipo === "cadastro") {
+      setMensagem(
+        `${confirmacao.aluno.nome} foi mantido na turma ${confirmacao.turmaAtual}.`,
+      );
+    } else if (confirmacao?.tipo === "importacao") {
+      setMensagem("Importacao cancelada. Nenhum aluno foi alterado.");
+    }
+    setConfirmacao(null);
   }
 
   async function alternarStatus(aluno) {
@@ -320,41 +344,102 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
       return;
     }
     const turma = turmas.find((item) => item.id === importacao.turmaId);
-    const existentes = new Set(
+    const existentes = new Map(
       alunos
         .filter((aluno) => !aluno.arquivadoEm)
-        .map((aluno) => normalizar(aluno.nome)),
+        .map((aluno) => [normalizar(aluno.nome), aluno]),
     );
-    const novos = importacao.nomes
+    const nomesUnicos = [...new Map(
+      importacao.nomes.map((nome) => [normalizar(nome), nome]),
+    ).values()];
+    const novos = nomesUnicos
       .filter((nome) => !existentes.has(normalizar(nome)))
       .map((nome) => ({
-      nome,
-      turmaId: importacao.turmaId,
-      turma: turma?.codigo || "",
-      turno: importacao.turno,
-      status: "ativo",
+        nome,
+        turmaId: importacao.turmaId,
+        turma: turma?.codigo || "",
+        turno: importacao.turno,
+        status: "ativo",
       }));
-    if (novos.length === 0) {
-      setMensagem("Todos os nomes da importacao ja estao cadastrados nesta escola.");
+    const duplicadosOutraTurma = nomesUnicos
+      .map((nome) => existentes.get(normalizar(nome)))
+      .filter(
+        (aluno) => aluno && aluno.turmaId !== importacao.turmaId,
+      );
+    const jaNaTurma = nomesUnicos.filter((nome) => {
+      const aluno = existentes.get(normalizar(nome));
+      return aluno?.turmaId === importacao.turmaId;
+    }).length;
+
+    if (duplicadosOutraTurma.length > 0) {
+      setConfirmacao({
+        tipo: "importacao",
+        novos,
+        duplicados: duplicadosOutraTurma,
+        jaNaTurma,
+        turmaDestino: turma?.codigo || "turma selecionada",
+        turmaDestinoId: importacao.turmaId,
+        turnoDestino: importacao.turno,
+      });
       return;
     }
+
+    if (novos.length === 0) {
+      setMensagem("Todos os nomes da importacao ja estao cadastrados nesta turma.");
+      return;
+    }
+
+    await executarImportacao(novos, [], jaNaTurma);
+  }
+
+  async function executarImportacao(novos, duplicados, jaNaTurma = 0) {
+    const dadosConfirmacao = confirmacao;
     try {
       setImportando(true);
-      const salvos = usarSupabase
-        ? await importarAlunosSupabase(user, novos)
-        : novos.map((aluno) => ({ ...aluno, id: crypto.randomUUID() }));
-      atualizarLista([...alunos, ...salvos].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")));
+      const salvos = novos.length === 0
+        ? []
+        : usarSupabase
+          ? await importarAlunosSupabase(user, novos)
+          : novos.map((aluno) => ({ ...aluno, id: crypto.randomUUID() }));
+
+      const transferidos = await Promise.all(
+        duplicados.map(async (aluno) => {
+          const dadosTransferencia = {
+            nome: aluno.nome,
+            turmaId: dadosConfirmacao.turmaDestinoId,
+            turno: dadosConfirmacao.turnoDestino,
+          };
+          return usarSupabase
+            ? atualizarAlunoSupabase(user, aluno.id, dadosTransferencia)
+            : {
+                ...aluno,
+                ...dadosTransferencia,
+                turma: dadosConfirmacao.turmaDestino,
+              };
+        }),
+      );
+      const transferidosPorId = new Map(
+        transferidos.map((aluno) => [aluno.id, aluno]),
+      );
+      const listaAtualizada = alunos.map(
+        (aluno) => transferidosPorId.get(aluno.id) || aluno,
+      );
+      atualizarLista(
+        [...listaAtualizada, ...salvos].sort((a, b) =>
+          a.nome.localeCompare(b.nome, "pt-BR"),
+        ),
+      );
       setTurmasSelecionadas((atuais) =>
         atuais.includes(importacao.turmaId)
           ? atuais
           : [...atuais, importacao.turmaId],
       );
       setImportacao({ aberta: false, turmaId: "", turno: "", nomes: [] });
-      const ignorados = importacao.nomes.length - novos.length;
       setMensagem(
-        `${salvos.length} alunos importados com sucesso.` +
-          (ignorados > 0
-            ? ` ${ignorados} ja estavam cadastrados na escola e foram ignorados.`
+        `${salvos.length} aluno(s) novo(s) importado(s). ` +
+          `${transferidos.length} aluno(s) transferido(s).` +
+          (jaNaTurma > 0
+            ? ` ${jaNaTurma} ja estava(m) na turma e foi(ram) mantido(s).`
             : ""),
       );
     } catch (error) {
@@ -364,8 +449,97 @@ function GestaoAlunos({ user, turmas, alunos, setAlunos, salvarLocais, usarSupab
     }
   }
 
+  async function confirmarTransferenciasImportacao() {
+    if (confirmacao?.tipo !== "importacao" || importando) return;
+    const dados = confirmacao;
+    await executarImportacao(dados.novos, dados.duplicados, dados.jaNaTurma);
+    setConfirmacao(null);
+  }
+
   return (
     <section className="gestao-alunos">
+      {confirmacao && (
+        <div className="confirmacao-aluno-fundo">
+          <section
+            ref={dialogoRef}
+            className="confirmacao-aluno"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirmacao-aluno-titulo"
+            aria-describedby="confirmacao-aluno-descricao"
+            tabIndex="-1"
+          >
+            <h2 id="confirmacao-aluno-titulo">
+              {confirmacao.tipo === "cadastro"
+                ? "Aluno ja cadastrado"
+                : "Alunos encontrados em outras turmas"}
+            </h2>
+
+            {confirmacao.tipo === "cadastro" ? (
+              <div id="confirmacao-aluno-descricao">
+                <p><strong>{confirmacao.aluno.nome}</strong></p>
+                <p>
+                  Turma atual: <strong>{confirmacao.turmaAtual}</strong><br />
+                  Nova turma: <strong>{confirmacao.turmaDestino}</strong>
+                </p>
+                <p>Escolha se deseja manter ou transferir este aluno.</p>
+              </div>
+            ) : (
+              <div id="confirmacao-aluno-descricao">
+                <p>
+                  Os alunos abaixo ja estao cadastrados em outras turmas:
+                </p>
+                <ul className="confirmacao-aluno-lista">
+                  {confirmacao.duplicados.map((aluno) => {
+                    const turmaAtual = turmas.find(
+                      (item) => item.id === aluno.turmaId,
+                    );
+                    return (
+                      <li key={aluno.id}>
+                        <strong>{aluno.nome}</strong>
+                        <span>{turmaAtual?.codigo || "Turma atual"}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p>
+                  Somente estes alunos serao transferidos para <strong>{confirmacao.turmaDestino}</strong>.
+                  Os alunos novos serao cadastrados normalmente.
+                </p>
+              </div>
+            )}
+
+            <div className="confirmacao-aluno-acoes">
+              <button
+                type="button"
+                className="btn-confirmacao-cancelar"
+                onClick={cancelarConfirmacao}
+                disabled={importando}
+              >
+                {confirmacao.tipo === "cadastro"
+                  ? "Manter na turma atual"
+                  : "Cancelar importacao"}
+              </button>
+              <button
+                type="button"
+                className="btn-confirmacao-transferir"
+                onClick={
+                  confirmacao.tipo === "cadastro"
+                    ? confirmarTransferenciaCadastro
+                    : confirmarTransferenciasImportacao
+                }
+                disabled={importando}
+              >
+                {importando
+                  ? "Processando..."
+                  : confirmacao.tipo === "cadastro"
+                  ? "Transferir aluno"
+                  : `Importar e transferir ${confirmacao.duplicados.length} aluno(s)`}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
       <div className="gestao-alunos-cabecalho">
         <div><h2>Alunos das turmas</h2><p>Cadastre, transfira, inative ou arquive sem perder o histórico.</p></div>
         {user.permitirImportacaoAlunos && (

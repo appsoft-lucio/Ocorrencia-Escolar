@@ -252,38 +252,6 @@ function FormularioOcorrencia({
           </div>
         </fieldset>
 
-        {ocorrenciasTipo.includes("Outro") && (
-          <label className="campo-form campo-outro-tipo" htmlFor="outro-tipo">
-            <span>Outro tipo</span>
-            <div className="campo-com-voz">
-              <input
-                id="outro-tipo"
-                value={outro}
-                onChange={(event) => onOutroChange(event.target.value)}
-                placeholder="Descreva o tipo"
-              />
-              <button
-                type="button"
-                className={`btn-campo-voz ${gravandoOutro ? "gravando" : ""}`}
-                onClick={onOutroVoz}
-                disabled={!vozDisponivel}
-                title={
-                  vozDisponivel
-                    ? "Registrar outro tipo por voz"
-                    : "Reconhecimento de voz indisponivel neste navegador"
-                }
-                aria-label={
-                  gravandoOutro
-                    ? "Parar gravacao do outro tipo"
-                    : "Registrar outro tipo por voz"
-                }
-              >
-                {gravandoOutro ? "Gravando..." : "Microfone"}
-              </button>
-            </div>
-          </label>
-        )}
-
         <fieldset className="formulario-grupo">
           <legend>Observacao</legend>
 

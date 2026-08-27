@@ -1,0 +1,17 @@
+{
+  "name": "EduRegistro - Ocorrencia Escolar",
+  "short_name": "EduRegistro",
+  "description": "Gestao de ocorrencias e registros escolares.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f6fa",
+  "theme_color": "#1f2937",
+  "lang": "pt-BR",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

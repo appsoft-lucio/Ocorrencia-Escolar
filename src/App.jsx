@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 
 import AnalyticsTracker from "./components/AnalyticsTracker";
 import AlertaCentral from "./components/AlertaCentral/AlertaCentral";
+import InstallPWA from "./components/InstallPWA/InstallPWA";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import RecuperarSenha from "./pages/recuperarSenha/recuperarSenha.jsx";
@@ -27,6 +28,7 @@ function App() {
         <HashRouter>
           <AnalyticsTracker />
           <AlertaCentral />
+          <InstallPWA />
 
           <Routes>
             <Route path="/" element={<Login />} />

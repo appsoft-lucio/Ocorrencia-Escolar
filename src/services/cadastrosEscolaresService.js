@@ -196,3 +196,42 @@ export async function atualizarStatusTurmaSupabase(id, status, user) {
 
   return mapearTurma(data);
 }
+
+export async function atualizarTurmaSupabase(id, dados, user) {
+  validarGestao(user);
+
+  const payload = {
+    codigo: dados.codigo,
+    turno: dados.turno || null,
+  };
+
+  const { data, error } = await supabase
+    .from("turmas")
+    .update(payload)
+    .eq("id", id)
+    .eq("escola_id", user.escolaId)
+    .select(CAMPOS_TURMA)
+    .single();
+
+  if (error?.code === "42703") {
+    const { data: dataBase, error: errorBase } = await supabase
+      .from("turmas")
+      .update({ codigo: dados.codigo })
+      .eq("id", id)
+      .eq("escola_id", user.escolaId)
+      .select(CAMPOS_TURMA_BASE)
+      .single();
+
+    if (errorBase) {
+      throw new Error("Nao foi possivel editar a turma.");
+    }
+
+    return mapearTurma(dataBase);
+  }
+
+  if (error) {
+    throw new Error("Nao foi possivel editar a turma.");
+  }
+
+  return mapearTurma(data);
+}

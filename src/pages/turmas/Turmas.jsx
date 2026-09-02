@@ -12,6 +12,7 @@ import { useProfessores } from "../../hooks/useProfessores";
 import { useAlunos } from "../../hooks/useAlunos";
 import {
   atualizarStatusTurmaSupabase,
+  atualizarTurmaSupabase,
   criarTurmaSupabase,
   listarTurmasSupabase,
 } from "../../services/cadastrosEscolaresService";
@@ -106,6 +107,8 @@ function Turmas() {
     codigo: "",
     turno: "Manha",
   });
+  const [turmaEmEdicao, setTurmaEmEdicao] = useState(null);
+  const [formEdicao, setFormEdicao] = useState({ codigo: "", turno: "Manha" });
 
   const perfil = normalizarPerfil(user?.role);
   const isGestao = perfilGestao(perfil);
@@ -441,6 +444,72 @@ function Turmas() {
     }
   }
 
+  function iniciarEdicao(turma) {
+    setTurmaEmEdicao(turma.id);
+    setFormEdicao({
+      codigo: turma.codigo,
+      turno: turma.turno || "Manha",
+    });
+    setMensagem("");
+  }
+
+  function cancelarEdicao() {
+    setTurmaEmEdicao(null);
+    setFormEdicao({ codigo: "", turno: "Manha" });
+  }
+
+  async function salvarEdicao(event, turma) {
+    event.preventDefault();
+
+    const codigo = formEdicao.codigo.trim();
+    if (!codigo) {
+      setMensagem("Informe o codigo da turma.");
+      return;
+    }
+
+    const codigoDuplicado = turmas.some(
+      (item) =>
+        item.id !== turma.id &&
+        normalizarTexto(item.codigo) === normalizarTexto(codigo),
+    );
+
+    if (codigoDuplicado) {
+      setMensagem("Ja existe outra turma com este codigo.");
+      return;
+    }
+
+    try {
+      if (usarSupabase) {
+        const atualizada = await atualizarTurmaSupabase(
+          turma.id,
+          { codigo, turno: formEdicao.turno },
+          user,
+        );
+        setTurmasCadastradas((atuais) =>
+          atuais.map((item) => (item.id === turma.id ? atualizada : item)),
+        );
+      } else {
+        const proximas = turmasCadastradas.map((item) =>
+          item.id === turma.id
+            ? {
+                ...item,
+                codigo,
+                nome: codigo,
+                turno: formEdicao.turno,
+              }
+            : item,
+        );
+        setTurmasCadastradas(proximas);
+        salvarTurmasLocais(user.escolaId, proximas);
+      }
+
+      cancelarEdicao();
+      setMensagem("Turma editada com sucesso.");
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel editar a turma.");
+    }
+  }
+
   if (!user) {
     return <div className="turmas-feedback">Carregando usuario...</div>;
   }
@@ -574,7 +643,55 @@ function Turmas() {
               ) : (
                 <div className="turmas-grid">
                   {turmasVisiveis.map((turma) => (
-                    <article className="turma-card" key={turma.codigo}>
+                    <article className="turma-card" key={turma.id || turma.codigo}>
+                      {turmaEmEdicao === turma.id ? (
+                        <form
+                          className="turma-edicao"
+                          onSubmit={(event) => salvarEdicao(event, turma)}
+                        >
+                          <h2>Editar turma</h2>
+                          <div className="turma-edicao-campos">
+                            <label>
+                              Codigo da turma
+                              <input
+                                value={formEdicao.codigo}
+                                onChange={(event) =>
+                                  setFormEdicao((atual) => ({
+                                    ...atual,
+                                    codigo: event.target.value,
+                                  }))
+                                }
+                                autoFocus
+                              />
+                            </label>
+                            <label>
+                              Turno
+                              <select
+                                value={formEdicao.turno}
+                                onChange={(event) =>
+                                  setFormEdicao((atual) => ({
+                                    ...atual,
+                                    turno: event.target.value,
+                                  }))
+                                }
+                              >
+                                {TURNOS.map((turno) => (
+                                  <option key={turno} value={turno}>
+                                    {turno}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                          <div className="turma-edicao-acoes">
+                            <button type="button" onClick={cancelarEdicao}>
+                              Cancelar
+                            </button>
+                            <button type="submit">Salvar alteracoes</button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
                       <div className="turma-card-topo">
                         <div>
                           <h2>{turma.codigo}</h2>
@@ -627,10 +744,15 @@ function Turmas() {
 
                       {podeCadastrar && turma.cadastrado && (
                         <div className="turma-acoes">
+                          <button type="button" onClick={() => iniciarEdicao(turma)}>
+                            Editar
+                          </button>
                           <button type="button" onClick={() => alternarStatus(turma)}>
                             {turma.status === "inativo" ? "Ativar" : "Inativar"}
                           </button>
                         </div>
+                      )}
+                        </>
                       )}
                     </article>
                   ))}

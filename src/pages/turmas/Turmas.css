@@ -92,6 +92,8 @@
 
 .turmas-form input,
 .turmas-form select,
+.turma-edicao input,
+.turma-edicao select,
 .turmas-filtros input,
 .turmas-filtros select {
   width: 100%;
@@ -107,6 +109,8 @@
 
 .turmas-form input:focus,
 .turmas-form select:focus,
+.turma-edicao input:focus,
+.turma-edicao select:focus,
 .turmas-filtros input:focus,
 .turmas-filtros select:focus {
   border-color: var(--cor-laranja);
@@ -248,12 +252,75 @@
 
 .turma-acoes {
   display: flex;
+  gap: 8px;
   justify-content: flex-end;
 }
 
 .turma-acoes button {
   padding: 0 14px;
   background: var(--cor-secundaria);
+}
+
+.turma-acoes button:first-child {
+  background: var(--cor-laranja);
+}
+
+.turma-edicao {
+  display: grid;
+  gap: 14px;
+}
+
+.turma-edicao h2 {
+  font-size: 18px;
+}
+
+.turma-edicao-campos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 240px);
+  gap: 12px;
+}
+
+.turma-edicao label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.turma-edicao input,
+.turma-edicao select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  background: var(--cor-branco);
+  color: var(--cor-texto);
+  font-size: 14px;
+  outline: none;
+}
+
+.turma-edicao-acoes {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.turma-edicao-acoes button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.turma-edicao-acoes button:last-child {
+  background: var(--cor-laranja);
 }
 
 .turmas-vazio {
@@ -281,7 +348,8 @@
   .turmas-resumo,
   .turmas-filtros,
   .turma-metricas,
-  .turma-detalhes {
+  .turma-detalhes,
+  .turma-edicao-campos {
     grid-template-columns: 1fr;
   }
 
@@ -290,6 +358,14 @@
   }
 
   .turma-acoes button {
+    flex: 1;
+  }
+
+  .turma-edicao-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .turma-edicao-acoes button {
     width: 100%;
   }
 }

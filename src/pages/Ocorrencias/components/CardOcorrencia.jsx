@@ -38,7 +38,9 @@ function CardOcorrencia({
             ? alunosEnvolvidos[0]
             : `${quantidadeAlunos} alunos envolvidos`}
         </h3>
-        <span className={`status-badge status-${classeStatus}`}>{status}</span>
+        {canManage && (
+          <span className={`status-badge status-${classeStatus}`}>{status}</span>
+        )}
       </div>
 
       {quantidadeAlunos > 1 && (
@@ -76,9 +78,11 @@ function CardOcorrencia({
         {ocorrencia.data ? ` em ${ocorrencia.data}` : ""}
       </p>
 
-      <p className="card-ocorrencia-status">
-        <strong>{status}:</strong> {statusInfo.significado}
-      </p>
+      {canManage && (
+        <p className="card-ocorrencia-status">
+          <strong>{status}:</strong> {statusInfo.significado}
+        </p>
+      )}
 
       {canManage && ocorrencia.statusAtualizadoPor && (
         <p className="card-ocorrencia-status-meta">

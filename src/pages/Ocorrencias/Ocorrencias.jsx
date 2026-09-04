@@ -567,8 +567,9 @@ function Ocorrencias() {
     };
   }, [ocorrenciasFiltradas]);
 
-  const ocorrenciasExibidas =
-    ocorrenciasPorVisao[visaoOcorrencias] || ocorrenciasPorVisao.novas;
+  const ocorrenciasExibidas = isGestao
+    ? ocorrenciasPorVisao[visaoOcorrencias] || ocorrenciasPorVisao.novas
+    : ocorrenciasPorVisao.todas;
 
   const abasOcorrencias = [
     { id: "novas", label: "Novas ocorrências", total: ocorrenciasPorVisao.novas.length },
@@ -846,21 +847,27 @@ function Ocorrencias() {
           </fieldset>
         </div>
 
-        <div className="ocorrencias-abas" role="tablist" aria-label="Status das ocorrências">
-          {abasOcorrencias.map((aba) => (
-            <button
-              type="button"
-              key={aba.id}
-              className={visaoOcorrencias === aba.id ? "ativo" : ""}
-              role="tab"
-              aria-selected={visaoOcorrencias === aba.id}
-              onClick={() => setVisaoOcorrencias(aba.id)}
-            >
-              <span>{aba.label}</span>
-              <strong>{aba.total}</strong>
-            </button>
-          ))}
-        </div>
+        {isGestao && (
+          <div
+            className="ocorrencias-abas"
+            role="tablist"
+            aria-label="Status das ocorrências"
+          >
+            {abasOcorrencias.map((aba) => (
+              <button
+                type="button"
+                key={aba.id}
+                className={visaoOcorrencias === aba.id ? "ativo" : ""}
+                role="tab"
+                aria-selected={visaoOcorrencias === aba.id}
+                onClick={() => setVisaoOcorrencias(aba.id)}
+              >
+                <span>{aba.label}</span>
+                <strong>{aba.total}</strong>
+              </button>
+            ))}
+          </div>
+        )}
 
         <ListaOcorrencias
           canManage={isGestao}

@@ -168,9 +168,20 @@ function carregarTurmasEscolares(escolaId) {
 }
 
 const HORARIOS = [1, 2, 3, 4, 5, 6];
+const DIAS_SEMANA = [
+  { valor: "0", nome: "Domingo" },
+  { valor: "1", nome: "Segunda-feira" },
+  { valor: "2", nome: "Terça-feira" },
+  { valor: "3", nome: "Quarta-feira" },
+  { valor: "4", nome: "Quinta-feira" },
+  { valor: "5", nome: "Sexta-feira" },
+  { valor: "6", nome: "Sábado" },
+];
 
 const FILTROS_INICIAIS = {
   data: "",
+  diaSemana: "",
+  horario: "",
   nome: "",
   professor: "",
   tipos: [],
@@ -215,6 +226,13 @@ function dataOcorrenciaParaISO(data) {
   }
 
   return `${terceiro}-${segundo.padStart(2, "0")}-${primeiro.padStart(2, "0")}`;
+}
+
+function obterDiaSemana(data) {
+  const dataISO = dataOcorrenciaParaISO(data);
+  if (!dataISO) return "";
+
+  return String(new Date(`${dataISO}T12:00:00`).getDay());
 }
 
 function obterReconhecimentoVoz() {
@@ -532,6 +550,12 @@ function Ocorrencias() {
       const combinaData =
         !filtros.data || dataOcorrenciaParaISO(ocorrencia.data) === filtros.data;
 
+      const combinaDiaSemana =
+        !filtros.diaSemana || obterDiaSemana(ocorrencia.data) === filtros.diaSemana;
+
+      const combinaHorario =
+        !filtros.horario || String(ocorrencia.horario) === filtros.horario;
+
       const combinaTurno = !filtros.turno || ocorrencia.turno === filtros.turno;
 
       const combinaProfessor =
@@ -545,6 +569,8 @@ function Ocorrencias() {
       return (
         combinaNome &&
         combinaData &&
+        combinaDiaSemana &&
+        combinaHorario &&
         combinaTurno &&
         combinaProfessor &&
         combinaTipos
@@ -586,6 +612,8 @@ function Ocorrencias() {
       Boolean(
         filtros.nome ||
           filtros.data ||
+          filtros.diaSemana ||
+          filtros.horario ||
           filtros.turno ||
           filtros.professor ||
           filtros.tipos.length,
@@ -797,6 +825,36 @@ function Ocorrencias() {
                 value={filtros.data}
                 onChange={(event) => atualizarFiltro("data", event.target.value)}
               />
+            </label>
+
+            <label>
+              Dia da semana
+              <select
+                value={filtros.diaSemana}
+                onChange={(event) => atualizarFiltro("diaSemana", event.target.value)}
+              >
+                <option value="">Todos</option>
+                {DIAS_SEMANA.map((dia) => (
+                  <option key={dia.valor} value={dia.valor}>
+                    {dia.nome}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Horário
+              <select
+                value={filtros.horario}
+                onChange={(event) => atualizarFiltro("horario", event.target.value)}
+              >
+                <option value="">Todos</option>
+                {HORARIOS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}ª aula
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label>

@@ -2,17 +2,10 @@ import "./relatorios.css";
 
 import { useContext, useMemo, useState } from "react";
 import html2pdf from "html2pdf.js";
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import GraficoBarrasHorizontais from "../../components/graficos/GraficoBarrasHorizontais.jsx";
 import GraficoProfessores from "../../components/graficos/graficoProfessor.jsx";
 import GraficoTurmas from "../../components/graficos/graficoTurmas.jsx";
 import GraficoTurnos from "../../components/graficos/graficoTurno.jsx";
@@ -89,16 +82,7 @@ function MultiFiltro({ titulo, opcoes, selecionados, onToggle }) {
 }
 
 function GraficoSimples({ dados, dataKey }) {
-  return (
-    <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={dados}>
-        <XAxis dataKey={dataKey} />
-        <YAxis allowDecimals={false} />
-        <Tooltip />
-        <Bar dataKey="ocorrencias" fill="#ff7a00" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  return <GraficoBarrasHorizontais dados={dados} dataKey={dataKey} />;
 }
 
 export default function Relatorios() {

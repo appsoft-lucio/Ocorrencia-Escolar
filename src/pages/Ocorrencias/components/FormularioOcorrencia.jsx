@@ -10,6 +10,7 @@ function FormularioOcorrencia({
   horario,
   horarios,
   observacao,
+  solicitarResponsavel,
   ocorrenciasTipo,
   outro,
   turma,
@@ -25,6 +26,7 @@ function FormularioOcorrencia({
   onDisciplinaChange,
   onHorarioChange,
   onObservacaoChange,
+  onSolicitarResponsavelChange,
   onObservacaoVoz,
   onOutroChange,
   onOutroVoz,
@@ -117,6 +119,18 @@ function FormularioOcorrencia({
             </label>
           </div>
         </fieldset>
+
+        <label className="checkbox-item checkbox-item-responsavel">
+          <input
+            type="checkbox"
+            checked={solicitarResponsavel}
+            onChange={(event) => onSolicitarResponsavelChange(event.target.checked)}
+          />
+          <span>
+            <strong>Solicitar presença do responsável</strong>
+            <small>Acompanhe o comparecimento na lista de ocorrências.</small>
+          </span>
+        </label>
 
         <fieldset className="formulario-grupo">
           <legend>Alunos</legend>
@@ -315,6 +329,7 @@ FormularioOcorrencia.propTypes = {
   horario: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   horarios: PropTypes.arrayOf(PropTypes.number).isRequired,
   observacao: PropTypes.string.isRequired,
+  solicitarResponsavel: PropTypes.bool.isRequired,
   ocorrenciasTipo: PropTypes.arrayOf(PropTypes.string).isRequired,
   outro: PropTypes.string.isRequired,
   turma: PropTypes.string.isRequired,
@@ -330,6 +345,7 @@ FormularioOcorrencia.propTypes = {
   onDisciplinaChange: PropTypes.func.isRequired,
   onHorarioChange: PropTypes.func.isRequired,
   onObservacaoChange: PropTypes.func.isRequired,
+  onSolicitarResponsavelChange: PropTypes.func.isRequired,
   onObservacaoVoz: PropTypes.func.isRequired,
   onOutroChange: PropTypes.func.isRequired,
   onOutroVoz: PropTypes.func.isRequired,

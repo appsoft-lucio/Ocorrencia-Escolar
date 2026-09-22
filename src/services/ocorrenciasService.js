@@ -13,6 +13,10 @@ const CAMPOS_OCORRENCIA = `
   horario,
   tipos,
   observacao,
+  solicitar_responsavel,
+  responsavel_compareceu,
+  responsavel_compareceu_por,
+  responsavel_compareceu_em,
   status,
   status_atualizado_por,
   status_atualizado_em,
@@ -38,6 +42,12 @@ export function mapearOcorrenciaSupabase(row) {
     alunos: row.alunos || [],
     tipos: row.tipos || [],
     observacao: row.observacao || "",
+    solicitarResponsavel: row.solicitar_responsavel || false,
+    responsavelCompareceu: row.responsavel_compareceu || false,
+    responsavelCompareceuPor: row.responsavel_compareceu_por || null,
+    responsavelCompareceuEm: row.responsavel_compareceu_em
+      ? formatarData(row.responsavel_compareceu_em)
+      : null,
     data: formatarData(row.created_at),
     status: row.status,
     statusAtualizadoPor: row.status_atualizado_por,
@@ -91,6 +101,8 @@ export async function criarOcorrenciaSupabase(ocorrencia, user) {
       horario: ocorrencia.horario || null,
       tipos: ocorrencia.tipos || [],
       observacao: ocorrencia.observacao || null,
+      solicitar_responsavel: ocorrencia.solicitarResponsavel || false,
+      responsavel_compareceu: ocorrencia.responsavelCompareceu || false,
       status: ocorrencia.status || "Pendente",
     })
     .select(CAMPOS_OCORRENCIA)
@@ -113,9 +125,16 @@ export async function atualizarStatusOcorrenciaSupabase(id, statusData, user) {
   const { data, error } = await supabase
     .from("ocorrencias")
     .update({
-      status: statusData.status,
-      status_atualizado_por: statusData.statusAtualizadoPor,
-      status_atualizado_em: new Date().toISOString(),
+      ...(statusData.status !== undefined && {
+        status: statusData.status,
+        status_atualizado_por: statusData.statusAtualizadoPor,
+        status_atualizado_em: new Date().toISOString(),
+      }),
+      ...(statusData.responsavelCompareceu !== undefined && {
+        responsavel_compareceu: statusData.responsavelCompareceu,
+        responsavel_compareceu_por: statusData.responsavelCompareceuPor,
+        responsavel_compareceu_em: new Date().toISOString(),
+      }),
     })
     .eq("id", id)
     .eq("escola_id", user.escolaId)

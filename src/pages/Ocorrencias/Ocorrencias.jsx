@@ -184,6 +184,7 @@ const FILTROS_INICIAIS = {
   horario: "",
   nome: "",
   professor: "",
+  responsavel: "",
   tipos: [],
   turno: "",
 };
@@ -274,6 +275,7 @@ function Ocorrencias() {
   const [ocorrenciasTipo, setOcorrenciasTipo] = useState([]);
   const [outro, setOutro] = useState("");
   const [observacao, setObservacao] = useState("");
+  const [solicitarResponsavel, setSolicitarResponsavel] = useState(false);
   const [notificacao, setNotificacao] = useState(null);
   const [campoVozAtivo, setCampoVozAtivo] = useState(null);
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
@@ -445,6 +447,7 @@ function Ocorrencias() {
     setOcorrenciasTipo([]);
     setOutro("");
     setObservacao("");
+    setSolicitarResponsavel(false);
   }, []);
 
   const handleAlunoInputChange = useCallback((event) => {
@@ -556,6 +559,16 @@ function Ocorrencias() {
       const combinaHorario =
         !filtros.horario || String(ocorrencia.horario) === filtros.horario;
 
+      const combinaResponsavel =
+        !filtros.responsavel ||
+        (filtros.responsavel === "aguardando" &&
+          ocorrencia.solicitarResponsavel &&
+          !ocorrencia.responsavelCompareceu) ||
+        (filtros.responsavel === "compareceu" &&
+          ocorrencia.solicitarResponsavel &&
+          ocorrencia.responsavelCompareceu) ||
+        (filtros.responsavel === "nao-solicitado" && !ocorrencia.solicitarResponsavel);
+
       const combinaTurno = !filtros.turno || ocorrencia.turno === filtros.turno;
 
       const combinaProfessor =
@@ -571,6 +584,7 @@ function Ocorrencias() {
         combinaData &&
         combinaDiaSemana &&
         combinaHorario &&
+        combinaResponsavel &&
         combinaTurno &&
         combinaProfessor &&
         combinaTipos
@@ -616,6 +630,7 @@ function Ocorrencias() {
           filtros.horario ||
           filtros.turno ||
           filtros.professor ||
+          filtros.responsavel ||
           filtros.tipos.length,
       ),
     [filtros],
@@ -669,6 +684,8 @@ function Ocorrencias() {
           alunos: alunos.map((aluno) => aluno.nome),
           tipos: tiposSelecionados,
           observacao: formatarFraseObservacao(observacao),
+          solicitarResponsavel,
+          responsavelCompareceu: false,
           data: new Date().toLocaleString(),
           status: STATUS_INICIAL,
           statusAtualizadoPor: null,
@@ -690,6 +707,7 @@ function Ocorrencias() {
       limparFormulario,
       mostrarNotificacao,
       observacao,
+      solicitarResponsavel,
       tiposSelecionados,
       turma,
       turno,
@@ -732,6 +750,25 @@ function Ocorrencias() {
     [isGestao, mostrarNotificacao, updateOcorrenciaStatus, user],
   );
 
+  const handleRegistrarComparecimentoResponsavel = useCallback(
+    async (id) => {
+      if (!isGestao || !user) return;
+
+      try {
+        await updateOcorrenciaStatus(id, {
+          responsavelCompareceu: true,
+          responsavelCompareceuPor: user.nome,
+          responsavelCompareceuEm: new Date().toLocaleString(),
+        });
+        mostrarNotificacao("Comparecimento do responsável registrado.", "sucesso");
+      } catch (error) {
+        console.error("Erro ao registrar comparecimento:", error);
+        mostrarNotificacao("Não foi possível registrar o comparecimento.", "erro");
+      }
+    },
+    [isGestao, mostrarNotificacao, updateOcorrenciaStatus, user],
+  );
+
   if (!user) {
     return <div className="ocorrencias-feedback">Carregando usuário...</div>;
   }
@@ -753,6 +790,7 @@ function Ocorrencias() {
         horario={horario}
         horarios={HORARIOS}
         observacao={observacao}
+        solicitarResponsavel={solicitarResponsavel}
         ocorrenciasTipo={ocorrenciasTipo}
         outro={outro}
         turma={turma}
@@ -765,6 +803,7 @@ function Ocorrencias() {
         onDisciplinaChange={setDisciplina}
         onHorarioChange={setHorario}
         onObservacaoChange={handleObservacaoChange}
+        onSolicitarResponsavelChange={setSolicitarResponsavel}
         onObservacaoVoz={() => alternarDitadoVoz("observacao")}
         onOutroChange={handleOutroChange}
         onOutroVoz={() => alternarDitadoVoz("outro")}
@@ -884,6 +923,19 @@ function Ocorrencias() {
                 ))}
               </select>
             </label>
+
+            <label>
+              Presença do responsável
+              <select
+                value={filtros.responsavel}
+                onChange={(event) => atualizarFiltro("responsavel", event.target.value)}
+              >
+                <option value="">Todos</option>
+                <option value="aguardando">Aguardando responsável</option>
+                <option value="compareceu">Responsável compareceu</option>
+                <option value="nao-solicitado">Não solicitado</option>
+              </select>
+            </label>
           </div>
 
           <fieldset className="filtros-tipos">
@@ -931,6 +983,7 @@ function Ocorrencias() {
           canManage={isGestao}
           ocorrencias={ocorrenciasExibidas}
           onStatusChange={handleAtualizarStatusOcorrencia}
+          onResponsavelChange={handleRegistrarComparecimentoResponsavel}
           normalizeStatus={normalizarStatusOcorrencia}
         />
       </section>

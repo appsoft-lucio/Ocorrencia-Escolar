@@ -22,6 +22,7 @@ const ocorrenciaShape = PropTypes.shape({
 function ListaOcorrencias({
   canManage,
   ocorrencias,
+  onResponsavelChange,
   onStatusChange,
   normalizeStatus,
 }) {
@@ -40,6 +41,7 @@ function ListaOcorrencias({
           canManage={canManage}
           key={ocorrencia.id}
           ocorrencia={ocorrencia}
+          onResponsavelChange={onResponsavelChange}
           onStatusChange={onStatusChange}
           normalizeStatus={normalizeStatus}
         />
@@ -52,6 +54,7 @@ ListaOcorrencias.propTypes = {
   canManage: PropTypes.bool.isRequired,
   ocorrencias: PropTypes.arrayOf(ocorrenciaShape).isRequired,
   onStatusChange: PropTypes.func.isRequired,
+  onResponsavelChange: PropTypes.func.isRequired,
   normalizeStatus: PropTypes.func.isRequired,
 };
 

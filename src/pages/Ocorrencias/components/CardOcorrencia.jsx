@@ -11,6 +11,7 @@ const STATUS_OPCOES = [
 function CardOcorrencia({
   canManage,
   ocorrencia,
+  onResponsavelChange,
   onStatusChange,
   normalizeStatus,
 }) {
@@ -84,6 +85,24 @@ function CardOcorrencia({
         </p>
       )}
 
+      {ocorrencia.solicitarResponsavel && (
+        <div className="card-responsavel">
+          <strong>Responsável:</strong>{" "}
+          {ocorrencia.responsavelCompareceu
+            ? "compareceu"
+            : "aguardando comparecimento"}
+          {canManage && !ocorrencia.responsavelCompareceu && (
+            <button
+              type="button"
+              className="btn-alterar-status"
+              onClick={() => onResponsavelChange(ocorrencia.id)}
+            >
+              Registrar comparecimento
+            </button>
+          )}
+        </div>
+      )}
+
       {canManage && ocorrencia.statusAtualizadoPor && (
         <p className="card-ocorrencia-status-meta">
           <strong>Revisada por:</strong> {ocorrencia.statusAtualizadoPor}
@@ -140,11 +159,14 @@ CardOcorrencia.propTypes = {
     status: PropTypes.string,
     statusAtualizadoEm: PropTypes.string,
     statusAtualizadoPor: PropTypes.string,
+    solicitarResponsavel: PropTypes.bool,
+    responsavelCompareceu: PropTypes.bool,
     tipos: PropTypes.arrayOf(PropTypes.string),
     turma: PropTypes.string.isRequired,
     turno: PropTypes.string.isRequired,
   }).isRequired,
   onStatusChange: PropTypes.func.isRequired,
+  onResponsavelChange: PropTypes.func.isRequired,
   normalizeStatus: PropTypes.func.isRequired,
 };
 

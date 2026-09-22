@@ -155,6 +155,12 @@ function Dashboard() {
     const pendentes = ocorrenciasVisiveis.filter((ocorrencia) =>
       ["pendente", "aberta"].includes(normalizarTexto(ocorrencia.status || "")),
     );
+    const aguardandoResponsavel = isGestao
+      ? ocorrenciasVisiveis.filter(
+          (ocorrencia) =>
+            ocorrencia.solicitarResponsavel && !ocorrencia.responsavelCompareceu,
+        )
+      : [];
 
     const professoresAtivos = professores.filter(
       (professor) => professor.status !== "inativo",
@@ -228,6 +234,7 @@ function Dashboard() {
       .slice(0, 5);
 
     return {
+      aguardandoResponsavel,
       cards,
       isGestao,
       ocorrenciasPorTurma,
@@ -277,6 +284,30 @@ function Dashboard() {
           </section>
 
           <section className="dashboard-grid">
+            {dadosDashboard.isGestao && (
+              <article className="dashboard-panel">
+                <div className="dashboard-panel-header">
+                  <h2>Aguardando responsável</h2>
+                  <span>{dadosDashboard.aguardandoResponsavel.length} pendente(s)</span>
+                </div>
+                {dadosDashboard.aguardandoResponsavel.length === 0 ? (
+                  <p className="dashboard-vazio">Nenhum responsável aguardado.</p>
+                ) : (
+                  <div className="dashboard-lista">
+                    {dadosDashboard.aguardandoResponsavel.map((ocorrencia) => (
+                      <div className="dashboard-lista-item" key={ocorrencia.id}>
+                        <div>
+                          <strong>{(ocorrencia.alunos || []).join(", ") || "Sem aluno"}</strong>
+                          <span>{ocorrencia.turma} • {ocorrencia.turno} • {ocorrencia.professorNome}</span>
+                        </div>
+                        <small>{ocorrencia.data}</small>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            )}
+
             <article className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <h2>Ocorrências recentes</h2>

@@ -297,7 +297,7 @@ export default function Relatorios() {
             />
 
             <MultiFiltro
-              titulo="Professores"
+              titulo="Responsáveis pela ocorrência"
               opcoes={listas.professores}
               selecionados={filtros.professores}
               onToggle={(valor) => alternarFiltro("professores", valor)}
@@ -338,7 +338,7 @@ export default function Relatorios() {
                 <span>{resumo.turmas}</span>
               </div>
               <div className="relatorio-card">
-                <h3>Professores</h3>
+                <h3>Responsáveis</h3>
                 <span>{resumo.professores}</span>
               </div>
               <div className="relatorio-card">
@@ -356,7 +356,7 @@ export default function Relatorios() {
                   Foram encontradas <strong>{resumo.ocorrencias}</strong>{" "}
                   ocorrência(s), envolvendo <strong>{resumo.alunos}</strong>{" "}
                   aluno(s), <strong>{resumo.turmas}</strong> turma(s) e{" "}
-                  <strong>{resumo.professores}</strong> professor(es).
+                  <strong>{resumo.professores}</strong> responsável(is) pela ocorrência.
                 </p>
               )}
             </section>
@@ -373,7 +373,7 @@ export default function Relatorios() {
               </div>
 
               <div className="grafico-box">
-                <h3>Por professor</h3>
+                <h3>Por responsável pela ocorrência</h3>
                 <GraficoProfessores dados={dadosProfessores} />
               </div>
 

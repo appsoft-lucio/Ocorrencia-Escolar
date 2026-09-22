@@ -813,7 +813,7 @@ function Ocorrencias() {
             </label>
 
             <label>
-              Professor
+              Responsável pela ocorrência
               <select
                 value={filtros.professor}
                 onChange={(event) => atualizarFiltro("professor", event.target.value)}

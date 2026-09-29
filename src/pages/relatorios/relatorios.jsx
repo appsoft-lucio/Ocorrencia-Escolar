@@ -237,7 +237,7 @@ export default function Relatorios() {
         { titulo: "Por aluno", dados: dadosAlunos, chave: "aluno" },
         { titulo: "Por tipo de ocorr\u00eancia", dados: dadosTipos, chave: "tipo" },
       ],
-    }).save("relatorio-escolar.pdf");
+    }).save("relatorio-escolar-a4.pdf");
   };
 
   const imprimir = () => window.print();
@@ -264,7 +264,7 @@ export default function Relatorios() {
                 {incluirRegistros ? "Ocultar registros detalhados" : "Incluir registros detalhados"}
               </button>
               <button type="button" onClick={gerarPDF}>
-                Exportar PDF
+                Exportar PDF A4
               </button>
               <button type="button" onClick={imprimir}>
                 Imprimir

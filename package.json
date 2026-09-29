@@ -19,7 +19,8 @@
     "react-dom": "^19.2.6",
     "react-ga4": "^3.0.1",
     "react-router-dom": "^7.17.0",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "jspdf": "^4.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

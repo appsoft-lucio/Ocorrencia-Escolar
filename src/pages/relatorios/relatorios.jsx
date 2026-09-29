@@ -2,7 +2,7 @@ import { dataOcorrenciaParaISO, diaSemanaOcorrencia, rotuloHorario, maiorFrequen
 import "./relatorios.css";
 
 import { useContext, useMemo, useState } from "react";
-import html2pdf from "html2pdf.js";
+import { criarRelatorioPdf } from "../../utils/relatorioPdf";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -222,17 +222,22 @@ export default function Relatorios() {
   ];
 
   const gerarPDF = () => {
-    const el = document.getElementById("relatorio-pdf");
-
-    html2pdf()
-      .set({
-        margin: 0.5,
-        filename: "relatorio-escolar.pdf",
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-      })
-      .from(el)
-      .save();
+    criarRelatorioPdf({
+      resumo,
+      destaques,
+      filtros,
+      demonstracao: dadosFiltrados.some((item) => item.observacao?.includes("[DEMONSTRACAO ESCOLA TESTE")),
+      registros: incluirRegistros ? dadosFiltrados : [],
+      graficos: [
+        { titulo: "Por dia da semana", dados: dadosDias, chave: "nome" },
+        { titulo: "Por hor\u00e1rio e turno", dados: dadosHorarios, chave: "nome" },
+        { titulo: "Por turma", dados: dadosTurmas, chave: "turma" },
+        { titulo: "Por turno", dados: dadosTurnos, chave: "turno" },
+        { titulo: "Por professor que registrou", dados: dadosProfessores, chave: "professor" },
+        { titulo: "Por aluno", dados: dadosAlunos, chave: "aluno" },
+        { titulo: "Por tipo de ocorr\u00eancia", dados: dadosTipos, chave: "tipo" },
+      ],
+    }).save("relatorio-escolar.pdf");
   };
 
   const imprimir = () => window.print();

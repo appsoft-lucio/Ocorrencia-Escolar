@@ -1,0 +1,532 @@
+/* ===================================
+   LAYOUT
+=================================== */
+
+.professores-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--cor-fundo);
+}
+
+.professores-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.professores-content {
+  flex: 1;
+  padding: var(--spacing-xl);
+}
+
+/* ===================================
+   CABEÇALHO
+=================================== */
+
+.professores-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.professores-content h1 {
+  margin: 0 0 var(--spacing-sm);
+  color: var(--cor-texto);
+}
+
+.professores-content h2 {
+  margin: 0;
+  color: var(--cor-texto-secondary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-regular);
+}
+
+.professores-descricao {
+  margin-bottom: var(--spacing-xl);
+  color: var(--cor-texto-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.professores-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.professores-resumo div {
+  padding: var(--spacing-lg);
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.professores-resumo strong {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.professores-resumo span {
+  display: block;
+  margin-top: var(--spacing-sm);
+  color: var(--cor-texto-claro-suave);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.professores-filtros {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(150px, 0.8fr) minmax(150px, 0.8fr) auto;
+  align-items: end;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--cor-branco);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.professores-filtros label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  color: #374151;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.professores-filtros input,
+.professores-filtros select {
+  width: 100%;
+  height: 44px;
+}
+
+.professores-filtros button {
+  min-height: 44px;
+  padding: 0 var(--spacing-lg);
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.professores-filtros button:hover {
+  background: #d1d5db;
+}
+
+/* ===================================
+   BOTÃO NOVO PROFESSOR
+=================================== */
+
+.btn-novo-professor {
+  background: var(--cor-laranja);
+  color: var(--cor-texto-light);
+
+  border: none;
+  border-radius: var(--radius-sm);
+
+  padding: 12px 18px;
+
+  font-size: var(--text-base);
+  font-weight: var(--font-semi-bold);
+
+  cursor: pointer;
+
+  transition: all var(--transition-normal);
+}
+
+.btn-novo-professor:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-laranja);
+}
+
+.btn-novo-professor:active {
+  transform: scale(0.98);
+}
+
+.btn-novo-professor:focus-visible {
+  outline: 2px solid var(--cor-laranja);
+  outline-offset: 2px;
+}
+
+/* ===================================
+   CARDS
+=================================== */
+
+.professores-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.professores-cards .sem-dados {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--cor-texto-secundario);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+}
+
+/* ===================================
+   MODAL
+=================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: var(--spacing-lg);
+
+  background: var(--cor-overlay);
+
+  z-index: 9999;
+}
+
+.modal-professor {
+  width: 100%;
+  max-width: 550px;
+
+  padding: var(--spacing-xl);
+
+  background: var(--cor-branco);
+
+  border-radius: var(--radius-md);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+
+  box-shadow: var(--shadow-modal);
+
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-professor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-professor::-webkit-scrollbar-track {
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
+}
+
+.modal-professor::-webkit-scrollbar-thumb {
+  background: var(--cor-laranja);
+  border-radius: var(--radius-sm);
+}
+
+.modal-professor::-webkit-scrollbar-thumb:hover {
+  background: #e67000;
+}
+
+.modal-professor h2 {
+  margin: 0 0 var(--spacing-md);
+  color: var(--cor-texto);
+  font-size: var(--text-3xl);
+}
+
+.mensagem {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.mensagem.sucesso {
+  background: var(--cor-sucesso-bg);
+  color: var(--cor-sucesso-text);
+}
+
+.mensagem.erro {
+  background: var(--cor-erro-bg);
+  color: var(--cor-erro-text);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-grid-duplo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.form-group label,
+.turmas-section h3 {
+  color: var(--cor-texto);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+}
+
+.form-group input,
+.form-group select,
+.turma-adicionar input {
+  width: 100%;
+  min-height: 44px;
+}
+
+.turmas-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.turmas-section h3 {
+  margin: 0;
+}
+
+.turma-adicionar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+}
+
+.btn-add-turma,
+.modal-botoes button,
+.turma-item button {
+  min-height: 40px;
+  padding: 0 var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--cor-texto-light);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-normal);
+}
+
+.btn-add-turma,
+.modal-botoes button:last-child {
+  background: var(--cor-laranja);
+}
+
+.btn-add-turma:hover,
+.modal-botoes button:last-child:hover {
+  box-shadow: var(--shadow-laranja);
+  transform: translateY(-1px);
+}
+
+.lista-turmas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.turma-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
+}
+
+.turma-item span {
+  min-width: 0;
+  color: var(--cor-texto);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  word-break: break-word;
+}
+
+.turma-item button {
+  flex: 0 0 auto;
+  background: var(--cor-erro);
+}
+
+.turma-item.turma-inativa button {
+  background: var(--cor-sucesso-text);
+}
+
+.turma-item button:hover {
+  transform: translateY(-1px);
+}
+
+.vazio {
+  margin: 0;
+  padding: var(--spacing-md);
+  color: var(--cor-texto-secondary);
+  background: var(--cor-cinza-claro);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.modal-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+}
+
+.modal-botoes button:first-child {
+  background: #e5e7eb;
+  color: var(--cor-texto);
+}
+
+.modal-botoes button:first-child:hover {
+  background: #d1d5db;
+}
+
+/* Modal de Detalhes */
+.modal-detalhes {
+  width: 100%;
+  max-width: 600px;
+
+  padding: var(--spacing-xl);
+
+  background: var(--cor-branco);
+
+  border-radius: var(--radius-md);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+
+  box-shadow: var(--shadow-modal);
+
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-detalhes h2 {
+  margin: 0;
+  color: var(--cor-laranja);
+  font-size: var(--text-3xl);
+  padding-right: var(--spacing-xl);
+}
+
+.btn-fechar-modal {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background: transparent;
+  border: none;
+  font-size: var(--text-3xl);
+  color: var(--cor-texto-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-normal);
+}
+
+.btn-fechar-modal:hover {
+  color: var(--cor-erro);
+}
+
+/* Conteúdo dos Detalhes */
+.detalhes-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.detalhe-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.detalhe-item strong {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semi-bold);
+  color: var(--cor-texto-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detalhe-item p {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--cor-texto);
+  font-weight: var(--font-medium);
+}
+
+.turmas-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.turma-badge {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--cor-cinza-claro);
+  color: var(--cor-texto);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+}
+
+.turma-badge.turma-inativa,
+.turma-item.turma-inativa {
+  opacity: 0.65;
+}
+
+.turma-badge.turma-inativa {
+  text-decoration: line-through;
+}
+
+.ocorrencias-total {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--cor-erro-bg);
+  color: var(--cor-erro-text);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-bold);
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 520px) {
+  .form-grid-duplo {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-professor {
+    padding: var(--spacing-lg);
+  }
+
+  .professores-resumo,
+  .professores-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .turma-adicionar,
+  .turma-item,
+  .modal-botoes {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add-turma,
+  .turma-item button,
+  .modal-botoes button {
+    width: 100%;
+  }
+}

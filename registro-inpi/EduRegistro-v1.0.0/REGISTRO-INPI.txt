@@ -1,0 +1,37 @@
+PACOTE TECNICO PARA REGISTRO DE PROGRAMA DE COMPUTADOR
+
+Programa: EduRegistro - Ocorrencia Escolar
+Versao: 1.0.0
+Data do snapshot: 30/08/2026
+Repositorio: Ocorrencia-Escolar
+Commit-base: 9f99c19ad66237a7b9211b812e97b897dfe8da93
+
+CONTEUDO
+
+- Codigo-fonte React/Vite em src/
+- Recursos publicos e configuracao PWA em public/
+- Estrutura e funcoes de banco de dados em supabase/
+- Scripts auxiliares em scripts/
+- Arquivos de configuracao, dependencias e documentacao do projeto
+
+ARQUIVOS INTENCIONALMENTE EXCLUIDOS
+
+- .env.local e demais arquivos locais de ambiente
+- node_modules/
+- dist/
+- .git/
+- .vercel/
+- supabase/.temp/
+- logs, caches e configuracoes do editor
+
+INTEGRIDADE
+
+O arquivo ZIP externo a esta pasta deve permanecer inalterado e sob guarda
+sigilosa do titular. O resumo SHA-512 sera fornecido em arquivo separado.
+Qualquer alteracao no ZIP produzira um hash diferente.
+
+OBSERVACAO
+
+O pacote registra uma fotografia da implementacao nesta data. Bibliotecas e
+demais componentes de terceiros permanecem sujeitos as respectivas licencas e
+nao sao reivindicados como autoria do titular.

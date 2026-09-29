@@ -26,6 +26,3 @@ dist-ssr
 .vercel
 supabase/.temp
 npx
-
-# Arquivos temporarios e acessos locais
-.tmp/

@@ -1,0 +1,260 @@
+.escolas-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--cor-fundo);
+}
+
+.escolas-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.escolas-container {
+  padding: 0 30px 30px;
+}
+
+.escolas-topo,
+.escolas-resumo,
+.escola-form,
+.escolas-lista,
+.escola-item {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda-light);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.escolas-topo {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.escolas-topo h1 {
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+}
+
+.escolas-topo p {
+  color: var(--cor-texto-secundario);
+}
+
+.escolas-resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.escolas-resumo div {
+  padding: 14px;
+  background: var(--cor-fundo-alt);
+  border-radius: var(--radius-sm);
+}
+
+.escolas-resumo strong,
+.escolas-resumo span {
+  display: block;
+}
+
+.escolas-resumo strong {
+  font-size: 1.6rem;
+  color: var(--cor-secundaria);
+}
+
+.escolas-resumo span {
+  color: var(--cor-texto-secundario);
+}
+
+.escolas-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.escola-form,
+.escolas-lista {
+  padding: 22px;
+}
+
+.escola-form h2 {
+  margin-bottom: 18px;
+  font-size: 1.3rem;
+}
+
+.escola-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-weight: var(--font-semi-bold);
+}
+
+.escola-form .escola-opcao-importacao {
+  flex-direction: row;
+  align-items: center;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--cor-fundo-alt);
+}
+
+.escola-opcao-importacao input {
+  width: 18px;
+  height: 18px;
+}
+
+.escola-form-duplo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.escola-form-acoes,
+.escola-item-acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.escola-form-acoes button,
+.escola-item-acoes button {
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+}
+
+.escola-form-acoes button[type="submit"],
+.escola-item-acoes button:first-child {
+  background: var(--cor-destaque);
+}
+
+.escola-item-acoes button:last-child {
+  background: var(--cor-erro-text);
+}
+
+.escola-mensagem {
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--cor-info-bg);
+  color: var(--cor-secundaria);
+}
+
+.escolas-lista {
+  display: grid;
+  gap: 14px;
+}
+
+.escola-item {
+  padding: 18px;
+}
+
+.escola-inativa {
+  opacity: 0.72;
+}
+
+.escola-em-edicao {
+  border-color: var(--cor-destaque);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
+.escola-item-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.escola-item-topo > div {
+  min-width: 0;
+}
+
+.escola-item-topo h2 {
+  margin-bottom: 6px;
+  font-size: 1.2rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.escola-item-topo p {
+  color: var(--cor-texto-secundario);
+  overflow-wrap: anywhere;
+}
+
+.escola-item-topo span {
+  height: fit-content;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  background: var(--cor-sucesso-bg);
+  color: var(--cor-sucesso-text);
+  font-size: 0.85rem;
+  font-weight: var(--font-bold);
+}
+
+.escola-inativa .escola-item-topo span {
+  background: var(--cor-erro-bg);
+  color: var(--cor-erro-text);
+}
+
+.escola-item dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.escola-item dl div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--cor-fundo-alt);
+}
+
+.escola-item dt {
+  color: var(--cor-texto-secundario);
+  font-size: 0.82rem;
+}
+
+.escola-item dd {
+  margin: 4px 0 0;
+  font-weight: var(--font-semi-bold);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.escolas-vazio {
+  padding: 24px;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}
+
+@media (max-width: 980px) {
+  .escolas-grid,
+  .escolas-resumo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .escolas-container {
+    padding: 0 14px 24px;
+  }
+
+  .escola-form-duplo,
+  .escola-item dl {
+    grid-template-columns: 1fr;
+  }
+
+  .escola-form-acoes,
+  .escola-item-acoes {
+    flex-wrap: wrap;
+  }
+
+  .escola-form-acoes button,
+  .escola-item-acoes button {
+    flex: 1 1 120px;
+  }
+}

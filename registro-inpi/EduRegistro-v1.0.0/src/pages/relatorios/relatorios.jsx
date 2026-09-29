@@ -1,12 +1,18 @@
-import { dataOcorrenciaParaISO, diaSemanaOcorrencia, rotuloHorario, maiorFrequencia } from "../../utils/relatorios";
 import "./relatorios.css";
 
 import { useContext, useMemo, useState } from "react";
-import { criarRelatorioPdf } from "../../utils/relatorioPdf";
+import html2pdf from "html2pdf.js";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import GraficoBarrasHorizontais from "../../components/graficos/GraficoBarrasHorizontais.jsx";
 import GraficoProfessores from "../../components/graficos/graficoProfessor.jsx";
 import GraficoTurmas from "../../components/graficos/graficoTurmas.jsx";
 import GraficoTurnos from "../../components/graficos/graficoTurno.jsx";
@@ -14,16 +20,30 @@ import { OcorrenciaContext } from "../../context/OcorrenciaContext";
 
 const FILTROS_INICIAIS = {
   alunos: [],
-  dias: [],
-  horarios: [],
   dataFim: "",
   dataInicio: "",
   professores: [],
   tipos: [],
-  materias: [],
   turmas: [],
   turnos: [],
 };
+
+function dataOcorrenciaParaISO(data) {
+  if (!data) return "";
+
+  const [dataParte] = data.split(",");
+  const partes = dataParte.trim().split(/[/-]/);
+
+  if (partes.length !== 3) return "";
+
+  const [primeiro, segundo, terceiro] = partes;
+
+  if (primeiro.length === 4) {
+    return `${primeiro}-${segundo.padStart(2, "0")}-${terceiro.padStart(2, "0")}`;
+  }
+
+  return `${terceiro}-${segundo.padStart(2, "0")}-${primeiro.padStart(2, "0")}`;
+}
 
 function ordenarTexto(lista) {
   return [...lista].filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
@@ -69,23 +89,28 @@ function MultiFiltro({ titulo, opcoes, selecionados, onToggle }) {
 }
 
 function GraficoSimples({ dados, dataKey }) {
-  return <GraficoBarrasHorizontais dados={dados} dataKey={dataKey} />;
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <BarChart data={dados}>
+        <XAxis dataKey={dataKey} />
+        <YAxis allowDecimals={false} />
+        <Tooltip />
+        <Bar dataKey="ocorrencias" fill="#ff7a00" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
 }
 
 export default function Relatorios() {
   const { ocorrencias } = useContext(OcorrenciaContext);
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
-  const [incluirRegistros, setIncluirRegistros] = useState(false);
 
   const listas = useMemo(
     () => ({
-      dias: ordenarTexto(new Set(ocorrencias.map((item) => diaSemanaOcorrencia(item.data)))),
-      horarios: ordenarTexto(new Set(ocorrencias.map((item) => rotuloHorario(item.horario, item.turno)))),
       alunos: ordenarTexto(new Set(ocorrencias.flatMap((item) => item.alunos || []))),
       professores: ordenarTexto(
         new Set(ocorrencias.map((item) => item.professorNome)),
       ),
-      materias: ordenarTexto(new Set(ocorrencias.map((item) => item.disciplina?.trim() || "Matéria não informada"))),
       tipos: ordenarTexto(new Set(ocorrencias.flatMap((item) => item.tipos || []))),
       turmas: ordenarTexto(new Set(ocorrencias.map((item) => item.turma))),
       turnos: ordenarTexto(new Set(ocorrencias.map((item) => item.turno))),
@@ -131,9 +156,6 @@ export default function Relatorios() {
         const dataFimOk = !filtros.dataFim || dataISO <= filtros.dataFim;
 
         return (
-          (filtros.dias.length === 0 || filtros.dias.includes(diaSemanaOcorrencia(item.data))) &&
-          (filtros.horarios.length === 0 || filtros.horarios.includes(rotuloHorario(item.horario, item.turno))) &&
-          (filtros.materias.length === 0 || filtros.materias.includes(item.disciplina?.trim() || "Matéria não informada")) &&
           turmaOk &&
           turnoOk &&
           professorOk &&
@@ -212,39 +234,18 @@ export default function Relatorios() {
     [dadosFiltrados],
   );
 
-  const dadosMaterias = useMemo(() => contarPor(dadosFiltrados, (item) => item.disciplina?.trim() || "Matéria não informada"), [dadosFiltrados]);
-
-  const dadosDias = useMemo(() => contarPor(dadosFiltrados, (item) => diaSemanaOcorrencia(item.data)), [dadosFiltrados]);
-  const dadosHorarios = useMemo(() => contarPor(dadosFiltrados, (item) => rotuloHorario(item.horario, item.turno)), [dadosFiltrados]);
-  const destaques = [
-    ["Matéria com mais registros", maiorFrequencia(dadosMaterias, "nome")],
-    ["Aluno com mais registros", maiorFrequencia(dadosAlunos, "aluno")],
-    ["Horário com mais registros", maiorFrequencia(dadosHorarios, "nome")],
-    ["Dia com mais registros", maiorFrequencia(dadosDias, "nome")],
-    ["Turma com mais registros", maiorFrequencia(dadosTurmas, "turma")],
-    ["Turno com mais registros", maiorFrequencia(dadosTurnos, "turno")],
-    ["Professor com mais registros", maiorFrequencia(dadosProfessores, "professor")],
-    ["Tipo mais frequente", maiorFrequencia(dadosTipos, "tipo")],
-  ];
-
   const gerarPDF = () => {
-    criarRelatorioPdf({
-      resumo,
-      destaques,
-      filtros,
-      demonstracao: dadosFiltrados.some((item) => item.observacao?.includes("[DEMONSTRACAO ESCOLA TESTE")),
-      registros: incluirRegistros ? dadosFiltrados : [],
-      graficos: [
-        { titulo: "Por matéria", dados: dadosMaterias, chave: "nome" },
-        { titulo: "Por dia da semana", dados: dadosDias, chave: "nome" },
-        { titulo: "Por hor\u00e1rio e turno", dados: dadosHorarios, chave: "nome" },
-        { titulo: "Por turma", dados: dadosTurmas, chave: "turma" },
-        { titulo: "Por turno", dados: dadosTurnos, chave: "turno" },
-        { titulo: "Por professor que registrou", dados: dadosProfessores, chave: "professor" },
-        { titulo: "Por aluno", dados: dadosAlunos, chave: "aluno" },
-        { titulo: "Por tipo de ocorr\u00eancia", dados: dadosTipos, chave: "tipo" },
-      ],
-    }).save("relatorio-escolar-a4.pdf");
+    const el = document.getElementById("relatorio-pdf");
+
+    html2pdf()
+      .set({
+        margin: 0.5,
+        filename: "relatorio-escolar.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      })
+      .from(el)
+      .save();
   };
 
   const imprimir = () => window.print();
@@ -267,11 +268,8 @@ export default function Relatorios() {
               <button type="button" onClick={limparFiltros}>
                 Limpar filtros
               </button>
-              <button type="button" aria-pressed={incluirRegistros} onClick={() => setIncluirRegistros((atual) => !atual)}>
-                {incluirRegistros ? "Ocultar registros detalhados" : "Incluir registros detalhados"}
-              </button>
               <button type="button" onClick={gerarPDF}>
-                Exportar PDF A4
+                Exportar PDF
               </button>
               <button type="button" onClick={imprimir}>
                 Imprimir
@@ -315,7 +313,7 @@ export default function Relatorios() {
             />
 
             <MultiFiltro
-              titulo="Responsáveis pela ocorrência"
+              titulo="Professores"
               opcoes={listas.professores}
               selecionados={filtros.professores}
               onToggle={(valor) => alternarFiltro("professores", valor)}
@@ -334,9 +332,6 @@ export default function Relatorios() {
               selecionados={filtros.tipos}
               onToggle={(valor) => alternarFiltro("tipos", valor)}
             />
-            <MultiFiltro titulo="Matérias" opcoes={listas.materias} selecionados={filtros.materias} onToggle={(valor) => alternarFiltro("materias", valor)} />
-            <MultiFiltro titulo="Dia da semana" opcoes={listas.dias} selecionados={filtros.dias} onToggle={(valor) => alternarFiltro("dias", valor)} />
-            <MultiFiltro titulo="Horário e turno" opcoes={listas.horarios} selecionados={filtros.horarios} onToggle={(valor) => alternarFiltro("horarios", valor)} />
           </section>
 
           <div id="relatorio-pdf">
@@ -345,9 +340,6 @@ export default function Relatorios() {
               <p>Gerado em: {new Date().toLocaleDateString("pt-BR")}</p>
             </section>
 
-            {dadosFiltrados.some((item) => item.observacao?.includes("[DEMONSTRACAO ESCOLA TESTE")) && (
-              <p className="relatorio-demo">Demonstração com dados fictícios da escola Teste.</p>
-            )}
             <section className="relatorios-cards">
               <div className="relatorio-card">
                 <h3>Ocorrências</h3>
@@ -362,7 +354,7 @@ export default function Relatorios() {
                 <span>{resumo.turmas}</span>
               </div>
               <div className="relatorio-card">
-                <h3>Responsáveis</h3>
+                <h3>Professores</h3>
                 <span>{resumo.professores}</span>
               </div>
               <div className="relatorio-card">
@@ -380,31 +372,12 @@ export default function Relatorios() {
                   Foram encontradas <strong>{resumo.ocorrencias}</strong>{" "}
                   ocorrência(s), envolvendo <strong>{resumo.alunos}</strong>{" "}
                   aluno(s), <strong>{resumo.turmas}</strong> turma(s) e{" "}
-                  <strong>{resumo.professores}</strong> responsável(is) pela ocorrência.
+                  <strong>{resumo.professores}</strong> professor(es).
                 </p>
               )}
             </section>
 
-            <section className="relatorio-texto">
-              <h2>Maiores frequências no período</h2>
-              <p>Quantidades de registros nos filtros selecionados. O professor indicado é quem registrou as ocorrências.</p>
-              <dl className="relatorio-destaques">
-                {destaques.map(([titulo, valor]) => <div key={titulo}><dt>{titulo}</dt><dd>{valor}</dd></div>)}
-              </dl>
-            </section>
             <section className="relatorios-graficos">
-              <div className="grafico-box">
-                <h3>Por matéria</h3>
-                <GraficoSimples dados={dadosMaterias} dataKey="nome" />
-              </div>
-              <div className="grafico-box">
-                <h3>Por dia da semana</h3>
-                <GraficoSimples dados={dadosDias} dataKey="nome" />
-              </div>
-              <div className="grafico-box">
-                <h3>Por horário e turno</h3>
-                <GraficoSimples dados={dadosHorarios} dataKey="nome" />
-              </div>
               <div className="grafico-box">
                 <h3>Por turma</h3>
                 <GraficoTurmas dados={dadosTurmas} />
@@ -416,7 +389,7 @@ export default function Relatorios() {
               </div>
 
               <div className="grafico-box">
-                <h3>Por responsável pela ocorrência</h3>
+                <h3>Por professor</h3>
                 <GraficoProfessores dados={dadosProfessores} />
               </div>
 
@@ -431,7 +404,7 @@ export default function Relatorios() {
               </div>
             </section>
 
-            {incluirRegistros && <section className="relatorio-tabela">
+            <section className="relatorio-tabela">
               <h2>Registros filtrados</h2>
 
               {dadosFiltrados.length === 0 ? (
@@ -445,9 +418,6 @@ export default function Relatorios() {
                         {item.turma} • {item.turno} • {item.professorNome}
                       </span>
                       <p>
-                        <b>Matéria:</b> {item.disciplina || "Não informada"}
-                      </p>
-                      <p>
                         <b>Alunos:</b> {(item.alunos || []).join(", ") || "-"}
                       </p>
                       <p>
@@ -458,7 +428,7 @@ export default function Relatorios() {
                   ))}
                 </div>
               )}
-            </section>}
+            </section>
           </div>
         </main>
       </div>

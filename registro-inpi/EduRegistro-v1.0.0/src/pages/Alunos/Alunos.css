@@ -1,0 +1,602 @@
+.alunos-container {
+  min-height: calc(100vh - 80px);
+  padding: 24px;
+  background: var(--cor-fundo);
+}
+
+.alunos-feedback {
+  padding: 24px;
+  color: var(--cor-secundaria);
+}
+
+.alunos-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.alunos-topo h1 {
+  margin: 0 0 6px;
+  color: var(--cor-secundaria);
+  font-size: 26px;
+}
+
+.alunos-topo p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.alunos-acoes-topo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-primario,
+.btn-secundario,
+.btn-limpar,
+.acoes-card button,
+.historico-topo button {
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.btn-primario,
+.acoes-card button:last-child {
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
+}
+
+.btn-primario:hover,
+.acoes-card button:last-child:hover {
+  background: var(--cor-destaque-hover);
+}
+
+.btn-secundario,
+.btn-limpar,
+.acoes-card button:first-child,
+.historico-topo button {
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+}
+
+.btn-secundario:hover,
+.btn-limpar:hover,
+.acoes-card button:first-child:hover,
+.historico-topo button:hover {
+  background: #d1d5db;
+}
+
+.alunos-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.alunos-resumo div {
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.alunos-resumo strong {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.alunos-resumo span {
+  display: block;
+  margin-top: 6px;
+  color: var(--cor-texto-claro-suave);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(150px, 1fr)) auto;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  background: var(--cor-branco);
+  font-size: 15px;
+  outline: none;
+}
+
+.campo input:focus,
+.campo select:focus {
+  border-color: var(--cor-laranja);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
+.alunos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+
+.sem-registros {
+  grid-column: 1 / -1;
+  padding: 24px;
+  border-radius: 8px;
+  background: var(--cor-branco);
+  color: var(--cor-texto-secundario);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-aluno {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 8px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-aluno-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.avatar {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  place-items: center;
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.card-aluno-topo span {
+  padding: 5px 8px;
+  border-radius: var(--radius-full);
+  background: var(--cor-aviso-bg);
+  color: #9a5b00;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-aluno h3 {
+  margin: 0;
+  color: var(--cor-secundaria);
+  font-size: 18px;
+}
+
+.card-aluno dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.card-aluno dt {
+  color: var(--cor-texto-secundario);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-aluno dd {
+  margin: 2px 0 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ultimo-registro {
+  margin: 0;
+  color: #444;
+  font-size: 13px;
+}
+
+.acoes-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.historico-aluno {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 8px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.historico-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.historico-topo button + button {
+  margin-left: 8px;
+}
+
+.historico-topo h2 {
+  margin: 0 0 4px;
+  color: var(--cor-secundaria);
+  font-size: 20px;
+}
+
+.historico-topo p {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.historico-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.historico-item {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--cor-borda-light);
+  border-radius: 8px;
+  background: var(--cor-fundo-alt);
+}
+
+.historico-item strong {
+  color: var(--cor-secundaria);
+}
+
+.historico-item span,
+.historico-item p {
+  margin: 0;
+  color: #444;
+  font-size: 14px;
+}
+
+.relatorio-preview-container,
+.relatorio-pdf-preview {
+  margin-top: 22px;
+  border-radius: 8px;
+  background: var(--cor-branco);
+  box-shadow: var(--shadow-sm);
+}
+
+.relatorio-preview-container {
+  padding: 18px;
+}
+
+.relatorio-preview-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.relatorio-preview-topo h2 {
+  margin: 0 0 4px;
+  color: var(--cor-secundaria);
+  font-size: 20px;
+}
+
+.relatorio-preview-topo p {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.relatorio-preview-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.relatorio-preview-acoes button {
+  min-height: 38px;
+  padding: 8px 11px;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: var(--cor-secundaria);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.relatorio-preview-acoes button:hover {
+  background: #d1d5db;
+}
+
+.relatorio-preview-acoes button:nth-child(2) {
+  background: var(--cor-laranja);
+  color: var(--cor-branco);
+}
+
+.relatorio-preview-acoes button:nth-child(2):hover {
+  background: var(--cor-destaque-hover);
+}
+
+.relatorio-preview-acoes .btn-fechar-preview {
+  background: var(--cor-secundaria);
+  color: var(--cor-branco);
+}
+
+.relatorio-preview-campos {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cor-borda-light);
+}
+
+.relatorio-preview-campos label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.relatorio-preview-campos textarea,
+.relatorio-preview-campos input {
+  width: 100%;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  background: var(--cor-branco);
+  color: var(--cor-texto);
+  font-size: 14px;
+  outline: none;
+}
+
+.relatorio-preview-campos textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.relatorio-preview-campos textarea:focus,
+.relatorio-preview-campos input:focus {
+  border-color: var(--cor-laranja);
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.18);
+}
+
+.relatorio-preview-assinantes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.relatorio-pdf-preview {
+  overflow-x: auto;
+}
+
+.oculto-pdf {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 760px;
+  background: #fff;
+}
+
+.relatorio-pdf {
+  padding: 22px;
+  color: #111827;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.relatorio-pdf-cabecalho {
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--cor-laranja);
+}
+
+.relatorio-pdf-cabecalho h1 {
+  margin: 0 0 6px;
+  color: var(--cor-secundaria);
+  font-size: 22px;
+}
+
+.relatorio-pdf-cabecalho p,
+.relatorio-pdf-cabecalho span {
+  display: block;
+  margin: 0;
+  color: #374151;
+}
+
+.relatorio-pdf-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.relatorio-pdf-resumo div,
+.relatorio-pdf-bloco,
+.relatorio-pdf-grid > div {
+  padding: 10px;
+  border: 1px solid #d9dee7;
+  border-radius: 6px;
+}
+
+.relatorio-pdf-resumo strong {
+  display: block;
+  color: var(--cor-secundaria);
+  font-size: 20px;
+}
+
+.relatorio-pdf-resumo span {
+  color: #4b5563;
+}
+
+.relatorio-pdf-bloco,
+.relatorio-pdf-grid {
+  margin-bottom: 14px;
+}
+
+.relatorio-pdf h2 {
+  margin: 0 0 8px;
+  color: var(--cor-secundaria);
+  font-size: 15px;
+}
+
+.relatorio-pdf p {
+  margin: 0 0 5px;
+}
+
+.relatorio-pdf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.relatorio-pdf table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.relatorio-pdf th,
+.relatorio-pdf td {
+  padding: 7px;
+  border: 1px solid #d9dee7;
+  text-align: left;
+  vertical-align: top;
+}
+
+.relatorio-pdf th {
+  background: #f3f4f6;
+  color: var(--cor-secundaria);
+}
+
+.relatorio-assinaturas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 38px;
+}
+
+.relatorio-assinaturas span {
+  padding-top: 8px;
+  border-top: 1px solid #111827;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .alunos-resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .btn-limpar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .alunos-container {
+    padding: 16px;
+  }
+
+  .alunos-topo,
+  .historico-topo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .alunos-acoes-topo {
+    justify-content: stretch;
+  }
+
+  .alunos-acoes-topo button,
+  .historico-topo button {
+    width: 100%;
+  }
+
+  .historico-topo button + button {
+    margin-left: 0;
+  }
+
+  .alunos-resumo,
+  .filtros,
+  .card-aluno dl,
+  .acoes-card,
+  .relatorio-preview-assinantes {
+    grid-template-columns: 1fr;
+  }
+
+  .relatorio-preview-topo {
+    flex-direction: column;
+  }
+
+  .relatorio-preview-acoes,
+  .relatorio-preview-acoes button {
+    width: 100%;
+  }
+}
+
+@media print {
+  .sidebar,
+  .header,
+  .alunos-acoes-topo,
+  .filtros,
+  .acoes-card,
+  .historico-topo button {
+    display: none !important;
+  }
+
+  .alunos-container {
+    background: #fff;
+    padding: 0;
+  }
+
+  .card-aluno,
+  .historico-aluno,
+  .alunos-resumo div {
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,21 @@
+.install-pwa {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10000;
+  display: grid;
+  gap: 8px;
+  width: min(360px, calc(100vw - 36px));
+  padding: 18px 48px 18px 18px;
+  color: #fff;
+  background: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.28);
+}
+
+.install-pwa strong { font-size: 16px; }
+.install-pwa span { color: rgba(255, 255, 255, 0.78); font-size: 14px; line-height: 1.45; }
+.install-pwa-action { justify-self: start; margin-top: 4px; padding: 10px 16px; color: #fff; background: #ff7a00; border-radius: 8px; }
+.install-pwa-action:hover { background: #e67000; }
+.install-pwa-close { position: absolute; top: 8px; right: 10px; width: 32px; height: 32px; color: rgba(255, 255, 255, 0.8); font-size: 24px; line-height: 1; }

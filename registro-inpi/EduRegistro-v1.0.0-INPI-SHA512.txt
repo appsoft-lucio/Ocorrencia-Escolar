@@ -1,0 +1,10 @@
+Programa: EduRegistro - Ocorrencia Escolar
+Versao: 1.0.0
+Arquivo: EduRegistro-v1.0.0-INPI.zip
+Algoritmo: SHA-512
+Data do snapshot: 30/08/2026
+
+EE21797AC1001A537E946D73461CE46B867F85CBAB2C3D12DAC23AE81B735BA9CDE5455F3BF48771D96AB64242A293B1EBB6214371441B07D51EFE199F7792D6
+
+IMPORTANTE: mantenha o arquivo ZIP original inalterado e sob guarda sigilosa.
+Se o ZIP for aberto e compactado novamente, seu resumo digital sera diferente.

@@ -313,3 +313,9 @@
     max-width: 100% !important;
   }
 }
+
+.relatorio-demo { padding: 12px; background: #fff4df; color: #734600; border-radius: 8px; }
+.relatorio-destaques { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.relatorio-destaques div { border-left: 3px solid var(--cor-laranja); padding-left: 12px; break-inside: avoid; }
+.relatorio-destaques dt { color: var(--cor-texto-secundario); font-size: 14px; }
+.relatorio-destaques dd { margin: 6px 0 0; font-weight: 700; overflow-wrap: anywhere; }

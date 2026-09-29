@@ -79,7 +79,7 @@ export default function Relatorios() {
   const listas = useMemo(
     () => ({
       dias: ordenarTexto(new Set(ocorrencias.map((item) => diaSemanaOcorrencia(item.data)))),
-      horarios: ordenarTexto(new Set(ocorrencias.map((item) => rotuloHorario(item.horario)))),
+      horarios: ordenarTexto(new Set(ocorrencias.map((item) => rotuloHorario(item.horario, item.turno)))),
       alunos: ordenarTexto(new Set(ocorrencias.flatMap((item) => item.alunos || []))),
       professores: ordenarTexto(
         new Set(ocorrencias.map((item) => item.professorNome)),
@@ -130,7 +130,7 @@ export default function Relatorios() {
 
         return (
           (filtros.dias.length === 0 || filtros.dias.includes(diaSemanaOcorrencia(item.data))) &&
-          (filtros.horarios.length === 0 || filtros.horarios.includes(rotuloHorario(item.horario))) &&
+          (filtros.horarios.length === 0 || filtros.horarios.includes(rotuloHorario(item.horario, item.turno))) &&
           turmaOk &&
           turnoOk &&
           professorOk &&
@@ -210,7 +210,7 @@ export default function Relatorios() {
   );
 
   const dadosDias = useMemo(() => contarPor(dadosFiltrados, (item) => diaSemanaOcorrencia(item.data)), [dadosFiltrados]);
-  const dadosHorarios = useMemo(() => contarPor(dadosFiltrados, (item) => rotuloHorario(item.horario)), [dadosFiltrados]);
+  const dadosHorarios = useMemo(() => contarPor(dadosFiltrados, (item) => rotuloHorario(item.horario, item.turno)), [dadosFiltrados]);
   const destaques = [
     ["Aluno com mais registros", maiorFrequencia(dadosAlunos, "aluno")],
     ["Horário com mais registros", maiorFrequencia(dadosHorarios, "nome")],
@@ -323,7 +323,7 @@ export default function Relatorios() {
               onToggle={(valor) => alternarFiltro("tipos", valor)}
             />
             <MultiFiltro titulo="Dia da semana" opcoes={listas.dias} selecionados={filtros.dias} onToggle={(valor) => alternarFiltro("dias", valor)} />
-            <MultiFiltro titulo="Horário da aula" opcoes={listas.horarios} selecionados={filtros.horarios} onToggle={(valor) => alternarFiltro("horarios", valor)} />
+            <MultiFiltro titulo="Horário e turno" opcoes={listas.horarios} selecionados={filtros.horarios} onToggle={(valor) => alternarFiltro("horarios", valor)} />
           </section>
 
           <div id="relatorio-pdf">
@@ -385,7 +385,7 @@ export default function Relatorios() {
                 <GraficoSimples dados={dadosDias} dataKey="nome" />
               </div>
               <div className="grafico-box">
-                <h3>Por horário da aula</h3>
+                <h3>Por horário e turno</h3>
                 <GraficoSimples dados={dadosHorarios} dataKey="nome" />
               </div>
               <div className="grafico-box">

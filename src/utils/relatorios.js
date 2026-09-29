@@ -1,3 +1,5 @@
+import { normalizarTurno } from "./turnos.js";
+
 export const DIAS_SEMANA = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
 export function dataOcorrenciaParaISO(valor) {
@@ -16,9 +18,12 @@ export function diaSemanaOcorrencia(valor) {
   return iso ? DIAS_SEMANA[new Date(`${iso}T12:00:00Z`).getUTCDay()] : "";
 }
 
-export function rotuloHorario(horario) {
+export function rotuloHorario(horario, turno) {
   const texto = String(horario || "").trim();
-  return texto ? `${texto}ª aula` : "";
+  if (!texto) return "";
+  const turnos = { manha: "Manh\u00e3", tarde: "Tarde", noite: "Noite", integral: "Integral" };
+  const nomeTurno = turnos[normalizarTurno(turno)] || String(turno || "").trim() || "Turno n\u00e3o informado";
+  return `${texto}\u00aa aula \u2014 ${nomeTurno}`;
 }
 
 export function maiorFrequencia(dados, chave) {

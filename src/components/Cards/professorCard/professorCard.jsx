@@ -4,7 +4,6 @@ import "./professorCard.css";
 function ProfessorCard({
   nome,
   disciplina,
-  turno,
   turmas,
   ocorrencias,
   status,
@@ -38,10 +37,6 @@ function ProfessorCard({
       <div className="professor-body">
         <p>
           <strong>Disciplina:</strong> {disciplina}
-        </p>
-
-        <p>
-          <strong>Turno:</strong> {turno}
         </p>
 
         <p>
@@ -103,7 +98,6 @@ function ProfessorCard({
 ProfessorCard.propTypes = {
   nome: PropTypes.string.isRequired,
   disciplina: PropTypes.string.isRequired,
-  turno: PropTypes.string.isRequired,
   turmas: PropTypes.arrayOf(
     PropTypes.oneOfType([
       PropTypes.string,

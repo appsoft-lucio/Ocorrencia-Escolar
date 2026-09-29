@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useTurmas } from "./useTurmas";
+import { podeAcessarProfessor, perfilRestritoPorTurno, podeAcessarTurno } from "../utils/turnos";
+import { useEffect, useMemo, useState } from "react";
 
 import { listarProfessoresSupabase } from "../services/perfisService";
 
@@ -29,9 +31,8 @@ function mapearProfessorSupabase(perfil) {
   return {
     id: perfil.id,
     nome: perfil.nome,
-    disciplina: "Nao informada",
-    turno: "Nao informado",
-    turmas: [],
+    disciplina: perfil.disciplina || "Nao informada",
+    turmas: perfil.turmas || [],
     ocorrencias: 0,
     status: perfil.status,
     desativadoEm: perfil.status === "inativo" ? perfil.atualizadoEm : null,
@@ -40,6 +41,7 @@ function mapearProfessorSupabase(perfil) {
 }
 
 export function useProfessores(user) {
+  const turmas = useTurmas(user);
   const [professores, setProfessores] = useState([]);
   const [loadingProfessores, setLoadingProfessores] = useState(false);
 
@@ -81,8 +83,16 @@ export function useProfessores(user) {
     };
   }, [user]);
 
+  const visiveis = useMemo(() => professores
+    .filter((item) => podeAcessarProfessor(user, item, turmas))
+    .map((item) => !perfilRestritoPorTurno(user?.role) ? item : {
+      ...item,
+      turmas: (item.turmas || []).filter((vinculo) => turmas.some((turma) =>
+        (turma.codigo || turma.nome) === (typeof vinculo === "string" ? vinculo : vinculo.codigo) && podeAcessarTurno(user, turma))),
+    }), [professores, user, turmas]);
+
   return {
-    professores,
+    professores: visiveis,
     setProfessores,
     loadingProfessores,
   };

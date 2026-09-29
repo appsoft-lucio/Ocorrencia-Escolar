@@ -109,7 +109,7 @@ export async function atualizarProfessorSupabase(id, dados, user) {
     email: dados.email,
     whatsapp: dados.whatsapp,
     disciplina: dados.disciplina,
-    turno: dados.turno,
+    turno: null,
     turmas: dados.turmas || [],
   };
 
@@ -122,24 +122,6 @@ export async function atualizarProfessorSupabase(id, dados, user) {
     .select(CAMPOS_PERFIL_PROFESSOR)
     .single();
 
-  if (error?.code === "42703") {
-    const { disciplina: _disciplina, turno: _turno, turmas: _turmas, ...basePayload } =
-      payload;
-    const { data: dataBase, error: errorBase } = await supabase
-      .from("perfis")
-      .update(basePayload)
-      .eq("id", id)
-      .eq("escola_id", user.escolaId)
-      .eq("perfil", "professor")
-      .select(CAMPOS_PERFIL_PROFESSOR_BASE)
-      .single();
-
-    if (errorBase) {
-      throw new Error("Nao foi possivel atualizar o professor.");
-    }
-
-    return mapearPerfilProfessor(dataBase);
-  }
 
   if (error) {
     throw new Error("Nao foi possivel atualizar o professor.");

@@ -1,3 +1,4 @@
+import { normalizarTurno, podeAcessarTurno, podeAcessarTurma } from "../../utils/turnos";
 import "./Turmas.css";
 
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -181,7 +182,7 @@ function Turmas() {
         ...professor,
         turmasResumo: Array.from(new Set([...turmasProfessor, ...turmasOcorrencias])),
         turnosResumo: Array.from(
-          new Set([professor.turno, ...turnosOcorrencias].filter(Boolean)),
+          new Set(turnosOcorrencias.filter(Boolean)),
         ),
       };
     });
@@ -190,20 +191,8 @@ function Turmas() {
   const turnosPermitidos = useMemo(() => {
     if (!isSupTurno) return null;
 
-    const turnos = new Set();
-
-    professoresComTurmas.forEach((professor) => {
-      const mesmoUsuario =
-        professor.id === user?.id ||
-        normalizarTexto(professor.nome) === normalizarTexto(user?.nome);
-
-      if (mesmoUsuario) {
-        professor.turnosResumo.forEach((turno) => turnos.add(turno));
-      }
-    });
-
-    return turnos.size ? turnos : null;
-  }, [isSupTurno, professoresComTurmas, user]);
+    return new Set(user?.turno ? [normalizarTurno(user.turno)] : []);
+  }, [isSupTurno, user]);
 
   const turmas = useMemo(() => {
     const mapa = new Map();
@@ -303,29 +292,9 @@ function Turmas() {
     let lista = turmas;
 
     if (isProfessor) {
-      const professorAtual = professoresComTurmas.find(
-        (professor) =>
-          professor.id === user.id ||
-          normalizarTexto(professor.nome) === normalizarTexto(user.nome),
-      );
-      const turmasDoProfessor = new Set(professorAtual?.turmasResumo || []);
-      const turmasComOcorrencia = new Set(
-        ocorrencias
-          .filter(
-            (ocorrencia) =>
-              ocorrencia.professorId === user.id ||
-              normalizarTexto(ocorrencia.professorNome) === normalizarTexto(user.nome),
-          )
-          .map((ocorrencia) => ocorrencia.turma)
-          .filter(Boolean),
-      );
-
-      lista = lista.filter(
-        (turma) =>
-          turmasDoProfessor.has(turma.codigo) || turmasComOcorrencia.has(turma.codigo),
-      );
+      lista = lista.filter((turma) => podeAcessarTurma(user, turma));
     } else if (!isDiretor && turnosPermitidos) {
-      lista = lista.filter((turma) => turnosPermitidos.has(turma.turno));
+      lista = lista.filter((turma) => turnosPermitidos.has(normalizarTurno(turma.turno)) && podeAcessarTurno(user, turma));
     }
 
     const termo = normalizarTexto(filtros.busca);
@@ -553,7 +522,7 @@ function Turmas() {
           {isGestao && (
             <GestaoAlunos
               user={user}
-              turmas={turmas}
+              turmas={turmas.filter((item) => podeAcessarTurno(user, item))}
               alunos={alunosCadastrados}
               setAlunos={setAlunosCadastrados}
               salvarLocais={salvarAlunosLocais}

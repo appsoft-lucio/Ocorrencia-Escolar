@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { podeAcessarTurma } from "../utils/turnos";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { listarAlunosSupabase } from "../services/alunosService";
 
@@ -38,8 +39,12 @@ export function useAlunos(user) {
 
   const salvarLocais = useCallback((proximos) => {
     setAlunos(proximos);
-    localStorage.setItem(chaveLocal(user.escolaId), JSON.stringify(proximos));
+    const anteriores = JSON.parse(localStorage.getItem(chaveLocal(user.escolaId)) || "[]");
+    const preservados = anteriores.filter((item) => !podeAcessarTurma(user, item));
+    localStorage.setItem(chaveLocal(user.escolaId), JSON.stringify([...preservados, ...proximos.filter((item) => podeAcessarTurma(user, item))]));
   }, [user]);
 
-  return { alunos, setAlunos, salvarLocais, recarregar, loading, usarSupabase };
+  const visiveis = useMemo(() => alunos.filter((item) => podeAcessarTurma(user, item)), [alunos, user]);
+
+  return { alunos: visiveis, setAlunos, salvarLocais, recarregar, loading, usarSupabase };
 }

@@ -1,3 +1,4 @@
+import { podeAcessarTurma } from "../../utils/turnos";
 import "./Ocorrencias.css";
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -421,9 +422,9 @@ function Ocorrencias() {
   const turmasAtivas = useMemo(
     () =>
       turmasEscolares
-        .filter((turma) => turma.status !== "inativo")
+        .filter((turma) => turma.status !== "inativo" && podeAcessarTurma(user, turma) && (!turno || normalizarTexto(turma.turno) === normalizarTexto(turno)))
         .map((turma) => turma.nome),
-    [turmasEscolares],
+    [turmasEscolares, user, turno],
   );
 
   const alunosDisponiveis = useMemo(

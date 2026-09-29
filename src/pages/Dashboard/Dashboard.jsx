@@ -1,3 +1,4 @@
+import { podeAcessarTurno } from "../../utils/turnos";
 import "./Dashboard.css";
 
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -165,7 +166,7 @@ function Dashboard() {
     const professoresAtivos = professores.filter(
       (professor) => professor.status !== "inativo",
     );
-    const turmasAtivas = turmasEscolares.filter(
+    const turmasAtivas = turmasEscolares.filter((item) => podeAcessarTurno(user, item)).filter(
       (turma) => (turma.status || "ativo") !== "inativo",
     );
     const tiposAtivos = tiposOcorrencia.filter(

@@ -16,6 +16,8 @@ import {
 } from "../services/ocorrenciasService";
 import { perfilDesenvolvedor } from "../utils/permissoes";
 
+import { podeAcessarTurma } from "../utils/turnos";
+
 export const OcorrenciaContext = createContext();
 
 function criarChaveOcorrencias(escolaId) {
@@ -110,6 +112,7 @@ export function OcorrenciaProvider({ children }) {
 
   const addOcorrencia = useCallback(
     async (data) => {
+      if (!podeAcessarTurma(user, data)) throw new Error("Turno nao permitido.");
       const novaOcorrencia = {
         ...data,
         escolaId: data.escolaId || user?.escolaId,
@@ -140,6 +143,7 @@ export function OcorrenciaProvider({ children }) {
 
   const updateOcorrenciaStatus = useCallback(
     async (id, statusData) => {
+      if (!ocorrencias.some((item) => item.id === id && podeAcessarTurma(user, item))) throw new Error("Ocorrencia sem permissao de acesso.");
       if (usarSupabase) {
         if (!user?.escolaId) {
           throw new Error("Usuario sem escola vinculada.");
@@ -165,13 +169,18 @@ export function OcorrenciaProvider({ children }) {
       );
       return statusData;
     },
-    [usarSupabase, user],
+    [usarSupabase, user, ocorrencias],
+  );
+
+  const ocorrenciasVisiveis = useMemo(
+    () => ocorrencias.filter((item) => podeAcessarTurma(user, item)),
+    [ocorrencias, user],
   );
 
   return (
     <OcorrenciaContext.Provider
       value={{
-        ocorrencias,
+        ocorrencias: ocorrenciasVisiveis,
         loading,
         addOcorrencia,
         updateOcorrenciaStatus,

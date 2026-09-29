@@ -23,7 +23,7 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 function normalizarTexto(valor = "") {
-  return valor.toString().trim();
+  return String(valor ?? "").trim();
 }
 
 function gerarAuthEmail(login: string) {
@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
 
   const { data: perfilAtual, error: perfilError } = await supabaseAdmin
     .from("perfis")
-    .select("id, escola_id, perfil, status")
+    .select("id, escola_id, perfil, status, turno")
     .eq("id", authData.user.id)
     .single();
 
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
   const perfil = normalizarTexto(body.perfil);
   const whatsapp = normalizarTexto(body.whatsapp);
   const disciplina = normalizarTexto(body.disciplina);
-  const turno = normalizarTexto(body.turno);
+  const turno = normalizarTexto(body.turno).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const turmas = Array.isArray(body.turmas)
     ? body.turmas.map((turma) => normalizarTexto(turma)).filter(Boolean)
     : [];
@@ -126,6 +126,32 @@ Deno.serve(async (req) => {
 
   if (!perfisPermitidos.includes(perfil)) {
     return jsonResponse({ error: "Perfil nao permitido para seu cargo." }, 403);
+  }
+
+  if (["vice_diretor", "coordenador"].includes(perfil) && !["Manha", "Tarde", "Noite"].includes(turno)) {
+    return jsonResponse({ error: "Selecione o turno: manha, tarde ou noite." }, 400);
+  }
+  if (perfil !== "professor" && ["vice_diretor", "coordenador"].includes(perfilAtual.perfil)) {
+    const turnoAtual = normalizarTexto(perfilAtual.turno).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (!["manha", "tarde", "noite"].includes(turnoAtual) || turno.toLowerCase() !== turnoAtual) {
+      return jsonResponse({ error: "Voce so pode cadastrar usuarios do seu turno." }, 403);
+    }
+  }
+
+  if (perfil === "professor") {
+    if (!turmas.length) return jsonResponse({ error: "Vincule pelo menos uma turma cadastrada." }, 400);
+    const { data: cadastradas, error: turmasError } = await supabaseAdmin
+      .from("turmas").select("codigo, turno").eq("escola_id", escolaId).eq("status", "ativo").in("codigo", turmas);
+    if (turmasError || turmas.some((codigo) => !cadastradas?.some((turma) => turma.codigo === codigo))) {
+      return jsonResponse({ error: "Selecione somente turmas ativas da escola." }, 400);
+    }
+    if (["vice_diretor", "coordenador"].includes(perfilAtual.perfil)) {
+      const normalizarTurno = (valor: string) => normalizarTexto(valor).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const turnoAtual = normalizarTurno(perfilAtual.turno);
+      if (!["manha", "tarde", "noite"].includes(turnoAtual) || cadastradas?.some((turma) => normalizarTurno(turma.turno) !== turnoAtual)) {
+        return jsonResponse({ error: "Voce so pode vincular turmas do seu turno." }, 403);
+      }
+    }
   }
 
   const { data: loginExistente, error: loginError } = await supabaseAdmin
@@ -175,7 +201,7 @@ Deno.serve(async (req) => {
       perfil,
       whatsapp,
       disciplina: perfil === "professor" ? disciplina : null,
-      turno: perfil === "professor" ? turno : null,
+      turno: ["vice_diretor", "coordenador"].includes(perfil) ? turno : null,
       turmas: perfil === "professor" ? turmas : [],
       status,
     })

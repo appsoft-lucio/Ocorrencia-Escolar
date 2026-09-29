@@ -203,6 +203,8 @@ function encontrarAcessoCadastrado(login, senha) {
       login: acesso.email || chave,
       nome: acesso.nome,
       role: normalizarPerfil(acesso.role),
+      turno: acesso.turno || "",
+      turmas: acesso.turmas || [],
       escolaId: escola.id,
       escolaNome: escola.nome,
       escolaCidade: escola.cidade,

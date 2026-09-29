@@ -276,7 +276,8 @@
 
 .form-group input,
 .form-group select,
-.turma-adicionar input {
+.turma-adicionar input,
+.turma-adicionar select {
   width: 100%;
   min-height: 44px;
 }

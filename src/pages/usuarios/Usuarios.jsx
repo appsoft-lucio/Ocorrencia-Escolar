@@ -1,3 +1,4 @@
+import { supabase } from "../../services/supabaseClient";
 import "./Usuarios.css";
 
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -17,6 +18,8 @@ import {
   listarUsuariosEscolaSupabase,
 } from "../../services/usuariosService";
 
+import { TURNOS_GESTAO, perfilRestritoPorTurno, podeAcessarTurno } from "../../utils/turnos";
+
 const ACESSOS_STORAGE_KEY = "acessosUsuarios";
 
 const FORM_INICIAL = {
@@ -24,6 +27,7 @@ const FORM_INICIAL = {
   id: null,
   nome: "",
   role: "",
+  turno: "",
   login: "",
   email: "",
   whatsapp: "",
@@ -99,6 +103,7 @@ function Usuarios({
   const usuarios = useMemo(() => {
     if (usarSupabase) {
       return usuariosSupabase
+        .filter((usuario) => podeAcessarTurno(user, usuario))
         .filter((usuario) =>
           perfisPermitidos.includes(normalizarPerfil(usuario.role)),
         )
@@ -119,6 +124,7 @@ function Usuarios({
       }))
       .filter(
         (acesso) =>
+          podeAcessarTurno(user, acesso) &&
           acesso.escolaId === user?.escolaId &&
           perfisPermitidos.includes(normalizarPerfil(acesso.role)),
       )
@@ -129,7 +135,7 @@ function Usuarios({
         if (perfilA !== perfilB) return perfilA - perfilB;
         return (a.nome || "").localeCompare(b.nome || "", "pt-BR");
       });
-  }, [acessos, perfisPermitidos, usarSupabase, user?.escolaId, usuariosSupabase]);
+  }, [acessos, perfisPermitidos, usarSupabase, user, usuariosSupabase]);
 
   const resumo = useMemo(() => {
     const ativos = usuarios.filter((usuario) => usuario.status !== "inativo").length;
@@ -189,7 +195,7 @@ function Usuarios({
   }
 
   function limparFormulario() {
-    setForm(FORM_INICIAL);
+    setForm({ ...FORM_INICIAL, role: perfilFixo });
     setMensagem("");
   }
 
@@ -199,6 +205,7 @@ function Usuarios({
       id: usuario.id,
       nome: usuario.nome || "",
       role: normalizarPerfil(usuario.role || ""),
+      turno: usuario.turno || "",
       login: usuario.login || usuario.email || "",
       email: usuario.email || "",
       whatsapp: usuario.whatsapp || "",
@@ -221,6 +228,15 @@ function Usuarios({
 
     if (!perfisPermitidos.includes(form.role)) {
       setMensagem("Selecione um perfil permitido para seu cargo.");
+      return;
+    }
+
+    if (perfilRestritoPorTurno(form.role) && !TURNOS_GESTAO.includes(form.turno)) {
+      setMensagem("Selecione o turno: manhã, tarde ou noite.");
+      return;
+    }
+    if (!podeAcessarTurno(user, form)) {
+      setMensagem("Voce so pode cadastrar usuarios do seu turno.");
       return;
     }
 
@@ -264,13 +280,14 @@ function Usuarios({
           email: form.email.trim(),
           senha: form.senha,
           perfil: form.role,
+          turno: form.turno,
           whatsapp: form.whatsapp.trim(),
           status: form.status,
         });
 
         setUsuariosSupabase((atuais) => atuais.concat(usuarioCriado));
         setMensagem("Usuario da rede cadastrado.");
-        setForm(FORM_INICIAL);
+        setForm({ ...FORM_INICIAL, role: perfilFixo });
         return;
       }
 
@@ -287,6 +304,7 @@ function Usuarios({
         id,
         nome: form.nome.trim(),
         role: form.role,
+        turno: form.turno,
         login: form.login.trim(),
         email: form.email.trim(),
         emailContato: form.email.trim(),
@@ -303,9 +321,24 @@ function Usuarios({
         [chave]: usuarioAtualizado,
       }));
       setMensagem(form.chave ? "Usuario atualizado." : "Usuario cadastrado.");
-      setForm(FORM_INICIAL);
+      setForm({ ...FORM_INICIAL, role: perfilFixo });
     } catch (error) {
       setMensagem(error.message || "Nao foi possivel salvar o usuario.");
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  async function definirTurno(usuario, turno) {
+    if (!turno || salvando) return;
+    setSalvando(true);
+    try {
+      const { error } = await supabase.rpc("definir_turno_gestao", { usuario_id: usuario.id, novo_turno: turno });
+      if (error) throw error;
+      setUsuariosSupabase((atuais) => atuais.map((item) => item.id === usuario.id ? { ...item, turno } : item));
+      setMensagem("Turno atualizado. O usuario deve entrar novamente para atualizar a sessao.");
+    } catch (error) {
+      setMensagem(error.message || "Nao foi possivel definir o turno.");
     } finally {
       setSalvando(false);
     }
@@ -387,6 +420,18 @@ function Usuarios({
                       <option key={perfil} value={perfil}>
                         {obterNomePerfil(perfil)}
                       </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
+              {perfilRestritoPorTurno(form.role || perfilFixo) && (
+                <label>
+                  Turno
+                  <select required value={form.turno} onChange={(event) => atualizarCampo("turno", event.target.value)}>
+                    <option value="">Selecione o turno</option>
+                    {TURNOS_GESTAO.filter((turno) => podeAcessarTurno(user, { turno })).map((turno) => (
+                      <option key={turno} value={turno}>{turno === "Manha" ? "Manhã" : turno}</option>
                     ))}
                   </select>
                 </label>
@@ -489,6 +534,16 @@ function Usuarios({
                     </div>
 
                     <dl>
+                      <div>
+                        <dt>Turno</dt>
+                        <dd>{usuario.turno || "Não informado"}</dd>
+                        {usarSupabase && normalizarPerfil(user.role) === "diretor" && perfilRestritoPorTurno(usuario.role) && (
+                          <select aria-label={`Turno de ${usuario.nome}`} value={usuario.turno || ""} disabled={salvando} onChange={(event) => definirTurno(usuario, event.target.value)}>
+                            <option value="">Definir turno</option>
+                            {TURNOS_GESTAO.map((turno) => <option key={turno} value={turno}>{turno === "Manha" ? "Manhã" : turno}</option>)}
+                          </select>
+                        )}
+                      </div>
                       <div>
                         <dt>Login</dt>
                         <dd>{usuario.login || usuario.email || "-"}</dd>

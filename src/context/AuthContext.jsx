@@ -21,6 +21,8 @@ export function AuthProvider({ children }) {
           login,
           email,
           perfil,
+          turno,
+          turmas,
           status,
           escola_id,
           escolas (
@@ -46,6 +48,8 @@ export function AuthProvider({ children }) {
       id: data.id,
       nome: data.nome,
       role: data.perfil,
+      turno: data.turno || "",
+      turmas: data.turmas || [],
       login: data.login || authUser.email,
       email: data.email || authUser.email,
       escolaId: data.escola_id,

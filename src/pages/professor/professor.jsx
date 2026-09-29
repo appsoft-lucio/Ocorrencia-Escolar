@@ -1,3 +1,5 @@
+import { useTurmas } from "../../hooks/useTurmas";
+import { podeAcessarTurno, podeAcessarProfessor, perfilRestritoPorTurno } from "../../utils/turnos";
 import "./professor.css";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -65,17 +67,11 @@ function criarChaveEscola(chave, escolaId) {
   return escolaId ? `${chave}:${escolaId}` : chave;
 }
 
-function criarTurmaProfessorSupabase(professorId, codigo) {
-  return {
-    id: `${professorId}-${codigo}`,
-    codigo,
-    status: "ativo",
-    desativadaEm: null,
-  };
-}
 
 function Professor() {
   const { user } = useContext(AuthContext);
+  const turmasEscolares = useTurmas(user);
+  const turmasParaVincular = turmasEscolares.filter((turma) => turma.status !== "inativo" && podeAcessarTurno(user, turma));
   const { ocorrencias } = useContext(OcorrenciaContext);
   const usarSupabase = user?.origem === "supabase";
   const professoresStorageKey = criarChaveEscola("professores", user?.escolaId);
@@ -99,7 +95,7 @@ function Professor() {
     whatsapp: "",
     senha: "",
     disciplina: "",
-    turno: "Manhã",
+
     novaTurma: "",
     turmas: [],
   });
@@ -111,7 +107,7 @@ function Professor() {
   });
 
   // Estados dos dados
-  const [professores, setProfessores] = useState(() => {
+  const [todosProfessores, setProfessores] = useState(() => {
     const stored = localStorage.getItem(professoresStorageKey);
 
     const professoresIniciais = stored ? JSON.parse(stored) : [];
@@ -120,7 +116,7 @@ function Professor() {
             id: 1,
             nome: "João Silva",
             disciplina: "Matemática",
-            turno: "Manhã",
+
             turmas: ["101", "102", "201"],
             ocorrencias: 18,
           },
@@ -128,7 +124,7 @@ function Professor() {
             id: 2,
             nome: "Maria Souza",
             disciplina: "Português",
-            turno: "Tarde",
+
             turmas: ["301", "302"],
             ocorrencias: 9,
           },
@@ -136,7 +132,7 @@ function Professor() {
             id: 3,
             nome: "Carlos Oliveira",
             disciplina: "História",
-            turno: "Manhã",
+
             turmas: ["401", "402"],
             ocorrencias: 5,
           },
@@ -144,7 +140,7 @@ function Professor() {
             id: 4,
             nome: "Ana Paula",
             disciplina: "Ciências",
-            turno: "Noite",
+
             turmas: ["1001", "1002"],
             ocorrencias: 12,
           },
@@ -164,8 +160,8 @@ function Professor() {
   // Salvar no localStorage sempre que professores mudam
   useEffect(() => {
     if (usarSupabase) return;
-    localStorage.setItem(professoresStorageKey, JSON.stringify(professores));
-  }, [professores, professoresStorageKey, usarSupabase]);
+    localStorage.setItem(professoresStorageKey, JSON.stringify(todosProfessores));
+  }, [todosProfessores, professoresStorageKey, usarSupabase]);
 
   useEffect(() => {
     let ativo = true;
@@ -186,13 +182,7 @@ function Professor() {
 
               return mesmoId || mesmoNome;
             });
-            const turmas = Array.from(
-              new Set(
-                ocorrenciasProfessor
-                  .map((ocorrencia) => ocorrencia.turma)
-                  .filter(Boolean),
-              ),
-            ).map((turma) => criarTurmaProfessorSupabase(perfil.id, turma));
+
 
             return {
               id: perfil.id,
@@ -201,10 +191,8 @@ function Professor() {
               email: perfil.email,
               whatsapp: perfil.whatsapp,
               disciplina: perfil.disciplina || "Nao informada",
-              turno: perfil.turno || "Nao informado",
-              turmas: normalizarTurmas(perfil.turmas).length
-                ? normalizarTurmas(perfil.turmas)
-                : turmas,
+
+              turmas: normalizarTurmas(perfil.turmas),
               ocorrencias: ocorrenciasProfessor.length,
               status: perfil.status,
               desativadoEm:
@@ -225,6 +213,14 @@ function Professor() {
       ativo = false;
     };
   }, [ocorrencias, setMensagem, usarSupabase, user]);
+
+  const professores = useMemo(() => todosProfessores
+    .filter((item) => podeAcessarProfessor(user, item, turmasEscolares))
+    .map((item) => !perfilRestritoPorTurno(user?.role) ? item : {
+      ...item,
+      turmas: normalizarTurmas(item.turmas).filter((vinculo) => turmasEscolares.some((turma) =>
+        (turma.codigo || turma.nome) === vinculo.codigo && podeAcessarTurno(user, turma))),
+    }), [todosProfessores, user, turmasEscolares]);
 
   const professoresResumo = useMemo(() => {
     const ativos = professores.filter((professor) => professor.status !== "inativo");
@@ -265,7 +261,7 @@ function Professor() {
 
     return professores.filter((professor) => {
       const turmas = normalizarTurmas(professor.turmas);
-      const textoProfessor = [professor.nome, professor.disciplina, professor.turno]
+      const textoProfessor = [professor.nome, professor.disciplina]
         .join(" ")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -301,7 +297,7 @@ function Professor() {
       whatsapp: "",
       senha: "",
       disciplina: "",
-      turno: "Manhã",
+
       novaTurma: "",
       turmas: [],
     });
@@ -318,6 +314,11 @@ function Professor() {
 
     if (!codigoTurma) {
       setMensagem("Digite o código da turma.");
+      return;
+    }
+
+    if (!turmasParaVincular.some((turma) => (turma.codigo || turma.nome) === codigoTurma)) {
+      setMensagem("Selecione uma turma cadastrada e permitida.");
       return;
     }
 
@@ -422,7 +423,7 @@ function Professor() {
         email: formData.email.trim(),
         whatsapp: formData.whatsapp.trim(),
         disciplina: formData.disciplina,
-        turno: formData.turno,
+
         turmas: normalizarTurmas(formData.turmas),
         ocorrencias: 0,
         status: "ativo",
@@ -439,8 +440,8 @@ function Professor() {
           whatsapp: formData.whatsapp.trim(),
           status: "ativo",
           disciplina: formData.disciplina,
-          turno: formData.turno,
-          turmas: normalizarTurmas(formData.turmas).map((turma) => turma.codigo),
+
+          turmas: normalizarTurmas(formData.turmas).filter(turmaEstaAtiva).map((turma) => turma.codigo),
         });
 
         setProfessores((prev) => [
@@ -473,9 +474,6 @@ function Professor() {
     setMensagem("");
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") adicionarTurma();
-  };
 
   // Ações dos botões dos cards
   const verDetalhes = (professor) => {
@@ -492,7 +490,7 @@ function Professor() {
       whatsapp: professor.whatsapp || "",
       senha: "",
       disciplina: professor.disciplina,
-      turno: professor.turno,
+
       novaTurma: "",
       turmas: normalizarTurmas(professor.turmas),
     });
@@ -530,7 +528,7 @@ function Professor() {
       email: formData.email.trim(),
       whatsapp: formData.whatsapp.trim(),
       disciplina: formData.disciplina.trim(),
-      turno: formData.turno,
+
       turmas: normalizarTurmas(formData.turmas),
     };
 
@@ -540,7 +538,7 @@ function Professor() {
           professorEmEdicao.id,
           {
             ...professorAtualizado,
-            turmas: professorAtualizado.turmas.map((turma) => turma.codigo),
+            turmas: professorAtualizado.turmas.filter(turmaEstaAtiva).map((turma) => turma.codigo),
           },
           user,
         );
@@ -552,6 +550,11 @@ function Professor() {
             ? {
                 ...prof,
                 ...professorAtualizado,
+                turmas: [
+                  ...professorAtualizado.turmas,
+                  ...(perfilRestritoPorTurno(user?.role) ? normalizarTurmas(prof.turmas).filter((vinculo) =>
+                    !turmasEscolares.some((turma) => (turma.codigo || turma.nome) === vinculo.codigo && podeAcessarTurno(user, turma))) : []),
+                ],
               }
             : prof,
         ),
@@ -668,11 +671,6 @@ function Professor() {
                 </div>
 
                 <div className="detalhe-item">
-                  <strong>Turno:</strong>
-                  <p>{professorSelecionado.turno}</p>
-                </div>
-
-                <div className="detalhe-item">
                   <strong>
                     Turmas ativas (
                     {normalizarTurmas(professorSelecionado.turmas).filter(
@@ -783,34 +781,19 @@ function Professor() {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="turno-edicao">Turno</label>
-                <select
-                  id="turno-edicao"
-                  name="turno"
-                  value={formData.turno}
-                  onChange={handleInputChange}
-                >
-                  <option value="Manhã">Manhã</option>
-                  <option value="Tarde">Tarde</option>
-                  <option value="Noite">Noite</option>
-                  <option value="Integral">Integral</option>
-                </select>
-              </div>
-
               <div className="turmas-section">
                 <h3>Turmas</h3>
+                <p>O acesso segue as turmas vinculadas, que podem ser de turnos diferentes.</p>
 
                 <div className="turma-adicionar">
-                  <input
-                    type="text"
-                    name="novaTurma"
-                    placeholder="Ex: 101"
-                    value={formData.novaTurma}
-                    onChange={handleInputChange}
-                    onKeyPress={handleKeyPress}
-                    aria-label="Código da turma"
-                  />
+                  <select name="novaTurma" value={formData.novaTurma} onChange={handleInputChange} aria-label="Turma do professor">
+                    <option value="">Selecione uma turma cadastrada</option>
+                    {turmasParaVincular.map((turma) => (
+                      <option key={turma.id} value={turma.codigo || turma.nome}>
+                        {turma.codigo || turma.nome} - {turma.turno || "Sem turno"}
+                      </option>
+                    ))}
+                  </select>
 
                   <button
                     type="button"
@@ -962,34 +945,19 @@ function Professor() {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="turno">Turno</label>
-                <select
-                  id="turno"
-                  name="turno"
-                  value={formData.turno}
-                  onChange={handleInputChange}
-                >
-                  <option value="Manhã">Manhã</option>
-                  <option value="Tarde">Tarde</option>
-                  <option value="Noite">Noite</option>
-                  <option value="Integral">Integral</option>
-                </select>
-              </div>
-
               <div className="turmas-section">
                 <h3>Turmas</h3>
+                <p>O acesso segue as turmas vinculadas, que podem ser de turnos diferentes.</p>
 
                 <div className="turma-adicionar">
-                  <input
-                    type="text"
-                    name="novaTurma"
-                    placeholder="Ex: 101"
-                    value={formData.novaTurma}
-                    onChange={handleInputChange}
-                    onKeyPress={handleKeyPress}
-                    aria-label="Código da turma"
-                  />
+                  <select name="novaTurma" value={formData.novaTurma} onChange={handleInputChange} aria-label="Turma do professor">
+                    <option value="">Selecione uma turma cadastrada</option>
+                    {turmasParaVincular.map((turma) => (
+                      <option key={turma.id} value={turma.codigo || turma.nome}>
+                        {turma.codigo || turma.nome} - {turma.turno || "Sem turno"}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     className="btn-add-turma"
@@ -1061,8 +1029,7 @@ function Professor() {
 
           <p className="professores-descricao">
             Bem-vindo, <strong>{user?.nome}</strong>. Nesta página é possível
-            visualizar os professores cadastrados, as turmas em que lecionam, o
-            turno de atuação, a quantidade de ocorrências registradas e o status
+            visualizar os professores cadastrados, as turmas em que lecionam, a quantidade de ocorrências registradas e o status
             do vínculo com a escola.
           </p>
 
@@ -1135,7 +1102,7 @@ function Professor() {
                   key={professor.id}
                   nome={professor.nome}
                   disciplina={professor.disciplina}
-                  turno={professor.turno}
+
                   turmas={professor.turmas}
                   ocorrencias={professor.ocorrencias}
                   status={professor.status}

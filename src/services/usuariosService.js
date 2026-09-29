@@ -6,6 +6,7 @@ function mapearPerfilUsuario(row) {
     id: row.id,
     nome: row.nome,
     role: row.perfil,
+    turno: row.turno || "",
     login: row.login || "",
     email: row.email || "",
     whatsapp: row.whatsapp || "",
@@ -24,7 +25,7 @@ export async function listarUsuariosEscolaSupabase(user, perfisPermitidos = []) 
 
   const { data, error } = await supabase
     .from("perfis")
-    .select("id, escola_id, nome, perfil, login, email, whatsapp, status, created_at, updated_at")
+    .select("id, escola_id, nome, perfil, login, email, whatsapp, turno, status, created_at, updated_at")
     .eq("escola_id", user.escolaId)
     .in("perfil", perfisPermitidos)
     .order("nome", { ascending: true });

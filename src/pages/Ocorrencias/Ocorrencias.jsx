@@ -604,6 +604,10 @@ function Ocorrencias() {
     return {
       novas,
       revisadas,
+      ...Object.fromEntries(STATUS_FINAIS.map((status) => [
+        status,
+        ocorrenciasFiltradas.filter((ocorrencia) => normalizarStatusOcorrencia(ocorrencia.status) === status),
+      ])),
       todas: ocorrenciasFiltradas,
     };
   }, [ocorrenciasFiltradas]);
@@ -613,7 +617,12 @@ function Ocorrencias() {
     : ocorrenciasPorVisao.todas;
 
   const abasOcorrencias = [
-    { id: "novas", label: "Novas ocorrências", total: ocorrenciasPorVisao.novas.length },
+    { id: "novas", label: "Pendentes", total: ocorrenciasPorVisao.novas.length },
+    ...STATUS_FINAIS.map((status) => ({
+      id: status,
+      label: status === "Confirmada" ? "Confirmadas" : status === "Não confirmada" ? "Não confirmadas" : "Canceladas",
+      total: ocorrenciasPorVisao[status].length,
+    })),
     {
       id: "revisadas",
       label: "Ocorrências revisadas",

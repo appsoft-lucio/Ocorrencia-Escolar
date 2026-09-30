@@ -30,7 +30,7 @@ function CardOcorrencia({
 
   return (
     <article
-      className={`card-ocorrencia card-ocorrencia-${classeStatus}`}
+      className={canManage ? `card-ocorrencia card-ocorrencia-${classeStatus}` : "card-ocorrencia"}
       aria-labelledby={tituloId}
     >
       <div className="card-ocorrencia-topo">

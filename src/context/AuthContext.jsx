@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useState } from "react";
 
 import { usuarioDemoValido } from "../data/demoUsers";
 import { supabase, supabaseConfigurado } from "../services/supabaseClient";
+import { isNetworkError, setOfflineUser, syncOffline } from "../services/offlineStore";
 
 export const AuthContext = createContext();
 
@@ -37,7 +38,7 @@ export function AuthProvider({ children }) {
       .single();
 
     if (error) {
-      throw new Error("Perfil nao encontrado para este usuario.");
+      throw new Error("Perfil nao encontrado para este usuario.", { cause: error });
     }
 
     if (data.status === "inativo" || data.escolas?.status === "inativo") {
@@ -67,10 +68,13 @@ export function AuthProvider({ children }) {
     };
 
     setUser(userDataNormalizado);
+    localStorage.removeItem("eduregistro-explicit-logout");
+    setOfflineUser(userDataNormalizado.origem === "supabase" ? userDataNormalizado : null);
     localStorage.setItem("user", JSON.stringify(userDataNormalizado));
   }
 
   async function loginSupabase(usuario, senha) {
+    if (navigator.onLine === false) throw new Error("O primeiro acesso exige internet. Para usar off-line, mantenha sua sessão aberta neste dispositivo.");
     if (!supabaseConfigurado || !supabase) {
       throw new Error("Supabase nao configurado.");
     }
@@ -105,20 +109,40 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    if (supabase && user?.origem === "supabase") {
-      await supabase.auth.signOut();
-    }
-
+    localStorage.setItem("eduregistro-explicit-logout", "true");
+    setOfflineUser(null);
     setUser(null);
     localStorage.removeItem("user");
+    if (supabase && user?.origem === "supabase") {
+      await supabase.auth.signOut({ scope: "local" });
+    }
+
   }
 
   useEffect(() => {
     let ativo = true;
 
     async function recuperarSessao() {
+      // signOut may fail without a network; an explicit exit must still stay signed out.
+      if (localStorage.getItem("eduregistro-explicit-logout")) {
+        setLoading(false);
+        return;
+      }
+      const saved = localStorage.getItem("user");
+      let cached;
+      try { cached = saved ? JSON.parse(saved) : null; } catch { /* Ignore invalid session cache. */ }
+      if (navigator.onLine === false && cached?.origem === "supabase") {
+        login(cached);
+        setLoading(false);
+        return;
+      }
       if (supabaseConfigurado && supabase) {
-        const { data } = await supabase.auth.getSession();
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError && isNetworkError(sessionError) && cached?.origem === "supabase") {
+          login(cached);
+          setLoading(false);
+          return;
+        }
 
         if (data.session?.user) {
           try {
@@ -131,6 +155,10 @@ export function AuthProvider({ children }) {
 
             return;
           } catch (error) {
+            if (isNetworkError(error) && cached?.id === data.session.user.id) {
+              if (ativo) { login(cached); setLoading(false); }
+              return;
+            }
             console.error("Erro ao recuperar sessao Supabase:", error);
             await supabase.auth.signOut();
           }
@@ -167,6 +195,65 @@ export function AuthProvider({ children }) {
       ativo = false;
     };
   }, [carregarPerfilSupabase]);
+
+  useEffect(() => {
+    if (user?.origem !== "supabase") return undefined;
+    let active = true;
+    let running = false;
+    async function synchronize() {
+      if (!active || running || navigator.onLine === false) return;
+      running = true;
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (!data.session?.user || data.session.user.id !== user.id) {
+          throw new Error("Sessão expirada. Entre novamente para sincronizar.");
+        }
+        const profile = await carregarPerfilSupabase(data.session.user);
+        if (!active) return;
+        setOfflineUser(profile);
+        localStorage.setItem("user", JSON.stringify(profile));
+        setUser((previous) => JSON.stringify(previous) === JSON.stringify(profile) ? previous : profile);
+        await syncOffline(profile);
+      } catch (error) {
+        if (active) window.dispatchEvent(new CustomEvent("offline-auth-error", { detail: isNetworkError(error)
+          ? "Sem conexão com o servidor. Seus dados locais estão disponíveis."
+          : error.message }));
+      } finally {
+        running = false;
+      }
+    }
+    const refresh = () => { if (active) setUser((previous) => previous ? { ...previous } : previous); };
+    const accountChanged = (event) => {
+      if (event.key !== "user" && event.key !== "eduregistro-explicit-logout") return;
+      if (event.key === "user" && event.newValue) {
+        try { if (JSON.parse(event.newValue).id === user.id) return; } catch { /* Treat invalid state as signed out. */ }
+      }
+      if (event.key === "eduregistro-explicit-logout" && !event.newValue) return;
+      active = false;
+      setOfflineUser(null);
+      setUser(null);
+    };
+    const visible = () => { if (document.visibilityState === "visible") synchronize(); };
+    window.addEventListener("online", synchronize);
+    window.addEventListener("offline-pending", synchronize);
+    window.addEventListener("offline-retry", synchronize);
+    window.addEventListener("offline-data-updated", refresh);
+    window.addEventListener("storage", accountChanged);
+    document.addEventListener("visibilitychange", visible);
+    const timer = setInterval(synchronize, 30000);
+    synchronize();
+    return () => {
+      active = false;
+      clearInterval(timer);
+      window.removeEventListener("online", synchronize);
+      window.removeEventListener("offline-pending", synchronize);
+      window.removeEventListener("offline-retry", synchronize);
+      window.removeEventListener("offline-data-updated", refresh);
+      window.removeEventListener("storage", accountChanged);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, [user?.id, user?.escolaId, user?.origem, carregarPerfilSupabase]);
 
   return (
     <AuthContext.Provider

@@ -1,0 +1,24 @@
+.offline-status {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 8px 16px;
+  background: #edf5ff;
+  color: #163957;
+  border-bottom: 1px solid #c5d9ec;
+  font-size: 13px;
+}
+.offline-status button {
+  padding: 5px 10px;
+  border: 1px solid #32648e;
+  border-radius: 6px;
+  background: white;
+  color: #163957;
+  cursor: pointer;
+}
+.offline-status button:disabled { opacity: .6; cursor: wait; }

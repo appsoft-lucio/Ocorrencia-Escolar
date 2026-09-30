@@ -1,5 +1,35 @@
+import { offlineCollection } from "./offlineStore";
 import { supabase } from "./supabaseClient";
 import { perfilGestao } from "../utils/permissoes";
+import { podeAcessarTurma } from "../utils/turnos";
+
+const offline = offlineCollection("ocorrencias", listarOcorrenciasSupabaseRemoto, {
+  criar: async (user, row) => {
+    const existing = (await listarOcorrenciasSupabaseRemoto(user)).find((item) => item.id === row.id);
+    return existing || criarOcorrenciaSupabaseRemoto(row, user);
+  },
+  atualizar: (user, id, dados) => atualizarStatusOcorrenciaSupabaseRemoto(id, dados, user),
+});
+
+export const listarOcorrenciasSupabase = (user) => offline.list(user);
+
+export async function criarOcorrenciaSupabase(dados, user) {
+  validarUsuarioEscola(user);
+  if (!podeAcessarTurma(user, dados)) throw new Error("Turno não permitido.");
+  const createdAt = new Date().toISOString();
+  const row = { ...dados, id: crypto.randomUUID(), createdAt, data: formatarData(createdAt),
+    escolaId: user.escolaId, professorId: user.id, professorNome: user.nome,
+    status: dados.status || "Pendente" };
+  return offline.mutate(user, "criar", [row], [row]);
+}
+
+export async function atualizarStatusOcorrenciaSupabase(id, dados, user) {
+  validarUsuarioEscola(user);
+  if (!perfilGestao(user.role)) throw new Error("Usuário sem permissão para atualizar status.");
+  const row = (await offline.list(user)).find((item) => item.id === id);
+  if (!row || !podeAcessarTurma(user, row)) throw new Error("Ocorrência sem permissão de acesso.");
+  return offline.mutate(user, "atualizar", [id, dados], [{ ...row, ...dados }]);
+}
 
 const CAMPOS_OCORRENCIA = `
   id,
@@ -63,7 +93,7 @@ function validarUsuarioEscola(user) {
   }
 }
 
-export async function listarOcorrenciasSupabase(user) {
+async function listarOcorrenciasSupabaseRemoto(user) {
   validarUsuarioEscola(user);
 
   let query = supabase
@@ -79,18 +109,20 @@ export async function listarOcorrenciasSupabase(user) {
   const { data, error } = await query;
 
   if (error) {
-    throw new Error("Nao foi possivel carregar as ocorrencias.");
+    throw new Error("Nao foi possivel carregar as ocorrencias.", { cause: error });
   }
 
   return (data || []).map(mapearOcorrenciaSupabase);
 }
 
-export async function criarOcorrenciaSupabase(ocorrencia, user) {
+async function criarOcorrenciaSupabaseRemoto(ocorrencia, user) {
   validarUsuarioEscola(user);
 
   const { data, error } = await supabase
     .from("ocorrencias")
     .insert({
+      id: ocorrencia.id,
+      created_at: ocorrencia.createdAt,
       escola_id: user.escolaId,
       professor_id: user.id,
       professor_nome: user.nome,
@@ -109,13 +141,13 @@ export async function criarOcorrenciaSupabase(ocorrencia, user) {
     .single();
 
   if (error) {
-    throw new Error("Nao foi possivel salvar a ocorrencia.");
+    throw new Error("Nao foi possivel salvar a ocorrencia.", { cause: error });
   }
 
   return mapearOcorrenciaSupabase(data);
 }
 
-export async function atualizarStatusOcorrenciaSupabase(id, statusData, user) {
+async function atualizarStatusOcorrenciaSupabaseRemoto(id, statusData, user) {
   validarUsuarioEscola(user);
 
   if (!perfilGestao(user.role)) {
@@ -142,7 +174,7 @@ export async function atualizarStatusOcorrenciaSupabase(id, statusData, user) {
     .single();
 
   if (error) {
-    throw new Error("Nao foi possivel atualizar o status da ocorrencia.");
+    throw new Error("Nao foi possivel atualizar o status da ocorrencia.", { cause: error });
   }
 
   return mapearOcorrenciaSupabase(data);

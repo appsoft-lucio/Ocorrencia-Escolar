@@ -694,7 +694,9 @@ function Ocorrencias() {
         });
 
         limparFormulario();
-        mostrarNotificacao("Ocorrência salva com sucesso.", "sucesso");
+        mostrarNotificacao(user.origem === "supabase"
+          ? "Ocorrência salva neste dispositivo. O envio será automático quando houver conexão."
+          : "Ocorrência salva com sucesso.", "sucesso");
       } catch (error) {
         console.error("Erro ao salvar ocorrência:", error);
         mostrarNotificacao("Não foi possível salvar a ocorrência.", "erro");

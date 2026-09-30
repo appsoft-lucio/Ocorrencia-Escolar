@@ -1,5 +1,9 @@
+import { offlineCollection } from "./offlineStore";
 import { supabase } from "./supabaseClient";
 import { perfilGestao } from "../utils/permissoes";
+
+const offline = offlineCollection("professores", listarProfessoresSupabaseRemoto, {});
+export const listarProfessoresSupabase = (user) => offline.list(user);
 
 const CAMPOS_PERFIL_PROFESSOR =
   "id, escola_id, nome, perfil, login, email, whatsapp, disciplina, turno, turmas, status, created_at, updated_at";
@@ -30,7 +34,7 @@ function validarUsuarioEscola(user) {
   }
 }
 
-export async function listarProfessoresSupabase(user) {
+async function listarProfessoresSupabaseRemoto(user) {
   validarUsuarioEscola(user);
 
   let query = supabase
@@ -61,14 +65,14 @@ export async function listarProfessoresSupabase(user) {
     const { data: dataBase, error: errorBase } = await queryBase;
 
     if (errorBase) {
-      throw new Error("Nao foi possivel carregar professores.");
+      throw new Error("Nao foi possivel carregar professores.", { cause: errorBase });
     }
 
     return (dataBase || []).map(mapearPerfilProfessor);
   }
 
   if (error) {
-    throw new Error("Nao foi possivel carregar professores.");
+    throw new Error("Nao foi possivel carregar professores.", { cause: error });
   }
 
   return (data || []).map(mapearPerfilProfessor);
@@ -91,7 +95,7 @@ export async function atualizarStatusProfessorSupabase(id, status, user) {
     .single();
 
   if (error) {
-    throw new Error("Nao foi possivel atualizar o status do usuario.");
+    throw new Error("Nao foi possivel atualizar o status do usuario.", { cause: error });
   }
 
   return mapearPerfilProfessor(data);
@@ -124,7 +128,7 @@ export async function atualizarProfessorSupabase(id, dados, user) {
 
 
   if (error) {
-    throw new Error("Nao foi possivel atualizar o professor.");
+    throw new Error("Nao foi possivel atualizar o professor.", { cause: error });
   }
 
   return mapearPerfilProfessor(data);

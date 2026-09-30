@@ -5,13 +5,14 @@ import { defineConfig } from "vite";
 // Importa o plugin oficial do React para o Vite.
 // Este plugin permite que o Vite entenda arquivos JSX e utilize recursos do React.
 import react from "@vitejs/plugin-react";
+import { offlineBuildPlugin } from "./scripts/offlineBuildPlugin.js";
 
 // Exporta a configuração do Vite.
 // O defineConfig ajuda o editor a reconhecer corretamente as opções disponíveis.
 export default defineConfig({
   // Lista de plugins utilizados pelo projeto.
   // Neste caso, apenas o plugin do React.
-  plugins: [react()],
+  plugins: [react(), offlineBuildPlugin()],
 
   // Define o caminho base da aplicação após o deploy.
   //

@@ -1,5 +1,55 @@
+import { listarTurmasSupabase } from "./cadastrosEscolaresService";
+import { offlineCollection } from "./offlineStore";
 import { supabase } from "./supabaseClient";
 import { perfilGestao } from "../utils/permissoes";
+
+const offline = offlineCollection("alunos", listarAlunosSupabaseRemoto, {
+  criar: async (user, dados) => {
+    const existing = (await listarAlunosSupabaseRemoto(user)).find((item) => item.id === dados.id);
+    return existing || criarAlunoSupabaseRemoto(user, dados);
+  },
+  editar: atualizarAlunoSupabaseRemoto,
+  status: atualizarStatusAlunoSupabaseRemoto,
+  arquivar: arquivarAlunoSupabaseRemoto,
+  importar: async (user, dados) => {
+    const ids = new Set((await listarAlunosSupabaseRemoto(user)).map((item) => item.id));
+    const remaining = dados.filter((item) => !ids.has(item.id));
+    if (remaining.length) await importarAlunosSupabaseRemoto(user, remaining);
+  },
+});
+export const listarAlunosSupabase = (user) => offline.list(user);
+
+async function alunoLocal(user, dados, turmas) {
+  const turma = (turmas || await listarTurmasSupabase(user)).find((item) => item.id === dados.turmaId);
+  if (!turma) throw new Error("Turma não disponível neste dispositivo.");
+  return { ...dados, id: dados.id || crypto.randomUUID(), turma: turma.codigo,
+    turno: dados.turno || turma.turno, status: "ativo", criadoEm: new Date().toISOString() };
+}
+export async function criarAlunoSupabase(user, dados) {
+  validarGestao(user);
+  const row = await alunoLocal(user, dados);
+  return offline.mutate(user, "criar", [row], [row]);
+}
+async function alterarAluno(user, id, dados, operation, args) {
+  validarGestao(user);
+  const row = (await offline.list(user)).find((item) => item.id === id);
+  if (!row) throw new Error("Aluno não disponível neste dispositivo.");
+  return offline.mutate(user, operation, args, [{ ...row, ...dados }]);
+}
+export async function atualizarAlunoSupabase(user, id, dados) {
+  validarGestao(user);
+  const local = await alunoLocal(user, { ...dados, id });
+  return alterarAluno(user, id, { nome: local.nome, turmaId: local.turmaId, turma: local.turma, turno: local.turno }, "editar", [id, dados]);
+}
+export const atualizarStatusAlunoSupabase = (user, id, status) => alterarAluno(user, id, { status }, "status", [id, status]);
+export const arquivarAlunoSupabase = (user, id) => alterarAluno(user, id, { status: "inativo", arquivadoEm: new Date().toISOString() }, "arquivar", [id]);
+export async function importarAlunosSupabase(user, alunos) {
+  validarGestao(user);
+  const turmas = await listarTurmasSupabase(user);
+  const rows = await Promise.all(alunos.map((item) => alunoLocal(user, item, turmas)));
+  await offline.mutate(user, "importar", [rows], rows);
+  return rows;
+}
 
 const CAMPOS = `
   id, nome, turno, status, turma_id, arquivado_em, created_at, updated_at,
@@ -26,7 +76,7 @@ function validarGestao(user) {
   }
 }
 
-export async function listarAlunosSupabase(user) {
+async function listarAlunosSupabaseRemoto(user) {
   if (!user?.escolaId) return [];
 
   const { data, error } = await supabase
@@ -35,15 +85,16 @@ export async function listarAlunosSupabase(user) {
     .eq("escola_id", user.escolaId)
     .order("nome", { ascending: true });
 
-  if (error) throw new Error("Nao foi possivel carregar os alunos.");
+  if (error) throw new Error("Nao foi possivel carregar os alunos.", { cause: error });
   return (data || []).map(mapearAluno);
 }
 
-export async function criarAlunoSupabase(user, dados) {
+async function criarAlunoSupabaseRemoto(user, dados) {
   validarGestao(user);
   const { data, error } = await supabase
     .from("alunos")
     .insert({
+      id: dados.id,
       escola_id: user.escolaId,
       nome: dados.nome,
       turma_id: dados.turmaId,
@@ -54,13 +105,13 @@ export async function criarAlunoSupabase(user, dados) {
     .single();
 
   if (error?.code === "23505") {
-    throw new Error("Este aluno ja esta cadastrado nesta escola.");
+    throw new Error("Este aluno ja esta cadastrado nesta escola.", { cause: error });
   }
-  if (error) throw new Error("Nao foi possivel cadastrar o aluno.");
+  if (error) throw new Error("Nao foi possivel cadastrar o aluno.", { cause: error });
   return mapearAluno(data);
 }
 
-export async function atualizarAlunoSupabase(user, id, dados) {
+async function atualizarAlunoSupabaseRemoto(user, id, dados) {
   validarGestao(user);
   const { data, error } = await supabase
     .from("alunos")
@@ -70,11 +121,11 @@ export async function atualizarAlunoSupabase(user, id, dados) {
     .select(CAMPOS)
     .single();
 
-  if (error) throw new Error("Nao foi possivel atualizar ou transferir o aluno.");
+  if (error) throw new Error("Nao foi possivel atualizar ou transferir o aluno.", { cause: error });
   return mapearAluno(data);
 }
 
-export async function atualizarStatusAlunoSupabase(user, id, status) {
+async function atualizarStatusAlunoSupabaseRemoto(user, id, status) {
   validarGestao(user);
   const { data, error } = await supabase
     .from("alunos")
@@ -84,11 +135,11 @@ export async function atualizarStatusAlunoSupabase(user, id, status) {
     .select(CAMPOS)
     .single();
 
-  if (error) throw new Error("Nao foi possivel atualizar o aluno.");
+  if (error) throw new Error("Nao foi possivel atualizar o aluno.", { cause: error });
   return mapearAluno(data);
 }
 
-export async function arquivarAlunoSupabase(user, id) {
+async function arquivarAlunoSupabaseRemoto(user, id) {
   validarGestao(user);
   const { error } = await supabase
     .from("alunos")
@@ -96,16 +147,17 @@ export async function arquivarAlunoSupabase(user, id) {
     .eq("id", id)
     .eq("escola_id", user.escolaId);
 
-  if (error) throw new Error("Nao foi possivel excluir o aluno da lista.");
+  if (error) throw new Error("Nao foi possivel excluir o aluno da lista.", { cause: error });
   return true;
 }
 
-export async function importarAlunosSupabase(user, alunos) {
+async function importarAlunosSupabaseRemoto(user, alunos) {
   validarGestao(user);
   const { data, error } = await supabase
     .from("alunos")
     .insert(
       alunos.map((aluno) => ({
+        id: aluno.id,
         escola_id: user.escolaId,
         nome: aluno.nome,
         turma_id: aluno.turmaId,
@@ -116,8 +168,8 @@ export async function importarAlunosSupabase(user, alunos) {
     .select(CAMPOS);
 
   if (error?.code === "23505") {
-    throw new Error("Um ou mais alunos ja estao cadastrados nesta escola.");
+    throw new Error("Um ou mais alunos ja estao cadastrados nesta escola.", { cause: error });
   }
-  if (error) throw new Error("Nao foi possivel importar os alunos.");
+  if (error) throw new Error("Nao foi possivel importar os alunos.", { cause: error });
   return (data || []).map(mapearAluno);
 }

@@ -6,20 +6,10 @@ import { useNavigate } from "react-router-dom";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { AuthContext } from "../../context/AuthContext";
-import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import { AuthContext } from "../../context/AuthContext.js";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.js";
 import { useProfessores } from "../../hooks/useProfessores";
 import { perfilGestao } from "../../utils/permissoes";
-
-function lerStorage(chave, fallback = []) {
-  try {
-    const valor = localStorage.getItem(chave);
-    return valor ? JSON.parse(valor) : fallback;
-  } catch (error) {
-    console.error(`Erro ao carregar ${chave}:`, error);
-    return fallback;
-  }
-}
 
 function normalizarTexto(valor = "") {
   return valor
@@ -28,10 +18,6 @@ function normalizarTexto(valor = "") {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
-}
-
-function criarChaveEscola(chave, escolaId) {
-  return escolaId ? `${chave}:${escolaId}` : chave;
 }
 
 function normalizarTurmasProfessor(turmas = []) {

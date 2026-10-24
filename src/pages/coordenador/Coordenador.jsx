@@ -2,7 +2,7 @@ import "./coordenador.css";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext.js";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import {
   atualizarStatusTipoOcorrenciaSupabase,
@@ -103,21 +103,6 @@ function normalizarTipoOcorrencia(tipo) {
   };
 }
 
-function carregarTiposOcorrencia() {
-  const stored = localStorage.getItem("tiposOcorrencia");
-
-  if (!stored) {
-    return TIPOS_OCORRENCIA_PADRAO.map(criarTipoOcorrencia);
-  }
-
-  try {
-    return JSON.parse(stored).map(normalizarTipoOcorrencia);
-  } catch (error) {
-    console.error("Erro ao carregar tipos de ocorrência:", error);
-    return TIPOS_OCORRENCIA_PADRAO.map(criarTipoOcorrencia);
-  }
-}
-
 function normalizarTurmaEscolar(turma) {
   if (typeof turma === "string") {
     return {
@@ -137,21 +122,6 @@ function normalizarTurmaEscolar(turma) {
     criadoEm: turma.criadoEm || null,
     desativadoEm: turma.desativadoEm || null,
   };
-}
-
-function carregarTurmasEscolares() {
-  const stored = localStorage.getItem("turmasEscolares");
-
-  if (!stored) {
-    return TURMAS_PADRAO.map(criarTurmaEscolar);
-  }
-
-  try {
-    return JSON.parse(stored).map(normalizarTurmaEscolar);
-  } catch (error) {
-    console.error("Erro ao carregar turmas:", error);
-    return TURMAS_PADRAO.map(criarTurmaEscolar);
-  }
 }
 
 function criarChaveEscola(chave, escolaId) {

@@ -42,23 +42,23 @@ function mapearProfessorSupabase(perfil) {
 
 export function useProfessores(user) {
   const turmas = useTurmas(user);
-  const [professores, setProfessores] = useState([]);
-  const [loadingProfessores, setLoadingProfessores] = useState(false);
+  const [usuarioAnterior, setUsuarioAnterior] = useState(user);
+  const [professores, setProfessores] = useState(() =>
+    user?.escolaId && user.origem !== "supabase" ? lerProfessoresLocais(user.escolaId) : []);
+  const [loadingProfessores, setLoadingProfessores] = useState(() =>
+    Boolean(user?.escolaId && user.origem === "supabase"));
+
+  if (usuarioAnterior !== user) {
+    setUsuarioAnterior(user);
+    setProfessores(user?.escolaId && user.origem !== "supabase"
+      ? lerProfessoresLocais(user.escolaId) : []);
+    setLoadingProfessores(Boolean(user?.escolaId && user.origem === "supabase"));
+  }
 
   useEffect(() => {
     let ativo = true;
 
-    if (!user?.escolaId) {
-      setProfessores([]);
-      return undefined;
-    }
-
-    if (user.origem !== "supabase") {
-      setProfessores(lerProfessoresLocais(user.escolaId));
-      return undefined;
-    }
-
-    setLoadingProfessores(true);
+    if (!user?.escolaId || user.origem !== "supabase") return undefined;
 
     listarProfessoresSupabase(user)
       .then((perfis) => {

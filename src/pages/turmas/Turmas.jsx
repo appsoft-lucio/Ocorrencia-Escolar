@@ -6,9 +6,9 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import GestaoAlunos from "../../components/GestaoAlunos/GestaoAlunos";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext.js";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
-import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.js";
 import { useProfessores } from "../../hooks/useProfessores";
 import { useAlunos } from "../../hooks/useAlunos";
 import {
@@ -88,6 +88,11 @@ function salvarTurmasLocais(escolaId, turmas) {
 
 function Turmas() {
   const { user } = useContext(AuthContext);
+  return <TurmasConteudo key={`${user?.id}:${user?.escolaId}:${user?.origem}:${user?.role}:${user?.turno}`} />;
+}
+
+function TurmasConteudo() {
+  const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
   const { professores } = useProfessores(user);
   const {
@@ -96,8 +101,9 @@ function Turmas() {
     salvarLocais: salvarAlunosLocais,
     usarSupabase: alunosNoSupabase,
   } = useAlunos(user);
-  const [turmasCadastradas, setTurmasCadastradas] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [turmasCadastradas, setTurmasCadastradas] = useState(() => user?.escolaId && user.origem !== "supabase"
+    ? lerTurmasLocais(user.escolaId) : []);
+  const [loading, setLoading] = useState(() => user?.origem === "supabase" && Boolean(user?.escolaId));
   const [mensagem, setMensagem] = useMensagemComAlerta();
   const [filtros, setFiltros] = useState({
     busca: "",
@@ -122,17 +128,7 @@ function Turmas() {
   useEffect(() => {
     let ativo = true;
 
-    if (!user?.escolaId) {
-      setTurmasCadastradas([]);
-      return undefined;
-    }
-
-    if (!usarSupabase) {
-      setTurmasCadastradas(lerTurmasLocais(user.escolaId));
-      return undefined;
-    }
-
-    setLoading(true);
+    if (!user?.escolaId || !usarSupabase) return undefined;
     listarTurmasSupabase(user)
       .then((dados) => {
         if (ativo) setTurmasCadastradas(dados);
@@ -313,8 +309,6 @@ function Turmas() {
     filtros,
     isDiretor,
     isProfessor,
-    ocorrencias,
-    professoresComTurmas,
     turmas,
     turnosPermitidos,
     user,

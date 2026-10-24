@@ -3,13 +3,14 @@ import "./InstallPWA.css";
 
 function InstallPWA() {
   const [installEvent, setInstallEvent] = useState(null);
-  const [showIosHelp, setShowIosHelp] = useState(false);
+  const [showIosHelp, setShowIosHelp] = useState(() => {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    return !standalone && /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+  });
 
   useEffect(() => {
     const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
     if (isStandalone) return undefined;
-
-    if (/iphone|ipad|ipod/i.test(window.navigator.userAgent)) setShowIosHelp(true);
 
     const handleInstallAvailable = (event) => {
       event.preventDefault();

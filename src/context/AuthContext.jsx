@@ -1,10 +1,10 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { usuarioDemoValido } from "../data/demoUsers";
 import { supabase, supabaseConfigurado } from "../services/supabaseClient";
 import { isNetworkError, setOfflineUser, syncOffline } from "../services/offlineStore";
 
-export const AuthContext = createContext();
+import { AuthContext } from "./AuthContext.js";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

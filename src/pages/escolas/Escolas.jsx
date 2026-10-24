@@ -4,7 +4,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext.js";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import {
   carregarEscolasSistema,

@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/logo-appsoft-orange-Photoroom.png";
-import { AuthContext } from "../../context/AuthContext.jsx";
+import { AuthContext } from "../../context/AuthContext.js";
 import { encontrarUsuarioDemo } from "../../data/demoUsers";
 import { exibirAlertaCentral } from "../../utils/alertaCentral";
 import { obterRotaInicial } from "../../utils/permissoes";

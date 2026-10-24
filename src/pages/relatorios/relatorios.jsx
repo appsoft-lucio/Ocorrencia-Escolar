@@ -10,7 +10,7 @@ import GraficoBarrasHorizontais from "../../components/graficos/GraficoBarrasHor
 import GraficoProfessores from "../../components/graficos/graficoProfessor.jsx";
 import GraficoTurmas from "../../components/graficos/graficoTurmas.jsx";
 import GraficoTurnos from "../../components/graficos/graficoTurno.jsx";
-import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.js";
 
 const FILTROS_INICIAIS = {
   alunos: [],

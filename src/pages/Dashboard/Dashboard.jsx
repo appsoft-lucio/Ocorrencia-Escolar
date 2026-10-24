@@ -6,8 +6,8 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import StatsCard from "../../components/Cards/Card";
-import { AuthContext } from "../../context/AuthContext.jsx";
-import { OcorrenciaContext } from "../../context/OcorrenciaContext.jsx";
+import { AuthContext } from "../../context/AuthContext.js";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.js";
 import { useProfessores } from "../../hooks/useProfessores";
 import {
   listarTiposOcorrenciaSupabase,
@@ -73,6 +73,11 @@ function dataParaOrdenacao(data) {
 
 function Dashboard() {
   const { user } = useContext(AuthContext);
+  return <DashboardConteudo key={`${user?.id}:${user?.escolaId}:${user?.origem}:${user?.role}:${user?.turno}`} />;
+}
+
+function DashboardConteudo() {
+  const { user } = useContext(AuthContext);
   const { ocorrencias } = useContext(OcorrenciaContext);
   const { professores } = useProfessores(user);
   const [cadastrosSupabase, setCadastrosSupabase] = useState({
@@ -84,7 +89,6 @@ function Dashboard() {
     let ativo = true;
 
     if (user?.origem !== "supabase" || !user?.escolaId) {
-      setCadastrosSupabase({ tipos: [], turmas: [] });
       return undefined;
     }
 

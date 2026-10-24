@@ -5,7 +5,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext.js";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import {
   carregarEscolasSistema,
@@ -77,7 +77,12 @@ function loginJaExiste(acessos, escolas, login, chaveAtual) {
   return loginDeUsuario || loginDeDiretor;
 }
 
-function Usuarios({
+function Usuarios(props) {
+  const { user } = useContext(AuthContext);
+  return <UsuariosConteudo key={`${user?.id}:${user?.escolaId}:${user?.origem}:${user?.role}:${user?.turno}:${props.perfilFixo}`} {...props} />;
+}
+
+function UsuariosConteudo({
   titulo = "Usuarios",
   descricao = "Cadastre acessos e redefina senhas provisórias dos cargos abaixo.",
   perfilFixo = "",
@@ -87,7 +92,7 @@ function Usuarios({
   const { user } = useContext(AuthContext);
   const [acessos, setAcessos] = useState(lerAcessos);
   const [usuariosSupabase, setUsuariosSupabase] = useState([]);
-  const [form, setForm] = useState(FORM_INICIAL);
+  const [form, setForm] = useState(() => ({ ...FORM_INICIAL, role: perfilFixo }));
   const [mensagem, setMensagem] = useMensagemComAlerta();
   const [salvando, setSalvando] = useState(false);
   const usarSupabase = user?.origem === "supabase";
@@ -153,18 +158,9 @@ function Usuarios({
   }, [acessos, usarSupabase]);
 
   useEffect(() => {
-    if (!perfilFixo) return;
-
-    setForm((atual) =>
-      atual.role === perfilFixo ? atual : { ...atual, role: perfilFixo },
-    );
-  }, [perfilFixo]);
-
-  useEffect(() => {
     let ativo = true;
 
     if (!usarSupabase || !user?.escolaId || perfisPermitidos.length === 0) {
-      setUsuariosSupabase([]);
       return undefined;
     }
 
@@ -185,7 +181,7 @@ function Usuarios({
     return () => {
       ativo = false;
     };
-  }, [perfisPermitidos, usarSupabase, user]);
+  }, [perfisPermitidos, setMensagem, usarSupabase, user]);
 
   function atualizarCampo(campo, valor) {
     setForm((atual) => ({

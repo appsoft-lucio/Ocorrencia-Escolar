@@ -4,8 +4,8 @@ import "./Ocorrencias.css";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AuthContext } from "../../context/AuthContext";
-import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import { AuthContext } from "../../context/AuthContext.js";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.js";
 import {
   listarTiposOcorrenciaSupabase,
   listarTurmasSupabase,

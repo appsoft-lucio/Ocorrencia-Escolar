@@ -5,7 +5,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import GestaoTiposOcorrencia from "../../components/GestaoTiposOcorrencia/GestaoTiposOcorrencia";
-import { AuthContext } from "../../context/AuthContext.jsx";
+import { AuthContext } from "../../context/AuthContext.js";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
 import { normalizarPerfil, perfilGestao } from "../../utils/permissoes";
 
@@ -52,9 +52,6 @@ function Configuracao() {
 
   const perfilAtual = normalizarPerfil(user?.role);
   const isDirecao = ["diretor", "direcao"].includes(perfilAtual);
-  const isCoordenacao =
-    ["coordenador", "coordenacao", "vice_diretor"].includes(perfilAtual) &&
-    !isDirecao;
   const isGestao = perfilGestao(perfilAtual);
 
   const professores = useMemo(

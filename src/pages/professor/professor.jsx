@@ -5,9 +5,9 @@ import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import ProfessorCard from "../../components/Cards/professorCard/professorCard";
 import { useContext, useState, useEffect, useMemo } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext.js";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
-import { OcorrenciaContext } from "../../context/OcorrenciaContext";
+import { OcorrenciaContext } from "../../context/OcorrenciaContext.js";
 import {
   atualizarProfessorSupabase,
   atualizarStatusProfessorSupabase,

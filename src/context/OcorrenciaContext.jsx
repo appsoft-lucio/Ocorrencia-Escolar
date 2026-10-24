@@ -1,5 +1,4 @@
 import {
-  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -8,7 +7,7 @@ import {
 } from "react";
 import PropTypes from "prop-types";
 
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "./AuthContext.js";
 import {
   atualizarStatusOcorrenciaSupabase,
   criarOcorrenciaSupabase,
@@ -18,97 +17,63 @@ import { perfilDesenvolvedor } from "../utils/permissoes";
 
 import { podeAcessarTurma } from "../utils/turnos";
 
-export const OcorrenciaContext = createContext();
+import { OcorrenciaContext } from "./OcorrenciaContext.js";
 
 function criarChaveOcorrencias(escolaId) {
   return escolaId ? `ocorrencias:${escolaId}` : null;
 }
 
+function carregarOcorrenciasLocais(user) {
+  if (!user?.escolaId || perfilDesenvolvedor(user.role) || user.origem === "supabase") return [];
+
+  try {
+    const saved = localStorage.getItem(criarChaveOcorrencias(user.escolaId));
+    const dados = saved ? JSON.parse(saved) : [];
+    return Array.isArray(dados) ? dados : [];
+  } catch (error) {
+    console.error("Erro ao carregar ocorrencias:", error);
+    return [];
+  }
+}
+
 export function OcorrenciaProvider({ children }) {
   const { user } = useContext(AuthContext);
-  const [ocorrencias, setOcorrencias] = useState([]);
-  const [storagePronto, setStoragePronto] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const chave = `${user?.id}:${user?.escolaId}:${user?.origem}:${user?.role}:${user?.turno}`;
+  return <OcorrenciaProviderUsuario key={chave}>{children}</OcorrenciaProviderUsuario>;
+}
+
+function OcorrenciaProviderUsuario({ children }) {
+  const { user } = useContext(AuthContext);
+  const [ocorrencias, setOcorrencias] = useState(() => carregarOcorrenciasLocais(user));
   const usarSupabase = user?.origem === "supabase";
   const usuarioSemOcorrencias =
     !user || perfilDesenvolvedor(user.role) || !user.escolaId;
-  const storageKey = useMemo(
-    () => criarChaveOcorrencias(user?.escolaId),
-    [user?.escolaId],
-  );
+  const [loading, setLoading] = useState(() => usarSupabase && !usuarioSemOcorrencias);
+  const storageKey = criarChaveOcorrencias(user?.escolaId);
 
   useEffect(() => {
+    if (usuarioSemOcorrencias || !usarSupabase) return undefined;
     let ativo = true;
 
-    if (usuarioSemOcorrencias) {
-      setOcorrencias([]);
-      setLoading(false);
-      setStoragePronto(true);
-      return undefined;
-    }
+    listarOcorrenciasSupabase(user)
+      .then((dados) => {
+        if (ativo) setOcorrencias(dados);
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar ocorrencias no Supabase:", error);
+        if (ativo) setOcorrencias([]);
+      })
+      .finally(() => {
+        if (ativo) setLoading(false);
+      });
 
-    if (usarSupabase) {
-      setLoading(true);
-      setStoragePronto(false);
-
-      listarOcorrenciasSupabase(user)
-        .then((dados) => {
-          if (ativo) {
-            setOcorrencias(dados);
-          }
-        })
-        .catch((error) => {
-          console.error("Erro ao carregar ocorrencias no Supabase:", error);
-          if (ativo) {
-            setOcorrencias([]);
-          }
-        })
-        .finally(() => {
-          if (ativo) {
-            setLoading(false);
-          }
-        });
-
-      return () => {
-        ativo = false;
-      };
-    }
-
-    setStoragePronto(false);
-
-    if (!storageKey) {
-      setOcorrencias([]);
-      return;
-    }
-
-    const saved = localStorage.getItem(storageKey);
-
-    if (!saved) {
-      setOcorrencias([]);
-      setStoragePronto(true);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(saved);
-      setOcorrencias(Array.isArray(parsed) ? parsed : []);
-    } catch (error) {
-      console.error("Erro ao carregar ocorrencias:", error);
-      localStorage.removeItem(storageKey);
-      setOcorrencias([]);
-    }
-
-    setStoragePronto(true);
-    return () => {
-      ativo = false;
-    };
-  }, [storageKey, usarSupabase, user, usuarioSemOcorrencias]);
+    return () => { ativo = false; };
+  }, [usarSupabase, user, usuarioSemOcorrencias]);
 
   useEffect(() => {
-    if (usarSupabase || !storageKey || !storagePronto) return;
-
+    if (usarSupabase || !storageKey || usuarioSemOcorrencias) return;
     localStorage.setItem(storageKey, JSON.stringify(ocorrencias));
-  }, [ocorrencias, storageKey, storagePronto, usarSupabase]);
+  }, [ocorrencias, storageKey, usuarioSemOcorrencias, usarSupabase]);
 
   const addOcorrencia = useCallback(
     async (data) => {
@@ -192,5 +157,9 @@ export function OcorrenciaProvider({ children }) {
 }
 
 OcorrenciaProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+OcorrenciaProviderUsuario.propTypes = {
   children: PropTypes.node.isRequired,
 };

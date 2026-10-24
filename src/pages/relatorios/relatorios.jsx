@@ -2,7 +2,6 @@ import { dataOcorrenciaParaISO, diaSemanaOcorrencia, rotuloHorario, maiorFrequen
 import "./relatorios.css";
 
 import { useContext, useMemo, useState } from "react";
-import { criarRelatorioPdf } from "../../utils/relatorioPdf";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -227,7 +226,8 @@ export default function Relatorios() {
     ["Tipo mais frequente", maiorFrequencia(dadosTipos, "tipo")],
   ];
 
-  const gerarPDF = () => {
+  const gerarPDF = async () => {
+    const { criarRelatorioPdf } = await import("../../utils/relatorioPdf");
     criarRelatorioPdf({
       resumo,
       destaques,

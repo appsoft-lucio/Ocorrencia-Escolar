@@ -1,7 +1,6 @@
 import "./GestaoAlunos.css";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 import ConfirmacaoTransferencia from "./components/ConfirmacaoTransferencia";
@@ -16,8 +15,6 @@ import {
   importarAlunosSupabase,
 } from "../../services/alunosService";
 import { useMensagemComAlerta } from "../../hooks/useMensagemComAlerta";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const FORM_INICIAL = { id: null, nome: "", turmaId: "", turno: "" };
 
@@ -60,6 +57,8 @@ function dadosDoCabecalho(texto, turmas) {
 }
 
 async function extrairTextoPDF(arquivo) {
+  const pdfjsLib = await import("pdfjs-dist");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
   const pdf = await pdfjsLib.getDocument({ data: await arquivo.arrayBuffer() }).promise;
   const linhas = [];
 

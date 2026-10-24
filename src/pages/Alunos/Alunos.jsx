@@ -1,7 +1,6 @@
 import "./Alunos.css";
 
 import { useCallback, useContext, useMemo, useState } from "react";
-import html2pdf from "html2pdf.js";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../../components/Header/Header";
@@ -218,12 +217,14 @@ function Alunos() {
     return alunos.find((aluno) => aluno.nome === alunoSelecionado) || null;
   }, [alunoSelecionado, alunos]);
 
-  const gerarPDF = useCallback((elementId, filename) => {
+  const gerarPDF = useCallback(async (elementId, filename) => {
     const elemento = document.getElementById(elementId);
 
     if (!elemento) return;
 
-    html2pdf()
+    // Use the modular entry to share jsPDF instead of bundling a second copy.
+    const { default: html2pdf } = await import("html2pdf.js/src/index.js");
+    return html2pdf()
       .set({
         margin: 0.45,
         filename,

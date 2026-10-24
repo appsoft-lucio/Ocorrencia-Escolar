@@ -274,6 +274,7 @@ function Ocorrencias() {
   const [alunos, setAlunos] = useState([]);
   const [alunoInput, setAlunoInput] = useState("");
   const [ocorrenciasTipo, setOcorrenciasTipo] = useState([]);
+  const [tiposBullying, setTiposBullying] = useState([]);
   const [outro, setOutro] = useState("");
   const [observacao, setObservacao] = useState("");
   const [solicitarResponsavel, setSolicitarResponsavel] = useState(false);
@@ -446,6 +447,7 @@ function Ocorrencias() {
     setAlunos([]);
     setAlunoInput("");
     setOcorrenciasTipo([]);
+    setTiposBullying([]);
     setOutro("");
     setObservacao("");
     setSolicitarResponsavel(false);
@@ -493,11 +495,18 @@ function Ocorrencias() {
   }, []);
 
   const handleCheckbox = useCallback((tipo) => {
+    if (tipo === "Bullying") setTiposBullying([]);
     setOcorrenciasTipo((tiposAtuais) =>
       tiposAtuais.includes(tipo)
         ? tiposAtuais.filter((item) => item !== tipo)
         : [...tiposAtuais, tipo],
     );
+  }, []);
+
+  const handleTipoBullyingChange = useCallback((tipo) => {
+    setTiposBullying((atuais) => atuais.includes(tipo)
+      ? atuais.filter((item) => item !== tipo)
+      : [...atuais, tipo]);
   }, []);
 
   const tiposSelecionados = useMemo(() => {
@@ -680,6 +689,15 @@ function Ocorrencias() {
         return;
       }
 
+      if (ocorrenciasTipo.includes("Bullying") && !tiposBullying.length) {
+        mostrarNotificacao("Selecione pelo menos um tipo de bullying praticado.", "erro");
+        return;
+      }
+
+      const detalhesBullying = ocorrenciasTipo.includes("Bullying")
+        ? `Tipos de bullying: ${tiposBullying.join(", ")}.`
+        : "";
+
       try {
         await addOcorrencia({
           id: Date.now(),
@@ -693,7 +711,8 @@ function Ocorrencias() {
           turma,
           alunos: alunos.map((aluno) => aluno.nome),
           tipos: tiposSelecionados,
-          observacao: formatarFraseObservacao(observacao),
+          observacao: [detalhesBullying, formatarFraseObservacao(observacao)]
+            .filter(Boolean).join("\n\n"),
           solicitarResponsavel,
           responsavelCompareceu: false,
           data: new Date().toLocaleString(),
@@ -719,6 +738,8 @@ function Ocorrencias() {
       limparFormulario,
       mostrarNotificacao,
       observacao,
+      ocorrenciasTipo,
+      tiposBullying,
       solicitarResponsavel,
       tiposSelecionados,
       turma,
@@ -804,6 +825,7 @@ function Ocorrencias() {
         observacao={observacao}
         solicitarResponsavel={solicitarResponsavel}
         ocorrenciasTipo={ocorrenciasTipo}
+        tiposBullying={tiposBullying}
         outro={outro}
         turma={turma}
         turmas={turmasAtivas}
@@ -812,6 +834,7 @@ function Ocorrencias() {
         onAdicionarAluno={adicionarAluno}
         onAlunoInputChange={handleAlunoInputChange}
         onCheckboxChange={handleCheckbox}
+        onTipoBullyingChange={handleTipoBullyingChange}
         onDisciplinaChange={setDisciplina}
         onHorarioChange={setHorario}
         onObservacaoChange={handleObservacaoChange}

@@ -816,3 +816,23 @@
 .card-alunos-envolvidos li {
   line-height: 1.4;
 }
+
+.bullying-opcoes {
+  margin-top: 18px;
+  border-color: var(--cor-laranja);
+}
+
+.bullying-opcoes .checkbox-item > span {
+  display: grid;
+  gap: 4px;
+}
+
+.bullying-opcoes .checkbox-item input {
+  flex-shrink: 0;
+}
+
+.bullying-opcoes small {
+  color: var(--cor-texto-secundario);
+  font-size: 12px;
+  font-weight: 400;
+}

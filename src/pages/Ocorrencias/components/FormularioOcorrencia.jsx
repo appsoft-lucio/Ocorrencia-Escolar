@@ -1,6 +1,16 @@
 import { memo } from "react";
 import PropTypes from "prop-types";
 
+const TIPOS_BULLYING = [
+  ["Físico", "Empurrões, socos, chutes ou outras agressões físicas."],
+  ["Verbal", "Insultos, apelidos ofensivos ou provocações."],
+  ["Psicológico", "Ameaças, intimidação ou manipulação."],
+  ["Moral", "Boatos, difamação ou humilhação."],
+  ["Sexual", "Comentários, gestos ou contatos sexuais indesejados."],
+  ["Material", "Furto, destruição ou dano a pertences."],
+  ["Virtual (cyberbullying)", "Ofensas ou exposição em redes sociais e mensagens."],
+];
+
 function FormularioOcorrencia({
   alunoInput,
   alunos,
@@ -12,6 +22,7 @@ function FormularioOcorrencia({
   observacao,
   solicitarResponsavel,
   ocorrenciasTipo,
+  tiposBullying,
   outro,
   turma,
   turmas,
@@ -23,6 +34,7 @@ function FormularioOcorrencia({
   onAdicionarAluno,
   onAlunoInputChange,
   onCheckboxChange,
+  onTipoBullyingChange,
   onDisciplinaChange,
   onHorarioChange,
   onObservacaoChange,
@@ -205,6 +217,27 @@ function FormularioOcorrencia({
               ))}
           </div>
 
+          {ocorrenciasTipo.includes("Bullying") && (
+            <fieldset className="formulario-grupo bullying-opcoes">
+              <legend>Qual bullying foi praticado?</legend>
+              <p className="texto-ajuda" id="bullying-ajuda">
+                Marque um ou mais tipos de bullying.
+              </p>
+              <div className="checkbox-grid" aria-describedby="bullying-ajuda">
+                {TIPOS_BULLYING.map(([tipo, descricao]) => (
+                  <label className="checkbox-item" key={tipo}>
+                    <input
+                      type="checkbox"
+                      checked={tiposBullying.includes(tipo)}
+                      onChange={() => onTipoBullyingChange(tipo)}
+                    />
+                    <span><strong>{tipo}</strong><small>{descricao}</small></span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
           <div className="tipo-outro-bloco">
             <label className="checkbox-item checkbox-item-outro">
               <input
@@ -331,6 +364,7 @@ FormularioOcorrencia.propTypes = {
   observacao: PropTypes.string.isRequired,
   solicitarResponsavel: PropTypes.bool.isRequired,
   ocorrenciasTipo: PropTypes.arrayOf(PropTypes.string).isRequired,
+  tiposBullying: PropTypes.arrayOf(PropTypes.string).isRequired,
   outro: PropTypes.string.isRequired,
   turma: PropTypes.string.isRequired,
   turmas: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -342,6 +376,7 @@ FormularioOcorrencia.propTypes = {
   onAdicionarAluno: PropTypes.func.isRequired,
   onAlunoInputChange: PropTypes.func.isRequired,
   onCheckboxChange: PropTypes.func.isRequired,
+  onTipoBullyingChange: PropTypes.func.isRequired,
   onDisciplinaChange: PropTypes.func.isRequired,
   onHorarioChange: PropTypes.func.isRequired,
   onObservacaoChange: PropTypes.func.isRequired,
